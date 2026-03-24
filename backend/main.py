@@ -1,13 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import users_collection
 from models import UserSignup, UserLogin
-from auth import hash_password, verify_password, create_token
+from auth import hash_password, verify_password, create_token, get_current_user
 
 app = FastAPI()
 
-# CORS
+# 🌐 CORS (IMPORTANT)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -16,15 +16,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root
+
+# ✅ Root
 @app.get("/")
 async def root():
     return {"message": "API running 🚀"}
 
 
-# ✅ Signup Route
-@app.post("/signup")
-async def signup(user: UserSignup):
+# 📝 Signup
+@app.post("/api/signup")
+async def signup(user: UserSignup, response: Response):
     existing_user = await users_collection.find_one({"email": user.email})
 
     if existing_user:
@@ -38,18 +39,24 @@ async def signup(user: UserSignup):
         "password": hashed_password
     })
 
-    # ✅ create token immediately
     token = create_token({"email": user.email})
 
-    return {
-        "message": "User created successfully",
-        "token": token
-    }
+    # 🍪 Set cookie
+    response.set_cookie(
+        key="token",
+        value=token,
+        httponly=True,
+        secure=False,       # True in production (HTTPS)
+        samesite="lax",
+        max_age=60 * 60 * 24  # 1 day
+    )
+
+    return {"message": "User created successfully"}
 
 
-# ✅ Login Route
-@app.post("/login")
-async def login(user: UserLogin):
+# 🔐 Login
+@app.post("/api/login")
+async def login(user: UserLogin, response: Response):
     db_user = await users_collection.find_one({"email": user.email})
 
     if not db_user:
@@ -60,7 +67,29 @@ async def login(user: UserLogin):
 
     token = create_token({"email": user.email})
 
+    # 🍪 Set cookie
+    response.set_cookie(
+        key="token",
+        value=token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=60 * 60 * 24
+    )
+
+    return {"message": "Login successful"}
+
+
+# 🔒 Protected Route
+@app.get("/dashboard")
+async def dashboard(user=Depends(get_current_user)):
     return {
-        "message": "Login successful",
-        "token": token
+        "message": f"Welcome {user['sub']}"
     }
+
+
+# 🚪 Logout
+@app.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie("token")
+    return {"message": "Logged out successfully"}

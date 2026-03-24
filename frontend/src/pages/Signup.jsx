@@ -1,7 +1,6 @@
-/*
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -12,55 +11,98 @@ export default function Signup() {
         password: "",
     });
 
+    const [loading, setLoading] = useState(false);
+
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/signup", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(form),
-            });
+            const res = await api.post("/signup", form);
 
-            const data = await res.json();
+            console.log(res.data);
 
-            if (!res.ok) {
-                alert(data.detail);
-                return;
-            }
-
-            // ✅ Save token
-            localStorage.setItem("token", data.token);
+            // ✅ NO localStorage (cookie handles auth)
 
             // ✅ Redirect to dashboard
             navigate("/dashboard");
 
         } catch (err) {
             console.error(err);
-            alert("Something went wrong");
+            alert(err.response?.data?.detail || "Signup failed");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input name="name" onChange={handleChange} placeholder="Name" />
-            <input name="email" onChange={handleChange} placeholder="Email" />
-            <input name="password" onChange={handleChange} placeholder="Password" />
-            <button type="submit">Signup</button>
-        </form>
+        <div className="min-h-screen flex items-center justify-center bg-[#09090f] text-white px-4">
+            <div className="w-full max-w-md">
+
+                {/* Heading */}
+                <h1 className="text-3xl font-serif mb-2">Sign Up</h1>
+                <p className="text-[#7b7a92] mb-6">
+                    Create your account to get started.
+                </p>
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+                    {/* Name */}
+                    <input
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        placeholder="Full Name"
+                        className="w-full px-4 py-3 rounded-xl bg-[#111118] border border-white/10 text-sm outline-none"
+                        required
+                    />
+
+                    {/* Email */}
+                    <input
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="Email"
+                        className="w-full px-4 py-3 rounded-xl bg-[#111118] border border-white/10 text-sm outline-none"
+                        required
+                    />
+
+                    {/* Password */}
+                    <input
+                        name="password"
+                        type="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        placeholder="Password"
+                        className="w-full px-4 py-3 rounded-xl bg-[#111118] border border-white/10 text-sm outline-none"
+                        required
+                    />
+
+                    {/* Button */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="mt-2 w-full py-3.5 rounded-xl text-white text-sm font-medium transition
+                        bg-gradient-to-r from-[#7c6af7] to-[#5c4ed4]
+                        hover:-translate-y-px
+                        disabled:opacity-70"
+                    >
+                        {loading ? "Creating account..." : "Sign up →"}
+                    </button>
+
+                </form>
+            </div>
+        </div>
     );
 }
 
-
-*/
-
-
+/*
 
 
 import { useState } from "react";
@@ -148,11 +190,10 @@ export default function Signup({ onNavigate }) {
       `}</style>
 
             <div className="relative min-h-screen flex" style={{ background: C.bg, fontFamily: "'DM Sans', sans-serif", color: C.text }}>
-                {/* Orbs */}
+
                 <div className="fixed rounded-full pointer-events-none" style={{ width: 600, height: 600, top: -200, right: -200, background: "radial-gradient(circle,rgba(124,106,247,0.11) 0%,transparent 70%)", filter: "blur(80px)", zIndex: 0 }} />
                 <div className="fixed rounded-full pointer-events-none" style={{ width: 400, height: 400, bottom: 0, left: -100, background: "radial-gradient(circle,rgba(240,192,96,0.07) 0%,transparent 70%)", filter: "blur(70px)", zIndex: 0 }} />
 
-                {/* ── Left panel ── */}
                 <div className="hidden lg:flex flex-col justify-between p-14 relative overflow-hidden" style={{ width: "42%", background: C.surface, borderRight: `1px solid ${C.border}` }}>
                     <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
                     <div className="absolute" style={{ width: 350, height: 350, top: "20%", right: "-100px", background: "radial-gradient(circle,rgba(124,106,247,0.14) 0%,transparent 70%)", filter: "blur(60px)" }} />
@@ -161,7 +202,6 @@ export default function Signup({ onNavigate }) {
                         JobHit<span style={{ color: C.accent2 }}>AI</span>
                     </a>
 
-                    {/* Feature checklist */}
                     <div className="relative z-10" style={{ animation: "fadeUp 0.8s ease both" }}>
                         <p className="text-xs uppercase tracking-widest mb-6" style={{ color: C.dim }}>Everything you get</p>
                         <div className="flex flex-col gap-5">
@@ -185,15 +225,12 @@ export default function Signup({ onNavigate }) {
                     <div className="relative z-10 text-xs" style={{ color: C.dim }}>Free forever — no credit card required.</div>
                 </div>
 
-                {/* ── Right: form ── */}
                 <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
                     <div className="w-full max-w-md">
-                        {/* Mobile logo */}
                         <div className="lg:hidden mb-8 text-center">
                             <span style={{ ...serif, fontSize: "1.5rem" }}>JobHit<span style={{ color: C.accent2 }}>AI</span></span>
                         </div>
 
-                        {/* Progress indicator */}
                         <div className="flex items-center gap-2 mb-8">
                             {[1, 2].map((s) => (
                                 <div key={s} className="flex items-center gap-2">
@@ -215,13 +252,11 @@ export default function Signup({ onNavigate }) {
                             ))}
                         </div>
 
-                        {/* Step 1 */}
                         {step === 1 && (
                             <div style={{ animation: "fadeUp 0.4s ease both" }}>
                                 <h1 className="text-3xl font-normal mb-2" style={serif}>Create your account</h1>
                                 <p className="text-sm mb-8" style={{ color: C.muted }}>Start landing jobs smarter, not harder.</p>
 
-                                {/* Social */}
                                 <div className="grid grid-cols-2 gap-3 mb-6">
                                     {[
                                         { label: "Google", icon: <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" /><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" /><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" /></svg> },
@@ -262,14 +297,12 @@ export default function Signup({ onNavigate }) {
                             </div>
                         )}
 
-                        {/* Step 2 */}
                         {step === 2 && (
                             <div style={{ animation: "fadeUp 0.4s ease both" }}>
                                 <h1 className="text-3xl font-normal mb-2" style={serif}>Tell us about <em style={serifItalic}>you</em></h1>
                                 <p className="text-sm mb-8" style={{ color: C.muted }}>Personalise your JobHitAI experience.</p>
 
                                 <div className="flex flex-col gap-5">
-                                    {/* Role selector */}
                                     <div className="flex flex-col gap-1.5">
                                         <label className="text-xs font-medium uppercase tracking-widest" style={{ color: C.muted }}>Your role</label>
                                         <div className="flex flex-wrap gap-2">
@@ -289,7 +322,6 @@ export default function Signup({ onNavigate }) {
                                         </div>
                                     </div>
 
-                                    {/* Goal */}
                                     <div className="flex flex-col gap-1.5">
                                         <label className="text-xs font-medium uppercase tracking-widest" style={{ color: C.muted }}>Primary goal</label>
                                         <div className="flex flex-col gap-2">
@@ -348,3 +380,5 @@ export default function Signup({ onNavigate }) {
         </>
     );
 }
+
+*/

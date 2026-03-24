@@ -1,300 +1,332 @@
 /*
 
-import { useState } from "react";
-import { Navigate , useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-export default function Login() {
+function FontLoader() {
+    useEffect(() => {
+        const link = document.createElement("link");
+        link.href =
+            "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap";
+        link.rel = "stylesheet";
+        document.head.appendChild(link);
+    }, []);
+    return null;
+}
 
-    const navigate = useNavigate();
-
-    const token = localStorage.getItem("token");
-
-    const [form, setForm] = useState({
-        email: "",
-        password: "",
-    });
-
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        try {
-            const res = await fetch("http://127.0.0.1:8000/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(form),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                alert(data.detail);
-                return;
-            }
-
-            // Save token
-            localStorage.setItem("token", data.token);
-
-            navigate("/dashboard");
-        } catch (err) {
-            console.error(err);
-            alert("Something went wrong");
-        }
-    };
-
-    if (token) {
-        return <Navigate to="/dashboard" />;
-    }
-
-    return (
-        <form onSubmit={handleSubmit}>
-            <input name="email" onChange={handleChange} placeholder="Email" />
-            <input name="password" onChange={handleChange} placeholder="Password" />
-            <button type="submit">Login</button>
-        </form>
+function EyeIcon({ open }) {
+    return open ? (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+    ) : (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 2l12 12M6.5 6.6A2 2 0 0 0 9.4 9.5M4.2 4.3C2.8 5.3 2 8 2 8s2.5 5 6 5c1.3 0 2.4-.4 3.3-1M6 3.1C6.6 3 7.3 3 8 3c3.5 0 6 5 6 5s-.6 1.2-1.6 2.4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
     );
 }
 
-
-*/
-
-
-
-
-
-
-import { useState } from "react";
-
-/* ─── Shared design tokens (mirror landing page) ─── */
-const C = {
-    bg: "#09090f",
-    surface: "#111118",
-    surface2: "#16161f",
-    border: "rgba(255,255,255,0.07)",
-    border2: "rgba(255,255,255,0.12)",
-    text: "#f0eff8",
-    muted: "#7b7a92",
-    dim: "#4a4963",
-    accent: "#7c6af7",
-    accent2: "#a599ff",
-    green: "#3fd898",
-    gold: "#f0c060",
-    pink: "#f067a6",
-};
-
-const serif = { fontFamily: "'Instrument Serif', serif" };
-const serifItalic = { fontFamily: "'Instrument Serif', serif", fontStyle: "italic" };
-
-/* ─── Reusable Input ─── */
-function Input({ label, type = "text", placeholder, value, onChange, icon }) {
-    const [focused, setFocused] = useState(false);
+function GoogleIcon() {
     return (
-        <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium uppercase tracking-widest" style={{ color: C.muted }}>
-                {label}
-            </label>
-            <div
-                className="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200"
-                style={{
-                    background: C.surface2,
-                    border: `1px solid ${focused ? C.accent : C.border2}`,
-                    boxShadow: focused ? `0 0 0 3px rgba(124,106,247,0.12)` : "none",
-                }}
-            >
-                {icon && <span style={{ color: focused ? C.accent2 : C.dim, fontSize: "1rem" }}>{icon}</span>}
-                <input
-                    type={type}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={onChange}
-                    onFocus={() => setFocused(true)}
-                    onBlur={() => setFocused(false)}
-                    className="flex-1 bg-transparent outline-none text-sm"
-                    style={{ color: C.text, fontFamily: "'DM Sans', sans-serif" }}
-                />
-            </div>
-        </div>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853" />
+            <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+        </svg>
     );
 }
 
-/* ─── Social Button ─── */
-function SocialBtn({ children, icon }) {
-    const [hov, setHov] = useState(false);
+function GitHubIcon() {
     return (
-        <button
-            className="flex items-center justify-center gap-2.5 w-full py-3 rounded-xl text-sm font-medium transition-all duration-200"
-            style={{
-                background: hov ? C.surface2 : "transparent",
-                border: `1px solid ${hov ? C.border2 : C.border}`,
-                color: hov ? C.text : C.muted,
-                fontFamily: "'DM Sans', sans-serif",
-            }}
-            onMouseEnter={() => setHov(true)}
-            onMouseLeave={() => setHov(false)}
-        >
-            {icon}
-            {children}
-        </button>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+        </svg>
     );
 }
 
-export default function Login({ onNavigate }) {
+export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [showPass, setShowPass] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [focused, setFocused] = useState(null);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setTimeout(() => setLoading(false), 2000);
+    };
 
     return (
         <>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.8); } }
-      `}</style>
+            <FontLoader />
 
-            <div className="relative min-h-screen flex" style={{ background: C.bg, fontFamily: "'DM Sans', sans-serif", color: C.text }}>
-                {/* ── Ambient orbs ── */}
-                <div className="fixed rounded-full pointer-events-none" style={{ width: 500, height: 500, top: -150, left: -150, background: "radial-gradient(circle, rgba(124,106,247,0.13) 0%, transparent 70%)", filter: "blur(70px)", zIndex: 0 }} />
-                <div className="fixed rounded-full pointer-events-none" style={{ width: 400, height: 400, bottom: -100, right: -100, background: "radial-gradient(circle, rgba(63,216,152,0.07) 0%, transparent 70%)", filter: "blur(70px)", zIndex: 0 }} />
+            <div
+                className="min-h-screen bg-[#09090f] text-[#f0eff8] overflow-hidden flex"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
 
-                {/* ── Left decorative panel ── */}
+                <div className="fixed rounded-full pointer-events-none blur-[100px] z-0 w-175 h-175 bg-[radial-gradient(circle,rgba(124,106,247,0.13)_0%,transparent_70%)] -top-75 -left-50" />
+                <div className="fixed rounded-full pointer-events-none blur-[80px] z-0 w-125 h-125 bg-[radial-gradient(circle,rgba(63,216,152,0.06)_0%,transparent_70%)] bottom-0 right-0" />
+                <div className="fixed rounded-full pointer-events-none blur-[60px] z-0 w-75 h-75 bg-[radial-gradient(circle,rgba(240,192,96,0.07)_0%,transparent_70%)] top-[50%] right-[30%]" />
+
+
                 <div
-                    className="hidden lg:flex flex-col justify-between p-14 relative overflow-hidden"
-                    style={{ width: "45%", background: C.surface, borderRight: `1px solid ${C.border}` }}
-                >
-                    {/* Decorative grid pattern */}
-                    <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+                    className="fixed inset-0 pointer-events-none z-9999 opacity-[0.028]"
+                    style={{
+                        backgroundImage:
+                            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
+                    }}
+                />
 
-                    {/* Accent blob */}
-                    <div className="absolute" style={{ width: 300, height: 300, bottom: "15%", left: "10%", background: "radial-gradient(circle, rgba(124,106,247,0.15) 0%, transparent 70%)", filter: "blur(60px)" }} />
 
-                    {/* Logo */}
-                    <a href="#" style={{ ...serif, fontSize: "1.5rem", letterSpacing: "-0.02em", color: C.text, textDecoration: "none", position: "relative", zIndex: 1 }}>
-                        JobHit<span style={{ color: C.accent2 }}>AI</span>
+                <div className="hidden lg:flex w-[52%] relative flex-col justify-between p-14 border-r border-white/6">
+
+
+                    <div
+                        className="absolute inset-0 opacity-[0.03]"
+                        style={{
+                            backgroundImage:
+                                "linear-gradient(rgba(255,255,255,0.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.6) 1px,transparent 1px)",
+                            backgroundSize: "48px 48px",
+                        }}
+                    />
+
+                    <div className="absolute top-0 left-0 w-72 h-72 bg-[radial-gradient(circle,rgba(124,106,247,0.12)_0%,transparent_70%)] blur-2xl" />
+
+                    <a
+                        href="#"
+                        className="relative z-10 no-underline text-[1.5rem] tracking-[-0.02em] text-[#f0eff8]"
+                        style={{ fontFamily: "'Instrument Serif', serif" }}
+                    >
+                        JobHit<span className="text-[#a599ff]">AI</span>
                     </a>
 
-                    {/* Center quote */}
-                    <div className="relative z-10" style={{ animation: "fadeUp 0.8s ease both" }}>
-                        <div className="text-6xl mb-6" style={{ color: C.accent, opacity: 0.4, ...serif }}>"</div>
-                        <blockquote className="text-2xl font-normal leading-snug mb-6" style={{ ...serif, color: C.text, letterSpacing: "-0.02em" }}>
-                            JobHitAI helped me land my <em style={serifItalic}>dream role</em> at Google — in just 3 weeks.
-                        </blockquote>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white" style={{ background: "linear-gradient(135deg,#7c6af7,#5c4ed4)" }}>A</div>
-                            <div>
-                                <div className="text-sm font-medium">Arjun Mehta</div>
-                                <div className="text-xs" style={{ color: C.dim }}>Software Engineer · Google</div>
-                            </div>
+                    <div className="relative z-10 max-w-sm">
+                        <div
+                            className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium uppercase tracking-widest mb-8 text-[#a599ff] bg-[rgba(124,106,247,0.1)] border border-[rgba(124,106,247,0.25)]"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#3fd898] shadow-[0_0_8px_#3fd898] animate-pulse shrink-0" />
+                            Trusted by 2.4M+ job seekers
+                        </div>
+
+                        <h2
+                            className="text-[2.8rem] font-normal leading-[1.06] tracking-[-0.03em] mb-6 text-[#f0eff8]"
+                            style={{ fontFamily: "'Instrument Serif', serif" }}
+                        >
+                            Your next offer
+                            <br />
+                            starts{" "}
+                            <em className="italic text-[#a599ff]" style={{ fontFamily: "'Instrument Serif', serif" }}>
+                                right here
+                            </em>
+                        </h2>
+
+                        <p className="text-sm leading-relaxed font-light text-[#7b7a92] mb-10">
+                            Build ATS-ready resumes, score against real jobs, and track every application — all in one place.
+                        </p>
+
+                        <div className="flex flex-col gap-3">
+                            {[
+                                { initial: "R", grad: "linear-gradient(135deg,#f067a6,#d04080)", name: "Rahul Verma", role: "ML Engineer @ FAANG", quote: "87% ATS score in one edit." },
+                                { initial: "P", grad: "linear-gradient(135deg,#7c6af7,#5c4ed4)", name: "Priya Sharma", role: "SWE, Bangalore", quote: "3 interview calls in a week." },
+                            ].map((t) => (
+                                <div
+                                    key={t.name}
+                                    className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#111118] border border-white/[0.07]"
+                                >
+                                    <div
+                                        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0"
+                                        style={{ background: t.grad }}
+                                    >
+                                        {t.initial}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="text-xs font-medium text-[#f0eff8] truncate">{t.name} · <span className="text-[#7b7a92] font-normal">{t.role}</span></div>
+                                        <div className="text-xs text-[#4a4963] mt-0.5 italic">"{t.quote}"</div>
+                                    </div>
+                                    <div className="text-[#f0c060] text-xs ml-auto shrink-0">★★★★★</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Bottom stats row */}
-                    <div className="relative z-10 flex gap-8">
-                        {[["2.4M+", "Resumes"], ["89%", "Interview Rate"], ["4.9★", "Rating"]].map(([n, l]) => (
-                            <div key={l}>
-                                <div className="text-xl font-normal" style={{ ...serif, color: C.accent2, letterSpacing: "-0.03em" }}>{n}</div>
-                                <div className="text-xs mt-0.5" style={{ color: C.dim }}>{l}</div>
+                    <div className="relative z-10 flex items-center gap-8">
+                        {[
+                            { num: "89%", label: "Interview rate" },
+                            { num: "4.9★", label: "User rating" },
+                            { num: "6 wks", label: "Avg. to offer" },
+                        ].map((s, i) => (
+                            <div key={s.label} className={`${i > 0 ? "pl-8 border-l border-white/[0.07]" : ""}`}>
+                                <div
+                                    className="text-xl text-[#f0eff8] tracking-[-0.03em]"
+                                    style={{ fontFamily: "'Instrument Serif', serif" }}
+                                >
+                                    {s.num}
+                                </div>
+                                <div className="text-xs text-[#4a4963] uppercase tracking-widest mt-0.5">{s.label}</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* ── Right: form panel ── */}
-                <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
-                    <div className="w-full max-w-md" style={{ animation: "fadeUp 0.6s 0.1s ease both" }}>
-                        {/* Mobile logo */}
-                        <div className="lg:hidden mb-8 text-center">
-                            <span style={{ ...serif, fontSize: "1.5rem", color: C.text }}>
-                                JobHit<span style={{ color: C.accent2 }}>AI</span>
-                            </span>
-                        </div>
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 relative z-10">
 
-                        {/* Header */}
+                    <a
+                        href="#"
+                        className="lg:hidden no-underline text-[1.4rem] tracking-[-0.02em] text-[#f0eff8] mb-12"
+                        style={{ fontFamily: "'Instrument Serif', serif" }}
+                    >
+                        JobHit<span className="text-[#a599ff]">AI</span>
+                    </a>
+
+                    <div className="w-full max-w-100">
+
                         <div className="mb-8">
-                            <h1 className="text-3xl font-normal mb-2" style={{ ...serif, letterSpacing: "-0.025em" }}>Welcome back</h1>
-                            <p className="text-sm" style={{ color: C.muted }}>Sign in to continue your job search journey.</p>
+                            <h1
+                                className="text-[2rem] font-normal tracking-[-0.025em] text-[#f0eff8] mb-2"
+                                style={{ fontFamily: "'Instrument Serif', serif" }}
+                            >
+                                Welcome back
+                            </h1>
+                            <p className="text-sm text-[#7b7a92] font-light">
+                                New here?{" "}
+                                <a href="#" className="text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">
+                                    Create a free account
+                                </a>
+                            </p>
                         </div>
 
-                        {/* Social logins */}
-                        <div className="grid grid-cols-2 gap-3 mb-6">
-                            <SocialBtn icon={
-                                <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" /><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" /><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" /></svg>
-                            }>Continue with Google</SocialBtn>
-                            <SocialBtn icon={
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill={C.text}><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
-                            }>Continue with LinkedIn</SocialBtn>
+                        <div className="flex gap-3 mb-6">
+                            <button className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer">
+                                <GoogleIcon />
+                                Google
+                            </button>
+                            <button className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer">
+                                <GitHubIcon />
+                                GitHub
+                            </button>
                         </div>
 
-                        {/* Divider */}
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="flex-1 h-px" style={{ background: C.border }} />
-                            <span className="text-xs" style={{ color: C.dim }}>or sign in with email</span>
-                            <div className="flex-1 h-px" style={{ background: C.border }} />
+                            <div className="flex-1 h-px bg-white/[0.07]" />
+                            <span className="text-xs text-[#4a4963] uppercase tracking-widest">or</span>
+                            <div className="flex-1 h-px bg-white/[0.07]" />
                         </div>
 
-                        {/* Form */}
-                        <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
-                            <Input label="Email address" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} icon="✉" />
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
+                                    Email address
+                                </label>
+                                <div
+                                    className={`relative flex items-center rounded-xl border transition-all duration-200 ${focused === "email"
+                                            ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
+                                            : "border-white/8 bg-[#111118] hover:border-white/15"
+                                        }`}
+                                >
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        onFocus={() => setFocused("email")}
+                                        onBlur={() => setFocused(null)}
+                                        placeholder="you@example.com"
+                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0eff8] placeholder-[#4a4963] outline-none"
+                                        required
+                                    />
+                                </div>
+                            </div>
 
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-xs font-medium uppercase tracking-widest" style={{ color: C.muted }}>Password</label>
-                                    <a href="#" className="text-xs transition-colors duration-150" style={{ color: C.accent2, textDecoration: "none" }}
-                                        onMouseEnter={(e) => (e.target.style.color = C.text)}
-                                        onMouseLeave={(e) => (e.target.style.color = C.accent2)}
-                                    >Forgot password?</a>
+                                    <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
+                                        Password
+                                    </label>
+                                    <a href="#" className="text-xs text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">
+                                        Forgot password?
+                                    </a>
                                 </div>
-                                <div className="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200" style={{ background: C.surface2, border: `1px solid ${C.border2}` }}>
-                                    <span style={{ color: C.dim }}>🔒</span>
+                                <div
+                                    className={`relative flex items-center rounded-xl border transition-all duration-200 ${focused === "password"
+                                            ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
+                                            : "border-white/8 bg-[#111118] hover:border-white/15"
+                                        }`}
+                                >
                                     <input
-                                        type={showPass ? "text" : "password"}
-                                        placeholder="••••••••"
+                                        type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="flex-1 bg-transparent outline-none text-sm"
-                                        style={{ color: C.text, fontFamily: "'DM Sans', sans-serif" }}
+                                        onFocus={() => setFocused("password")}
+                                        onBlur={() => setFocused(null)}
+                                        placeholder="••••••••••"
+                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0eff8] placeholder-[#4a4963] outline-none pr-12"
+                                        required
                                     />
-                                    <button type="button" onClick={() => setShowPass(!showPass)} className="text-xs transition-colors" style={{ color: C.dim, background: "none", border: "none", cursor: "pointer" }}>
-                                        {showPass ? "Hide" : "Show"}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 text-[#4a4963] hover:text-[#7b7a92] transition-colors duration-200 cursor-pointer"
+                                    >
+                                        <EyeIcon open={showPassword} />
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Remember me */}
-                            <label className="flex items-center gap-2.5 cursor-pointer">
-                                <input type="checkbox" className="hidden" />
-                                <div className="w-4 h-4 rounded flex items-center justify-center shrink-0" style={{ border: `1px solid ${C.border2}`, background: C.surface2 }} />
-                                <span className="text-sm" style={{ color: C.muted }}>Remember me for 30 days</span>
+                            <label className="flex items-center gap-2.5 cursor-pointer group">
+                                <div
+                                    onClick={() => setRememberMe(!rememberMe)}
+                                    className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all duration-200 border ${rememberMe
+                                            ? "bg-[#7c6af7] border-[#7c6af7] shadow-[0_0_8px_rgba(124,106,247,0.4)]"
+                                            : "border-white/15 bg-transparent group-hover:border-white/30"
+                                        }`}
+                                >
+                                    {rememberMe && (
+                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                            <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <span className="text-xs text-[#7b7a92] group-hover:text-[#f0eff8] transition-colors duration-200">
+                                    Remember me for 30 days
+                                </span>
                             </label>
 
-                            {/* Submit */}
                             <button
                                 type="submit"
-                                className="w-full py-3.5 rounded-xl text-sm font-medium text-white mt-2 transition-all duration-200"
-                                style={{ background: "linear-gradient(135deg,#7c6af7,#5c4ed4)", boxShadow: "0 4px 24px rgba(124,106,247,0.35)", fontFamily: "'DM Sans', sans-serif", border: "none", cursor: "pointer" }}
-                                onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(124,106,247,0.5)"; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(124,106,247,0.35)"; }}
-                                onClick={() => onNavigate && onNavigate("dashboard")}
+                                disabled={loading}
+                                className="relative mt-2 w-full py-3.5 rounded-xl text-white text-sm font-medium cursor-pointer overflow-hidden transition-all duration-200 disabled:opacity-70 hover:-translate-y-px"
+                                style={{
+                                    background: loading
+                                        ? "linear-gradient(135deg,#5c4ed4,#4a3eb8)"
+                                        : "linear-gradient(135deg,#7c6af7,#5c4ed4)",
+                                    boxShadow: "0 4px 24px rgba(124,106,247,0.4), 0 0 0 1px rgba(124,106,247,0.2)",
+                                }}
                             >
-                                Sign in to JobHitAI →
+                                <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/[0.07] to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
+
+                                {loading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" />
+                                            <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                                        </svg>
+                                        Signing in…
+                                    </span>
+                                ) : (
+                                    "Sign in to JobHitAI →"
+                                )}
                             </button>
                         </form>
 
-                        {/* Sign up link */}
-                        <p className="text-center text-sm mt-6" style={{ color: C.muted }}>
-                            Don't have an account?{" "}
-                            <a href="#" className="font-medium transition-colors" style={{ color: C.accent2, textDecoration: "none" }}
-                                onClick={(e) => { e.preventDefault(); onNavigate && onNavigate("signup"); }}
-                                onMouseEnter={(e) => (e.target.style.color = C.text)}
-                                onMouseLeave={(e) => (e.target.style.color = C.accent2)}
-                            >
-                                Create one free →
-                            </a>
+                        <p className="text-xs text-[#4a4963] text-center mt-6 leading-relaxed">
+                            By signing in you agree to our{" "}
+                            <a href="#" className="text-[#7b7a92] no-underline hover:text-[#f0eff8] transition-colors duration-200">Terms</a>
+                            {" "}&amp;{" "}
+                            <a href="#" className="text-[#7b7a92] no-underline hover:text-[#f0eff8] transition-colors duration-200">Privacy Policy</a>
                         </p>
                     </div>
                 </div>
@@ -302,3 +334,145 @@ export default function Login({ onNavigate }) {
         </>
     );
 }
+
+
+*/
+
+import { useState } from "react";
+import api from "../api/axios"
+import { useNavigate } from "react-router-dom";
+
+const Login = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [focused, setFocused] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+    
+        try {
+            const res = await api.post("/login", {
+                email,
+                password
+            });
+    
+            console.log(res.data);
+    
+            // ✅ Redirect to dashboard
+            navigate("/dashboard");
+    
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-[#09090f] text-white px-4">
+            <div className="w-full max-w-md">
+
+                {/* Heading */}
+                <h1 className="text-3xl font-serif mb-2">Login</h1>
+                <p className="text-[#7b7a92] mb-6">
+                    Welcome back! Please enter your details.
+                </p>
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+                    {/* Email */}
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-xs uppercase tracking-widest text-[#7b7a92]">
+                            Email address
+                        </label>
+
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onFocus={() => setFocused("email")}
+                            onBlur={() => setFocused(null)}
+                            placeholder="you@example.com"
+                            className={`w-full px-4 py-3 rounded-xl bg-[#111118] border text-sm outline-none transition
+                ${focused === "email"
+                                    ? "border-[#7c6af7] ring-2 ring-[#7c6af7]/20"
+                                    : "border-white/10 hover:border-white/20"
+                                }`}
+                            required
+                        />
+                    </div>
+
+                    {/* Password */}
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center">
+                            <label className="text-xs uppercase tracking-widest text-[#7b7a92]">
+                                Password
+                            </label>
+                            <a className="text-xs text-[#a599ff] hover:text-[#c4baff]">
+                                Forgot password?
+                            </a>
+                        </div>
+
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onFocus={() => setFocused("password")}
+                                onBlur={() => setFocused(null)}
+                                placeholder="••••••••"
+                                className={`w-full px-4 py-3 rounded-xl bg-[#111118] border text-sm pr-12 outline-none transition
+                  ${focused === "password"
+                                        ? "border-[#7c6af7] ring-2 ring-[#7c6af7]/20"
+                                        : "border-white/10 hover:border-white/20"
+                                    }`}
+                                required
+                            />
+
+                            {/* Toggle */}
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4a4963] hover:text-white"
+                            >
+                                {showPassword ? "🙈" : "👁"}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Button */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="mt-2 w-full py-3.5 rounded-xl text-white text-sm font-medium transition
+              bg-linear-to-r from-[#7c6af7] to-[#5c4ed4]
+              hover:-translate-y-px
+              disabled:opacity-70"
+                    >
+                        {loading ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" fill="none" opacity="0.3" />
+                                    <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2" fill="none" />
+                                </svg>
+                                Signing in...
+                            </span>
+                        ) : (
+                            "Sign in →"
+                        )}
+                    </button>
+
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default Login;

@@ -1,4 +1,7 @@
+/*
+
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const FontLoader = () => {
     useEffect(() => {
@@ -123,7 +126,6 @@ const PLANS = [
     },
 ];
 
-/* ─── INLINE STYLE HELPERS (for things Tailwind can't do without JIT config) ─── */
 const styles = {
     body: {
         background: "#09090f",
@@ -160,20 +162,17 @@ const styles = {
     },
 };
 
-/* ══════════════════════════════
-   COMPONENTS
-══════════════════════════════ */
 
-/* ── Navbar ── */
+
 function Navbar() {
     return (
         <nav
             className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-12 py-5 backdrop-blur-xl border-b"
             style={{ background: "rgba(9,9,15,0.7)", borderColor: "rgba(255,255,255,0.07)" }}
         >
-            <a href="#" style={{ ...styles.serif, fontSize: "1.5rem", letterSpacing: "-0.02em", color: "#f0eff8", textDecoration: "none" }}>
+            <Link to="/dashboard" style={{ ...styles.serif, fontSize: "1.5rem", letterSpacing: "-0.02em", color: "#f0eff8", textDecoration: "none" }}>
                 JobHit<span style={{ color: "#a599ff" }}>AI</span>
-            </a>
+            </Link>
 
             <ul className="hidden md:flex items-center gap-9 list-none">
                 {NAV_LINKS.map((l) => (
@@ -190,26 +189,24 @@ function Navbar() {
                     </li>
                 ))}
                 <li>
-                    <a
-                        href="#"
+                    <Link
+                        to="/login"
                         className="text-sm font-medium px-6 py-2 rounded-full text-white transition-all duration-200"
                         style={{ background: "#7c6af7", ...styles.navGlow, textDecoration: "none" }}
                         onMouseEnter={(e) => { e.target.style.background = "#a599ff"; e.target.style.transform = "translateY(-1px)"; }}
                         onMouseLeave={(e) => { e.target.style.background = "#7c6af7"; e.target.style.transform = "translateY(0)"; }}
                     >
                         Get Started →
-                    </a>
+                    </Link>
                 </li>
             </ul>
         </nav>
     );
 }
 
-/* ── Hero ── */
 function Hero() {
     return (
         <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-6" style={{ paddingTop: 140, paddingBottom: 80 }}>
-            {/* Badge */}
             <div
                 className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-widest mb-9"
                 style={{ background: "rgba(124,106,247,0.1)", border: "1px solid rgba(124,106,247,0.25)", color: "#a599ff" }}
@@ -221,7 +218,6 @@ function Hero() {
                 AI-Powered Career Platform
             </div>
 
-            {/* Title */}
             <h1 className="max-w-4xl mb-7 font-normal" style={styles.heroTitle}>
                 Land your dream job
                 <br />
@@ -235,12 +231,10 @@ function Hero() {
                 </em>
             </h1>
 
-            {/* Subtitle */}
             <p className="text-lg max-w-xl mb-11 leading-relaxed font-light" style={{ color: "#7b7a92" }}>
                 Build ATS-ready resumes, score against real job descriptions, and get personalized career coaching — all in one intelligent platform.
             </p>
 
-            {/* Actions */}
             <div className="flex flex-wrap items-center justify-center gap-3">
                 <a
                     href="#"
@@ -267,7 +261,6 @@ function Hero() {
                 </a>
             </div>
 
-            {/* Stats */}
             <div
                 className="flex flex-col sm:flex-row mt-16 rounded-2xl overflow-hidden"
                 style={{ border: "1px solid rgba(255,255,255,0.07)", background: "#111118" }}
@@ -290,7 +283,6 @@ function Hero() {
     );
 }
 
-/* ── Features ── */
 function Features() {
     return (
         <section id="features" className="relative z-10 max-w-6xl mx-auto px-12 py-24">
@@ -347,11 +339,9 @@ function FeatureCard({ icon, iconBg, iconBorder, title, desc }) {
     );
 }
 
-/* ── Score Demo ── */
 function ScoreDemo() {
     return (
         <section className="relative z-10 max-w-6xl mx-auto px-12 py-10 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
-            {/* Left copy */}
             <div>
                 <SectionLabel>Resume Scoring</SectionLabel>
                 <h2 className="text-4xl md:text-5xl font-normal mt-4 mb-8 leading-tight" style={{ ...styles.serif, letterSpacing: "-0.025em" }}>
@@ -373,15 +363,12 @@ function ScoreDemo() {
                 </ul>
             </div>
 
-            {/* Score card */}
             <div
                 className="relative rounded-3xl p-9 overflow-hidden"
                 style={{ background: "#111118", border: "1px solid rgba(255,255,255,0.07)" }}
             >
-                {/* Top shimmer */}
                 <div className="absolute top-0 left-10 right-10" style={{ height: 1, background: "linear-gradient(90deg,transparent,#a599ff,transparent)" }} />
 
-                {/* Header row */}
                 <div className="flex items-center justify-between mb-7">
                     <div className="flex items-center gap-2.5">
                         <div
@@ -396,7 +383,6 @@ function ScoreDemo() {
                     <div className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: "rgba(63,216,152,0.1)", border: "1px solid rgba(63,216,152,0.2)", color: "#3fd898" }}>Live</div>
                 </div>
 
-                {/* Ring */}
                 <div className="flex justify-center my-8 relative">
                     <div className="relative w-36 h-36">
                         <svg viewBox="0 0 140 140" width="140" height="140" style={{ transform: "rotate(-90deg)" }}>
@@ -416,7 +402,6 @@ function ScoreDemo() {
                     </div>
                 </div>
 
-                {/* Bars */}
                 <div className="flex flex-col gap-3">
                     {SCORE_BARS.map((b) => (
                         <div key={b.name} className="flex items-center gap-3">
@@ -429,7 +414,6 @@ function ScoreDemo() {
                     ))}
                 </div>
 
-                {/* AI tip */}
                 <div className="mt-6 p-4 rounded-xl text-sm leading-relaxed" style={{ background: "rgba(124,106,247,0.08)", border: "1px solid rgba(124,106,247,0.15)", color: "#7b7a92" }}>
                     💡 <strong style={{ color: "#a599ff" }}>AI Tip:</strong> Add "distributed systems" and "CI/CD" to your skills section to boost your match score by ~14 points.
                 </div>
@@ -438,7 +422,6 @@ function ScoreDemo() {
     );
 }
 
-/* ── How It Works ── */
 function HowItWorks() {
     return (
         <section id="howitworks" className="relative z-10 max-w-6xl mx-auto px-12 py-24 text-center">
@@ -451,7 +434,6 @@ function HowItWorks() {
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mt-16 relative">
-                {/* Connector line (desktop) */}
                 <div
                     className="hidden md:block absolute"
                     style={{ top: 28, left: "calc(12.5% + 20px)", right: "calc(12.5% + 20px)", height: 1, background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.12),rgba(255,255,255,0.12),transparent)" }}
@@ -480,7 +462,6 @@ function HowItWorks() {
     );
 }
 
-/* ── Testimonials ── */
 function Testimonials() {
     const doubled = [...TESTIMONIALS, ...TESTIMONIALS];
     return (
@@ -522,7 +503,6 @@ function Testimonials() {
     );
 }
 
-/* ── Pricing ── */
 function Pricing() {
     return (
         <section id="pricing" className="relative z-10 max-w-5xl mx-auto px-12 py-24 text-center">
@@ -598,7 +578,6 @@ function PricingCard({ name, price, period, featured, cta, features }) {
     );
 }
 
-/* ── CTA Band ── */
 function CTABand() {
     return (
         <div className="relative z-10 max-w-6xl mx-auto px-12 mb-20">
@@ -638,7 +617,6 @@ function CTABand() {
     );
 }
 
-/* ── Footer ── */
 function Footer() {
     return (
         <footer
@@ -667,7 +645,6 @@ function Footer() {
     );
 }
 
-/* ── Shared: Section Label ── */
 function SectionLabel({ children }) {
     return (
         <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest" style={{ color: "#a599ff" }}>
@@ -677,32 +654,26 @@ function SectionLabel({ children }) {
     );
 }
 
-/* ══════════════════════════════
-   ROOT APP
-══════════════════════════════ */
 export default function JobHitAI() {
     return (
         <>
             <FontLoader />
 
-            {/* Global keyframes */}
             <style>{`
-        @keyframes pulse {
-          0%,100% { opacity:1; transform:scale(1); }
-          50% { opacity:0.6; transform:scale(0.85); }
-        }
-        @keyframes scrollX {
-          from { transform:translateX(0); }
-          to { transform:translateX(-50%); }
-        }
-        html { scroll-behavior: smooth; }
-      `}</style>
+            @keyframes pulse {
+            0%,100% { opacity:1; transform:scale(1); }
+            50% { opacity:0.6; transform:scale(0.85); }
+            }
+            @keyframes scrollX {
+            from { transform:translateX(0); }
+            to { transform:translateX(-50%); }
+            }
+            html { scroll-behavior: smooth; }
+        `}</style>
 
             <div style={styles.body}>
-                {/* Noise overlay */}
                 <div className="fixed inset-0 pointer-events-none" style={{ ...styles.noise, zIndex: 9999 }} />
 
-                {/* Ambient orbs */}
                 <div className="fixed rounded-full pointer-events-none" style={{ ...styles.orb1, filter: "blur(80px)", zIndex: 0 }} />
                 <div className="fixed rounded-full pointer-events-none" style={{ ...styles.orb2, filter: "blur(80px)", zIndex: 0 }} />
                 <div className="fixed rounded-full pointer-events-none" style={{ ...styles.orb3, filter: "blur(80px)", zIndex: 0 }} />
@@ -720,3 +691,21 @@ export default function JobHitAI() {
         </>
     );
 }
+
+*/
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Landing = () => {
+    return (
+        <>
+                <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+                    <h1 className="text-4xl font-bold">Welcome to JobHitAI</h1>
+                    <Link to="/login">Login</Link>
+                </div>
+        </>
+    )
+}
+
+export default Landing

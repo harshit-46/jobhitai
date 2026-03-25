@@ -24,7 +24,7 @@ export default function Signup() {
         try {
             const res = await api.post("/signup", form);
 
-            console.log(res.data);
+            console.log("From frontend",res.data);
 
             // ✅ NO localStorage (cookie handles auth)
 
@@ -89,7 +89,7 @@ export default function Signup() {
                         type="submit"
                         disabled={loading}
                         className="mt-2 w-full py-3.5 rounded-xl text-white text-sm font-medium transition
-                        bg-gradient-to-r from-[#7c6af7] to-[#5c4ed4]
+                        bg-linear-to-r from-[#7c6af7] to-[#5c4ed4]
                         hover:-translate-y-px
                         disabled:opacity-70"
                     >

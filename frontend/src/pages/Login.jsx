@@ -339,38 +339,56 @@ export default function LoginPage() {
 */
 
 import { useState } from "react";
-import api from "../api/axios"
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Navigate } from "react-router-dom";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const { user, loading, login } = useAuth();
+
+    const [formData, setFormData] = useState({
+        identifier: "",
+        password: ""
+    });
+
     const [focused, setFocused] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
+    if (loading) return null;
+
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+        setError("");
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-    
+
+        if (!formData.identifier || !formData.password) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
         try {
-            const res = await api.post("/login", {
-                email,
-                password
-            });
-    
-            console.log(res.data);
-    
-            // ✅ Redirect to dashboard
-            navigate("/dashboard");
-    
+            setIsLoading(true);
+            setError("");
+
+            await login(formData);
+
         } catch (err) {
             console.error(err);
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -390,18 +408,19 @@ const Login = () => {
                     {/* Email */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-xs uppercase tracking-widest text-[#7b7a92]">
-                            Email address
+                            Username or Email address
                         </label>
 
                         <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            onFocus={() => setFocused("email")}
+                            type="text"
+                            value={formData.identifier}
+                            name="identifier"
+                            onChange={handleChange}
+                            onFocus={() => setFocused("identifier")}
                             onBlur={() => setFocused(null)}
                             placeholder="you@example.com"
                             className={`w-full px-4 py-3 rounded-xl bg-[#111118] border text-sm outline-none transition
-                ${focused === "email"
+                ${focused === "identifier"
                                     ? "border-[#7c6af7] ring-2 ring-[#7c6af7]/20"
                                     : "border-white/10 hover:border-white/20"
                                 }`}
@@ -423,13 +442,14 @@ const Login = () => {
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                value={formData.password}
+                                name="password"
+                                onChange={handleChange}
                                 onFocus={() => setFocused("password")}
                                 onBlur={() => setFocused(null)}
                                 placeholder="••••••••"
                                 className={`w-full px-4 py-3 rounded-xl bg-[#111118] border text-sm pr-12 outline-none transition
-                  ${focused === "password"
+                                ${focused === "password"
                                         ? "border-[#7c6af7] ring-2 ring-[#7c6af7]/20"
                                         : "border-white/10 hover:border-white/20"
                                     }`}
@@ -450,11 +470,11 @@ const Login = () => {
                     {/* Button */}
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={isLoading}
                         className="mt-2 w-full py-3.5 rounded-xl text-white text-sm font-medium transition
-              bg-linear-to-r from-[#7c6af7] to-[#5c4ed4]
-              hover:-translate-y-px
-              disabled:opacity-70"
+                        bg-linear-to-r from-[#7c6af7] to-[#5c4ed4]
+                        hover:-translate-y-px
+                        disabled:opacity-70"
                     >
                         {loading ? (
                             <span className="flex items-center justify-center gap-2">

@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Signup() {
-    const navigate = useNavigate();
+
+    const { user , signup } = useAuth();
 
     const [form, setForm] = useState({
         name: "",
+        username : "",
         email: "",
         password: "",
     });
@@ -22,15 +24,7 @@ export default function Signup() {
         setLoading(true);
 
         try {
-            const res = await api.post("/signup", form);
-
-            console.log("From frontend",res.data);
-
-            // ✅ NO localStorage (cookie handles auth)
-
-            // ✅ Redirect to dashboard
-            navigate("/dashboard");
-
+            await signup(form);
         } catch (err) {
             console.error(err);
             alert(err.response?.data?.detail || "Signup failed");
@@ -39,6 +33,10 @@ export default function Signup() {
         }
     };
 
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
+    
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#09090f] text-white px-4">
             <div className="w-full max-w-md">
@@ -58,6 +56,15 @@ export default function Signup() {
                         value={form.name}
                         onChange={handleChange}
                         placeholder="Full Name"
+                        className="w-full px-4 py-3 rounded-xl bg-[#111118] border border-white/10 text-sm outline-none"
+                        required
+                    />
+
+                    <input
+                        name="username"
+                        value={form.username}
+                        onChange={handleChange}
+                        placeholder="Enter username"
                         className="w-full px-4 py-3 rounded-xl bg-[#111118] border border-white/10 text-sm outline-none"
                         required
                     />

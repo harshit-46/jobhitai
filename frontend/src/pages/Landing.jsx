@@ -702,6 +702,7 @@ const Landing = () => {
         <>
                 <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
                     <h1 className="text-4xl font-bold">Welcome to JobHitAI</h1>
+                    <Link to="/signup">Register</Link>
                     <Link to="/login">Login</Link>
                 </div>
         </>

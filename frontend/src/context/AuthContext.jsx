@@ -9,11 +9,13 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            setLoading(true);
             try {
                 const res = await api.get("/me");
                 setUser(res.data);
             } catch (err) {
+                if (err.response?.status !== 401) {
+                    console.error(err);
+                }
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -23,13 +25,19 @@ export const AuthProvider = ({ children }) => {
         fetchUser();
     }, []);
 
-    const login = async (userData) => {
-        // 1️⃣ Login → sets cookie
-        await api.post("/login", userData);
+    const signup = async (userData) => {
+        await api.post("/signup", userData);
+        await new Promise(res => setTimeout(res, 100));
 
-        // 2️⃣ Fetch user using cookie
         const res = await api.get("/me");
+        setUser(res.data);
+    };
 
+    const login = async (userData) => {
+        await api.post("/login", userData);
+        await new Promise(res => setTimeout(res, 100));
+
+        const res = await api.get("/me");
         setUser(res.data);
     };
 
@@ -38,10 +46,8 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
-    if (loading) return null;
-
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

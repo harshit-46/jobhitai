@@ -7,7 +7,6 @@ from auth import hash_password, verify_password, create_token, get_current_user
 
 app = FastAPI()
 
-# 🌐 CORS (IMPORTANT)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -16,7 +15,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Root
 @app.get("/")
 async def root():
     return {"message": "API running 🚀"}
@@ -42,27 +40,25 @@ async def signup(user: UserSignup, response: Response):
 
     await users_collection.insert_one({
         "name": user.name,
+        "username" : user.username,
         "email": user.email,
         "password": hashed_password
     })
 
-    token = create_token({"email": user.email})
+    token = create_token({"sub": user.email})
 
-    # 🍪 Set cookie
     response.set_cookie(
         key="token",
         value=token,
         httponly=True,
-        secure=False,       # True in production (HTTPS)
+        secure=False,    
         samesite="lax",
-        max_age=60 * 60 * 24,  # 1 day
+        max_age=60 * 60 * 24,
         path="/"
     )
 
     return {"message": "User created successfully"}
 
-
-# 🔐 Login
 @app.post("/api/login")
 async def login(user: UserLogin, response: Response):
 
@@ -70,7 +66,7 @@ async def login(user: UserLogin, response: Response):
     db_user = await users_collection.find_one({
         "$or": [
             {"email": user.identifier},
-            {"name": user.identifier}  # or username field
+            {"username": user.identifier}  # or username field
         ]
     })
 
@@ -80,7 +76,7 @@ async def login(user: UserLogin, response: Response):
     if not verify_password(user.password, db_user["password"]):
         raise HTTPException(status_code=400, detail="Invalid password")
 
-    token = create_token({"email": db_user["email"]})
+    token = create_token({"sub": db_user[email]})
 
     response.set_cookie(
         key="token",
@@ -88,22 +84,19 @@ async def login(user: UserLogin, response: Response):
         httponly=True,
         secure=False,
         samesite="lax",
-        path="/"
+        path="/",
+        max_age = 60*60*24
     )
 
     return {"message": "Login successful"}
 
-
-# 🔒 Protected Route
 @app.get("/api/dashboard")
 async def dashboard(user=Depends(get_current_user)):
     return {
         "message": f"Welcome {user['sub']}"
     }
 
-
-# 🚪 Logout
 @app.post("/api/logout")
 async def logout(response: Response):
-    response.delete_cookie("token")
+    response.delete_cookie("token" , path="/")
     return {"message": "Logged out successfully"}

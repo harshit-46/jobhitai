@@ -340,7 +340,7 @@ export default function LoginPage() {
 
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const Login = () => {
     const { user, loading, login } = useAuth();
@@ -355,11 +355,10 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const navigate = useNavigate();
-
     if (loading) return null;
 
     if (user) {
+        console.log("User is:", user);
         return <Navigate to="/dashboard" replace />;
     }
 
@@ -386,7 +385,7 @@ const Login = () => {
             await login(formData);
 
         } catch (err) {
-            console.error(err);
+            setError(err?.response?.data?.detail || "Login failed. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -467,6 +466,10 @@ const Login = () => {
                         </div>
                     </div>
 
+
+                    {error && (
+                        <p className="text-red-400 text-sm">{error}</p>
+                    )}
                     {/* Button */}
                     <button
                         type="submit"
@@ -476,7 +479,7 @@ const Login = () => {
                         hover:-translate-y-px
                         disabled:opacity-70"
                     >
-                        {loading ? (
+                        {isLoading ? (
                             <span className="flex items-center justify-center gap-2">
                                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
                                     <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" fill="none" opacity="0.3" />

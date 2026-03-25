@@ -5,4 +5,15 @@ const api = axios.create({
     withCredentials: true
 });
 
+api.interceptors.response.use(
+    res => res,
+    err => {
+        if (err.response?.status === 401) {
+            return Promise.reject(err);
+        }
+        console.error(err);
+        return Promise.reject(err);
+    }
+);
+
 export default api;

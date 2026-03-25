@@ -76,7 +76,7 @@ async def login(user: UserLogin, response: Response):
     if not verify_password(user.password, db_user["password"]):
         raise HTTPException(status_code=400, detail="Invalid password")
 
-    token = create_token({"sub": db_user[email]})
+    token = create_token({"sub": db_user["email"]})
 
     response.set_cookie(
         key="token",

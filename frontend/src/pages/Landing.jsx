@@ -1,5 +1,3 @@
-/*
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
@@ -170,7 +168,7 @@ function Navbar() {
             className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-12 py-5 backdrop-blur-xl border-b"
             style={{ background: "rgba(9,9,15,0.7)", borderColor: "rgba(255,255,255,0.07)" }}
         >
-            <Link to="/dashboard" style={{ ...styles.serif, fontSize: "1.5rem", letterSpacing: "-0.02em", color: "#f0eff8", textDecoration: "none" }}>
+            <Link to="/" style={{ ...styles.serif, fontSize: "1.5rem", letterSpacing: "-0.02em", color: "#f0eff8", textDecoration: "none" }}>
                 JobHit<span style={{ color: "#a599ff" }}>AI</span>
             </Link>
 
@@ -236,15 +234,15 @@ function Hero() {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-                <a
-                    href="#"
+                <Link
+                    to="/login"
                     className="px-8 py-3.5 rounded-full text-white font-medium text-sm transition-all duration-200"
                     style={{ background: "linear-gradient(135deg,#7c6af7,#5c4ed4)", ...styles.glowBtn, textDecoration: "none" }}
                     onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 40px rgba(124,106,247,0.55),0 0 0 1px rgba(124,106,247,0.4)"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.glowBtn.boxShadow; }}
                 >
                     Start for free &nbsp;→
-                </a>
+                </Link>
                 <a
                     href="#howitworks"
                     className="flex items-center gap-2 px-7 py-3.5 rounded-full text-sm transition-all duration-200"
@@ -593,15 +591,15 @@ function CTABand() {
                     Join over 2.4 million job seekers who've supercharged their careers with JobHitAI.
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center">
-                    <a
-                        href="#"
+                    <Link
+                        to="/signup"
                         className="px-8 py-3.5 rounded-full text-white font-medium text-sm transition-all duration-200"
                         style={{ background: "linear-gradient(135deg,#7c6af7,#5c4ed4)", ...styles.glowBtn, textDecoration: "none" }}
                         onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
                     >
                         Create your free account →
-                    </a>
+                    </Link>
                     <a
                         href="#"
                         className="flex items-center gap-2 px-7 py-3.5 rounded-full text-sm transition-all duration-200"
@@ -623,9 +621,9 @@ function Footer() {
             className="relative z-10 max-w-6xl mx-auto px-12 py-12 flex flex-wrap items-center justify-between gap-6"
             style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
         >
-            <a href="#" style={{ ...styles.serif, fontSize: "1.3rem", color: "#f0eff8", textDecoration: "none" }}>
+            <Link to="/" style={{ ...styles.serif, fontSize: "1.3rem", color: "#f0eff8", textDecoration: "none" }}>
                 JobHit<span style={{ color: "#a599ff" }}>AI</span>
-            </a>
+            </Link>
             <span className="text-xs" style={{ color: "#4a4963" }}>© 2025 JobHitAI. All rights reserved.</span>
             <div className="flex gap-7">
                 {["Privacy", "Terms", "Blog", "Contact"].map((l) => (
@@ -692,7 +690,8 @@ export default function JobHitAI() {
     );
 }
 
-*/
+
+/*
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -710,3 +709,5 @@ const Landing = () => {
 }
 
 export default Landing
+
+*/

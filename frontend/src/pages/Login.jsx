@@ -1,17 +1,6 @@
-/*
-
-import { useState, useEffect } from "react";
-
-function FontLoader() {
-    useEffect(() => {
-        const link = document.createElement("link");
-        link.href =
-            "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap";
-        link.rel = "stylesheet";
-        document.head.appendChild(link);
-    }, []);
-    return null;
-}
+import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { Navigate , Link } from "react-router-dom";
 
 function EyeIcon({ open }) {
     return open ? (
@@ -46,22 +35,55 @@ function GitHubIcon() {
 }
 
 export default function LoginPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [focused, setFocused] = useState(null);
+    const { user, loading, login } = useAuth();
 
-    const handleSubmit = (e) => {
+    const [formData, setFormData] = useState({
+        identifier: "",
+        password: ""
+    });
+
+    const [focused, setFocused] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    if (loading) return null;
+
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+        setError("");
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setTimeout(() => setLoading(false), 2000);
+
+        if (!formData.identifier || !formData.password) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            setError("");
+
+            await login(formData);
+
+        } catch (err) {
+            setError(err?.response?.data?.detail || "Login failed. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <>
-            <FontLoader />
 
             <div
                 className="min-h-screen bg-[#09090f] text-[#f0eff8] overflow-hidden flex"
@@ -193,9 +215,9 @@ export default function LoginPage() {
                             </h1>
                             <p className="text-sm text-[#7b7a92] font-light">
                                 New here?{" "}
-                                <a href="#" className="text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">
+                                <Link to="/signup" className="text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">
                                     Create a free account
-                                </a>
+                                </Link>
                             </p>
                         </div>
 
@@ -220,21 +242,22 @@ export default function LoginPage() {
 
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
-                                    Email address
+                                    Email address or Username
                                 </label>
                                 <div
-                                    className={`relative flex items-center rounded-xl border transition-all duration-200 ${focused === "email"
+                                    className={`relative flex items-center rounded-xl border transition-all duration-200 ${focused === "identifier"
                                             ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
                                             : "border-white/8 bg-[#111118] hover:border-white/15"
                                         }`}
                                 >
                                     <input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        onFocus={() => setFocused("email")}
+                                        type="text"
+                                        value={formData.identifier}
+                                        name="identifier"
+                                        onChange={handleChange}
+                                        onFocus={() => setFocused("identifier")}
                                         onBlur={() => setFocused(null)}
-                                        placeholder="you@example.com"
+                                        placeholder="email or username"
                                         className="w-full bg-transparent px-4 py-3 text-sm text-[#f0eff8] placeholder-[#4a4963] outline-none"
                                         required
                                     />
@@ -246,9 +269,9 @@ export default function LoginPage() {
                                     <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
                                         Password
                                     </label>
-                                    <a href="#" className="text-xs text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">
+                                    <Link to="#" className="text-xs text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">
                                         Forgot password?
-                                    </a>
+                                    </Link>
                                 </div>
                                 <div
                                     className={`relative flex items-center rounded-xl border transition-all duration-200 ${focused === "password"
@@ -258,8 +281,9 @@ export default function LoginPage() {
                                 >
                                     <input
                                         type={showPassword ? "text" : "password"}
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        value={formData.password}
+                                        name="password"
+                                        onChange={handleChange}
                                         onFocus={() => setFocused("password")}
                                         onBlur={() => setFocused(null)}
                                         placeholder="••••••••••"
@@ -276,28 +300,9 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            <label className="flex items-center gap-2.5 cursor-pointer group">
-                                <div
-                                    onClick={() => setRememberMe(!rememberMe)}
-                                    className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all duration-200 border ${rememberMe
-                                            ? "bg-[#7c6af7] border-[#7c6af7] shadow-[0_0_8px_rgba(124,106,247,0.4)]"
-                                            : "border-white/15 bg-transparent group-hover:border-white/30"
-                                        }`}
-                                >
-                                    {rememberMe && (
-                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                            <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    )}
-                                </div>
-                                <span className="text-xs text-[#7b7a92] group-hover:text-[#f0eff8] transition-colors duration-200">
-                                    Remember me for 30 days
-                                </span>
-                            </label>
-
                             <button
                                 type="submit"
-                                disabled={loading}
+                                disabled={isLoading}
                                 className="relative mt-2 w-full py-3.5 rounded-xl text-white text-sm font-medium cursor-pointer overflow-hidden transition-all duration-200 disabled:opacity-70 hover:-translate-y-px"
                                 style={{
                                     background: loading
@@ -308,7 +313,7 @@ export default function LoginPage() {
                             >
                                 <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/[0.07] to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
 
-                                {loading ? (
+                                {isLoading ? (
                                     <span className="flex items-center justify-center gap-2">
                                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                                             <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" />
@@ -317,7 +322,7 @@ export default function LoginPage() {
                                         Signing in…
                                     </span>
                                 ) : (
-                                    "Sign in to JobHitAI →"
+                                    "Sign In"
                                 )}
                             </button>
                         </form>
@@ -336,7 +341,7 @@ export default function LoginPage() {
 }
 
 
-*/
+/*
 
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
@@ -358,7 +363,6 @@ const Login = () => {
     if (loading) return null;
 
     if (user) {
-        console.log("User is:", user);
         return <Navigate to="/dashboard" replace />;
     }
 
@@ -395,16 +399,15 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-[#09090f] text-white px-4">
             <div className="w-full max-w-md">
 
-                {/* Heading */}
+
                 <h1 className="text-3xl font-serif mb-2">Login</h1>
                 <p className="text-[#7b7a92] mb-6">
                     Welcome back! Please enter your details.
                 </p>
 
-                {/* Form */}
+
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-                    {/* Email */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-xs uppercase tracking-widest text-[#7b7a92]">
                             Username or Email address
@@ -427,7 +430,6 @@ const Login = () => {
                         />
                     </div>
 
-                    {/* Password */}
                     <div className="flex flex-col gap-1.5">
                         <div className="flex justify-between items-center">
                             <label className="text-xs uppercase tracking-widest text-[#7b7a92]">
@@ -455,7 +457,6 @@ const Login = () => {
                                 required
                             />
 
-                            {/* Toggle */}
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
@@ -466,11 +467,11 @@ const Login = () => {
                         </div>
                     </div>
 
-
                     {error && (
                         <p className="text-red-400 text-sm">{error}</p>
                     )}
-                    {/* Button */}
+
+
                     <button
                         type="submit"
                         disabled={isLoading}
@@ -499,3 +500,6 @@ const Login = () => {
 };
 
 export default Login;
+
+
+*/

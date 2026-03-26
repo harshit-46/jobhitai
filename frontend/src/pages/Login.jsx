@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { Navigate , Link } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 
 function EyeIcon({ open }) {
     return open ? (
@@ -80,6 +80,14 @@ export default function LoginPage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const loginGoogle = () => {
+        window.location.href = "http://localhost:8000/auth/google";
+    };
+
+    const loginGithub = () => {
+        window.location.href = "http://localhost:8000/auth/github";
     };
 
     return (
@@ -222,11 +230,15 @@ export default function LoginPage() {
                         </div>
 
                         <div className="flex gap-3 mb-6">
-                            <button className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer">
+                            <button 
+                            onClick={loginGoogle}
+                            className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer">
                                 <GoogleIcon />
                                 Google
                             </button>
-                            <button className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer">
+                            <button 
+                            onClick={loginGithub}
+                            className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer">
                                 <GitHubIcon />
                                 GitHub
                             </button>
@@ -246,8 +258,8 @@ export default function LoginPage() {
                                 </label>
                                 <div
                                     className={`relative flex items-center rounded-xl border transition-all duration-200 ${focused === "identifier"
-                                            ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
-                                            : "border-white/8 bg-[#111118] hover:border-white/15"
+                                        ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
+                                        : "border-white/8 bg-[#111118] hover:border-white/15"
                                         }`}
                                 >
                                     <input
@@ -275,8 +287,8 @@ export default function LoginPage() {
                                 </div>
                                 <div
                                     className={`relative flex items-center rounded-xl border transition-all duration-200 ${focused === "password"
-                                            ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
-                                            : "border-white/8 bg-[#111118] hover:border-white/15"
+                                        ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
+                                        : "border-white/8 bg-[#111118] hover:border-white/15"
                                         }`}
                                 >
                                     <input

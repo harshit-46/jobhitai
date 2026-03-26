@@ -339,7 +339,7 @@ export default function LoginPage() {
 */
 
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { Navigate } from "react-router-dom";
 
 const Login = () => {

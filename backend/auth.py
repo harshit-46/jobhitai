@@ -37,7 +37,6 @@ def create_token(data: dict):
 
     to_encode.update({
         "exp": expire,
-        "sub": data.get("email")  # standard field
     })
 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

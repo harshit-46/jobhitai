@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response, Request, Depends
+from fastapi import FastAPI, HTTPException, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import users_collection

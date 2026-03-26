@@ -1,9 +1,9 @@
 // src/pages/Dashboard.jsx
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-    const { logout } = useAuth();
+    const { user , logout } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -13,7 +13,8 @@ const Dashboard = () => {
 
     return (
         <div>
-            <h1>Dashboard 🔥</h1>
+            <h1>This is the Dashboard 🔥</h1>
+            <p>Welcome, {user.name}!</p>
             <button onClick={handleLogout}>Logout</button>
         </div>
     );

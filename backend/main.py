@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 
 from database import users_collection
 from models import UserSignup, UserLogin
@@ -11,10 +12,6 @@ from starlette.requests import Request
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import RedirectResponse
 import os
-
-
-
-
 
 config = Config('.env')
 
@@ -62,7 +59,9 @@ async def signup(user: UserSignup, response: Response):
         "name": user.name,
         "username" : user.username,
         "email": user.email,
-        "password": hashed_password
+        "provider": "local",
+        "password": hashed_password,
+        "created_at": datetime.utcnow()
     })
 
     token = create_token({"sub": user.email})
@@ -89,7 +88,7 @@ async def login(user: UserLogin, response: Response):
             {"username": user.identifier}  # or username field
         ]
     })
-    
+
     if db_user["provider"] != "local":
         raise HTTPException(status_code=400, detail=f"Use {db_user['provider']} login instead")
 

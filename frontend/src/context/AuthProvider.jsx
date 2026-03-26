@@ -8,20 +8,18 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            api.get("/me", {
-                withCredentials: true
-            })
-                .then(res => {
-                    setUser(res.data);
-                })
-                .catch(err => {
-                    if (err.response?.status === 401) {
-                        setUser(null);
-                    } else {
-                        console.error(err);
-                    }
-                })
-                .finally(() => setLoading(false));
+            try {
+                const res = await api.get("/me");
+                setUser(res.data);
+            } catch (err) {
+                if (err.response?.status === 401) {
+                    setUser(null);
+                } else {
+                    console.error("Auth error:", err);
+                }
+            } finally {
+                setLoading(false);
+            }
         };
 
         fetchUser();
@@ -29,12 +27,14 @@ export const AuthProvider = ({ children }) => {
 
     const signup = async (userData) => {
         await api.post("/signup", userData);
+
         const res = await api.get("/me");
         setUser(res.data);
     };
 
     const login = async (userData) => {
         await api.post("/login", userData);
+
         const res = await api.get("/me");
         setUser(res.data);
     };

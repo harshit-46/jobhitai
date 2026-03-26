@@ -8,17 +8,20 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            try {
-                const res = await api.get("/me");
-                setUser(res.data);
-            } catch (err) {
-                if (err.response?.status !== 401) {
-                    console.error(err);
-                }
-                setUser(null);
-            } finally {
-                setLoading(false);
-            }
+            api.get("/me", {
+                withCredentials: true
+            })
+                .then(res => {
+                    setUser(res.data);
+                })
+                .catch(err => {
+                    if (err.response?.status === 401) {
+                        setUser(null);
+                    } else {
+                        console.error(err);
+                    }
+                })
+                .finally(() => setLoading(false));
         };
 
         fetchUser();

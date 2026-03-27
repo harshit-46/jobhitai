@@ -13,119 +13,141 @@ from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import RedirectResponse
 import os
 
+# -------------------- CONFIG --------------------
 config = Config('.env')
-
 oauth = OAuth(config)
 
 app = FastAPI()
 
+# -------------------- CORS --------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://jobhitai.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# -------------------- SESSION --------------------
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("JWT_SECRET_KEY")
 )
 
+# -------------------- ROOT --------------------
 @app.get("/")
 async def root():
     return {"message": "API running 🚀"}
 
+# -------------------- GET ME --------------------
 @app.get("/api/me")
 async def get_me(user=Depends(get_current_user)):
     db_user = await users_collection.find_one({"email": user["sub"]})
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
 
     return {
         "name": db_user["name"],
         "email": db_user["email"]
     }
 
-# 📝 Signup
+# -------------------- SIGNUP --------------------
 @app.post("/api/signup")
 async def signup(user: UserSignup, response: Response):
-    existing_user = await users_collection.find_one({"email": user.email})
+    try:
+        existing_user = await users_collection.find_one({"email": user.email})
 
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User already exists")
+        if existing_user:
+            raise HTTPException(status_code=400, detail="User already exists")
 
-    hashed_password = hash_password(user.password)
+        hashed_password = hash_password(user.password)
 
-    await users_collection.insert_one({
-        "name": user.name,
-        "username" : user.username,
-        "email": user.email,
-        "provider": "local",
-        "password": hashed_password,
-        "created_at": datetime.utcnow()
-    })
+        await users_collection.insert_one({
+            "name": user.name,
+            "username": user.username,
+            "email": user.email,
+            "provider": "local",
+            "password": hashed_password,
+            "created_at": datetime.utcnow()
+        })
 
-    token = create_token({"sub": user.email})
+        token = create_token({"sub": user.email})
 
-    response.set_cookie(
-        key="token",
-        value=token,
-        httponly=True,
-        secure=True,    
-        samesite="none",
-        max_age=60 * 60 * 24,
-        path="/"
-    )
+        response.set_cookie(
+            key="token",
+            value=token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            max_age=60 * 60 * 24,
+            path="/"
+        )
 
-    return {"message": "User created successfully"}
+        return {"message": "User created successfully"}
 
+    except Exception as e:
+        print("Signup Error:", e)
+        raise HTTPException(status_code=500, detail="Signup failed")
+
+# -------------------- LOGIN --------------------
 @app.post("/api/login")
 async def login(user: UserLogin, response: Response):
+    try:
+        db_user = await users_collection.find_one({
+            "$or": [
+                {"email": user.identifier},
+                {"username": user.identifier}
+            ]
+        })
 
-    # 🔍 find by email OR username
-    db_user = await users_collection.find_one({
-        "$or": [
-            {"email": user.identifier},
-            {"username": user.identifier}  # or username field
-        ]
-    })
+        if not db_user:
+            raise HTTPException(status_code=400, detail="User not found")
 
-    if db_user["provider"] != "local":
-        raise HTTPException(status_code=400, detail=f"Use {db_user['provider']} login instead")
+        if db_user.get("provider") != "local":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Use {db_user['provider']} login instead"
+            )
 
-    if not db_user:
-        raise HTTPException(status_code=400, detail="User not found")
+        if not verify_password(user.password, db_user["password"]):
+            raise HTTPException(status_code=400, detail="Invalid password")
 
-    if not verify_password(user.password, db_user["password"]):
-        raise HTTPException(status_code=400, detail="Invalid password")
-    
+        token = create_token({"sub": db_user["email"]})
 
-    token = create_token({"sub": db_user["email"]})
+        response.set_cookie(
+            key="token",
+            value=token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/",
+            max_age=60 * 60 * 24
+        )
 
-    response.set_cookie(
-        key="token",
-        value=token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
-        max_age = 60*60*24
-    )
+        return {"message": "Login successful"}
 
-    return {"message": "Login successful"}
+    except Exception as e:
+        print("Login Error:", e)
+        raise HTTPException(status_code=500, detail="Login failed")
 
+# -------------------- DASHBOARD --------------------
 @app.get("/api/dashboard")
 async def dashboard(user=Depends(get_current_user)):
     return {
         "message": f"Welcome {user['sub']}"
     }
 
+# -------------------- LOGOUT --------------------
 @app.post("/api/logout")
 async def logout(response: Response):
-    response.delete_cookie("token" , path="/")
+    response.delete_cookie("token", path="/")
     return {"message": "Logged out successfully"}
 
-
-# GOOGLE
+# -------------------- GOOGLE AUTH --------------------
 oauth.register(
     name='google',
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -134,23 +156,10 @@ oauth.register(
     client_kwargs={'scope': 'openid email profile'}
 )
 
-# GITHUB
-oauth.register(
-    name='github',
-    client_id=os.getenv("GITHUB_CLIENT_ID"),
-    client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
-    access_token_url='https://github.com/login/oauth/access_token',
-    authorize_url='https://github.com/login/oauth/authorize',
-    api_base_url='https://api.github.com/',
-    client_kwargs={'scope': 'user:email'},
-)
-
-
 @app.get("/auth/google")
 async def login_google(request: Request):
     redirect_uri = request.url_for("google_callback")
     return await oauth.google.authorize_redirect(request, redirect_uri)
-
 
 @app.get("/auth/google/callback")
 async def google_callback(request: Request):
@@ -159,7 +168,6 @@ async def google_callback(request: Request):
 
     email = user_info["email"]
 
-    # check DB
     user = await users_collection.find_one({"email": email})
 
     if not user:
@@ -173,7 +181,9 @@ async def google_callback(request: Request):
 
     jwt_token = create_token({"sub": email})
 
-    response = RedirectResponse(url="https://jobhitai.vercel.app/dashboard")
+    response = RedirectResponse(
+        url="https://jobhitai.vercel.app/dashboard"
+    )
 
     response.set_cookie(
         key="token",
@@ -182,17 +192,26 @@ async def google_callback(request: Request):
         secure=True,
         samesite="none",
         path="/",
-        max_age=60*60*24
+        max_age=60 * 60 * 24
     )
 
     return response
 
+# -------------------- GITHUB AUTH --------------------
+oauth.register(
+    name='github',
+    client_id=os.getenv("GITHUB_CLIENT_ID"),
+    client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
+    access_token_url='https://github.com/login/oauth/access_token',
+    authorize_url='https://github.com/login/oauth/authorize',
+    api_base_url='https://api.github.com/',
+    client_kwargs={'scope': 'user:email'},
+)
 
 @app.get("/auth/github")
 async def login_github(request: Request):
     redirect_uri = request.url_for("github_callback")
     return await oauth.github.authorize_redirect(request, redirect_uri)
-
 
 @app.get("/auth/github/callback")
 async def github_callback(request: Request):
@@ -203,7 +222,6 @@ async def github_callback(request: Request):
 
     email = user_data.get("email")
 
-    # GitHub may not return email directly
     if not email:
         resp = await oauth.github.get("user/emails", token=token)
         emails = resp.json()
@@ -222,7 +240,9 @@ async def github_callback(request: Request):
 
     jwt_token = create_token({"sub": email})
 
-    response = RedirectResponse(url="https://jobhitai.vercel.app/dashboard")
+    response = RedirectResponse(
+        url="https://jobhitai.vercel.app/dashboard"
+    )
 
     response.set_cookie(
         key="token",
@@ -231,7 +251,7 @@ async def github_callback(request: Request):
         secure=True,
         samesite="none",
         path="/",
-        max_age=60*60*24
+        max_age=60 * 60 * 24
     )
 
     return response

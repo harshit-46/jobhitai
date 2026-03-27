@@ -104,9 +104,11 @@ async def login(user: UserLogin, response: Response):
             ]
         })
 
+        # ✅ FIRST check if user exists
         if not db_user:
             raise HTTPException(status_code=400, detail="User not found")
 
+        # ✅ THEN check provider
         if db_user.get("provider") != "local":
             raise HTTPException(
                 status_code=400,

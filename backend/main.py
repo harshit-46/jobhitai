@@ -21,8 +21,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173",
-    "https://jobhitai.vercel.app"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -174,7 +173,7 @@ async def google_callback(request: Request):
 
     jwt_token = create_token({"sub": email})
 
-    response = RedirectResponse(url="http://localhost:5173/dashboard")
+    response = RedirectResponse(url="https://jobhitai.vercel.app/dashboard")
 
     response.set_cookie(
         key="token",
@@ -223,14 +222,14 @@ async def github_callback(request: Request):
 
     jwt_token = create_token({"sub": email})
 
-    response = RedirectResponse(url="http://localhost:5173/dashboard")
+    response = RedirectResponse(url="https://jobhitai.vercel.app/dashboard")
 
     response.set_cookie(
         key="token",
         value=jwt_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         path="/",
         max_age=60*60*24
     )

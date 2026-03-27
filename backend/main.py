@@ -21,7 +21,8 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173",
+    "https://jobhitai.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -70,8 +71,8 @@ async def signup(user: UserSignup, response: Response):
         key="token",
         value=token,
         httponly=True,
-        secure=False,    
-        samesite="lax",
+        secure=True,    
+        samesite="none",
         max_age=60 * 60 * 24,
         path="/"
     )
@@ -105,8 +106,8 @@ async def login(user: UserLogin, response: Response):
         key="token",
         value=token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         path="/",
         max_age = 60*60*24
     )
@@ -179,8 +180,8 @@ async def google_callback(request: Request):
         key="token",
         value=jwt_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         path="/",
         max_age=60*60*24
     )

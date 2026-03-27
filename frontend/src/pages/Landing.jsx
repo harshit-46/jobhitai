@@ -168,7 +168,12 @@ function Navbar() {
             className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-12 py-5 backdrop-blur-xl border-b"
             style={{ background: "rgba(9,9,15,0.7)", borderColor: "rgba(255,255,255,0.07)" }}
         >
-            <Link to="/" style={{ ...styles.serif, fontSize: "1.5rem", letterSpacing: "-0.02em", color: "#f0eff8", textDecoration: "none" }}>
+            <Link to="/"
+            onClick={(e) => {
+                e.preventDefault(); // stop route change
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            style={{ ...styles.serif, fontSize: "1.5rem", letterSpacing: "-0.02em", color: "#f0eff8", textDecoration: "none" }}>
                 JobHit<span style={{ color: "#a599ff" }}>AI</span>
             </Link>
 
@@ -176,7 +181,15 @@ function Navbar() {
                 {NAV_LINKS.map((l) => (
                     <li key={l}>
                         <a
-                            href={`#${l.toLowerCase().replace(/\s/g, "")}`}
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                const id = l.toLowerCase().replace(/\s/g, "");
+                                const el = document.getElementById(id);
+                                if (el) {
+                                    el.scrollIntoView({ behavior: "smooth" });
+                                }
+                            }}
                             className="text-sm transition-colors duration-200"
                             style={{ color: "#7b7a92", textDecoration: "none" }}
                             onMouseEnter={(e) => (e.target.style.color = "#f0eff8")}
@@ -244,7 +257,14 @@ function Hero() {
                     Start for free &nbsp;→
                 </Link>
                 <a
-                    href="#howitworks"
+                    href="#"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        const el = document.getElementById("howitworks");
+                        if (el) {
+                            el.scrollIntoView({ behavior: "smooth" });
+                        }
+                    }}
                     className="flex items-center gap-2 px-7 py-3.5 rounded-full text-sm transition-all duration-200"
                     style={{ color: "#7b7a92", border: "1px solid rgba(255,255,255,0.12)", textDecoration: "none" }}
                     onMouseEnter={(e) => { e.currentTarget.style.color = "#f0eff8"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}

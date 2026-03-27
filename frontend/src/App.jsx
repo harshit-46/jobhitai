@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthProvider";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -13,7 +14,12 @@ function App() {
       <BrowserRouter>
         <Routes>
 
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={
+            <PublicRoute>
+              <Landing />
+            </PublicRoute>
+          }
+          />
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

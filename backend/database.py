@@ -1,13 +1,10 @@
+import os
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# MongoDB connection URL
-MONGO_URL = "mongodb://localhost:27017"
+MONGO_URI = os.getenv("MONGO_URI")
 
-# Create client
-client = AsyncIOMotorClient(MONGO_URL)
-
-# Database name
-db = client["jobhit_ai"]
+client = AsyncIOMotorClient(MONGO_URI)
+db = client["jobhitai"]
 
 # Collections
 users_collection = db["users"]

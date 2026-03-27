@@ -70,7 +70,7 @@ async def signup(user: UserSignup, response: Response):
             "name": user.name,
             "username": user.username,
             "email": user.email,
-            "provider": "local",
+            "providers": ["local"],  # ✅ updated
             "password": hashed_password,
             "created_at": datetime.utcnow()
         })
@@ -104,15 +104,14 @@ async def login(user: UserLogin, response: Response):
             ]
         })
 
-        # ✅ FIRST check if user exists
         if not db_user:
             raise HTTPException(status_code=400, detail="User not found")
 
-        # ✅ THEN check provider
-        if db_user.get("provider") != "local":
+        # ✅ check provider list
+        if "local" not in db_user.get("providers", []):
             raise HTTPException(
                 status_code=400,
-                detail=f"Use {db_user['provider']} login instead"
+                detail="Use Google/GitHub login instead"
             )
 
         if not verify_password(user.password, db_user["password"]):
@@ -168,6 +167,7 @@ async def login_google(request: Request):
     redirect_uri = request.url_for("google_callback")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
+# -------------------- GOOGLE CALLBACK --------------------
 @app.get("/auth/google/callback")
 async def google_callback(request: Request):
     token = await oauth.google.authorize_access_token(request)
@@ -177,12 +177,21 @@ async def google_callback(request: Request):
 
     user = await users_collection.find_one({"email": email})
 
-    if not user:
+    if user:
+        # ✅ LINK GOOGLE if not already linked
+        if "google" not in user.get("providers", []):
+            await users_collection.update_one(
+                {"email": email},
+                {"$push": {"providers": "google"}}
+            )
+    else:
+        # ✅ CREATE NEW USER
         user = {
             "name": user_info["name"],
             "email": email,
-            "provider": "google",
-            "avatar": user_info.get("picture")
+            "providers": ["google"],
+            "avatar": user_info.get("picture"),
+            "created_at": datetime.utcnow()
         }
         await users_collection.insert_one(user)
 
@@ -215,11 +224,7 @@ oauth.register(
     client_kwargs={'scope': 'user:email'},
 )
 
-@app.get("/auth/github")
-async def login_github(request: Request):
-    redirect_uri = request.url_for("github_callback")
-    return await oauth.github.authorize_redirect(request, redirect_uri)
-
+# -------------------- GITHUB CALLBACK --------------------
 @app.get("/auth/github/callback")
 async def github_callback(request: Request):
     token = await oauth.github.authorize_access_token(request)
@@ -236,12 +241,21 @@ async def github_callback(request: Request):
 
     user = await users_collection.find_one({"email": email})
 
-    if not user:
+    if user:
+        # ✅ LINK GITHUB
+        if "github" not in user.get("providers", []):
+            await users_collection.update_one(
+                {"email": email},
+                {"$push": {"providers": "github"}}
+            )
+    else:
+        # ✅ CREATE NEW USER
         user = {
             "name": user_data["login"],
             "email": email,
-            "provider": "github",
-            "avatar": user_data["avatar_url"]
+            "providers": ["github"],
+            "avatar": user_data["avatar_url"],
+            "created_at": datetime.utcnow()
         }
         await users_collection.insert_one(user)
 

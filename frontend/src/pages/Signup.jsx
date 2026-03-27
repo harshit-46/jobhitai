@@ -98,11 +98,11 @@ export default function SignupPage() {
     };
 
     const loginGoogle = () => {
-        window.location.href = "http://localhost:8000/auth/google";
+        window.location.href = "https://jobhitai-server.onrender.com/auth/google";
     };
 
     const loginGithub = () => {
-        window.location.href = "http://localhost:8000/auth/github";
+        window.location.href = "https://jobhitai-server.onrender.com/auth/github";
     };
 
     const inputClass = (field) =>

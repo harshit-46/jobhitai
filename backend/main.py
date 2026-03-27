@@ -92,8 +92,6 @@ async def signup(user: UserSignup, response: Response):
     except Exception as e:
         print("Signup Error:", e)
         raise HTTPException(status_code=500, detail="Signup failed")
-
-# -------------------- LOGIN --------------------
 @app.post("/api/login")
 async def login(user: UserLogin, response: Response):
     try:
@@ -104,16 +102,25 @@ async def login(user: UserLogin, response: Response):
             ]
         })
 
+        # ✅ Check user exists
         if not db_user:
             raise HTTPException(status_code=400, detail="User not found")
 
-        # ✅ check provider list
+        # ✅ Check if local login allowed
         if "local" not in db_user.get("providers", []):
             raise HTTPException(
                 status_code=400,
-                detail="Use Google/GitHub login instead"
+                detail="This account uses Google/GitHub login"
             )
 
+        # ✅ Ensure password exists
+        if "password" not in db_user:
+            raise HTTPException(
+                status_code=400,
+                detail="Password login not available for this account"
+            )
+
+        # ✅ Verify password
         if not verify_password(user.password, db_user["password"]):
             raise HTTPException(status_code=400, detail="Invalid password")
 
@@ -131,6 +138,8 @@ async def login(user: UserLogin, response: Response):
 
         return {"message": "Login successful"}
 
+    except HTTPException:
+        raise
     except Exception as e:
         print("Login Error:", e)
         raise HTTPException(status_code=500, detail="Login failed")

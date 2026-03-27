@@ -144,7 +144,12 @@ async def dashboard(user=Depends(get_current_user)):
 # -------------------- LOGOUT --------------------
 @app.post("/api/logout")
 async def logout(response: Response):
-    response.delete_cookie("token", path="/")
+    response.delete_cookie(
+        key="token",
+        path="/",
+        samesite="none",
+        secure=True
+    )
     return {"message": "Logged out successfully"}
 
 # -------------------- GOOGLE AUTH --------------------

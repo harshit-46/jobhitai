@@ -17,6 +17,9 @@ import os
 config = Config('.env')
 oauth = OAuth(config)
 
+localURL = "http://localhost:5173/dashboard"
+prodURL = "https://jobhitai.vercel.app/dashboard"
+
 app = FastAPI()
 
 # -------------------- CORS --------------------
@@ -207,7 +210,7 @@ async def google_callback(request: Request):
     jwt_token = create_token({"sub": email})
 
     response = RedirectResponse(
-        url="https://jobhitai.vercel.app/dashboard"
+        url= localURL
     )
 
     response.set_cookie(
@@ -271,7 +274,7 @@ async def github_callback(request: Request):
     jwt_token = create_token({"sub": email})
 
     response = RedirectResponse(
-        url="https://jobhitai.vercel.app/dashboard"
+        url= localURL
     )
 
     response.set_cookie(

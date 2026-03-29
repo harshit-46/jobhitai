@@ -94,24 +94,26 @@ const SCORE_BARS = [
 ];
 
 
-function FeatureCard({ title, desc, icon, iconBg, iconBorder, btnBg, btnBorder, btnColor, topLine }) {
-    const [hov, setHov] = useState(false);
+function ScoreRing({ score = 82, size = 84, stroke = 6 }) {
+    const r = (size - stroke) / 2;
+    const circ = 2 * Math.PI * r;
+    const offset = circ * (1 - score / 100);
     return (
-        <div
-            style={{ position: "relative", borderRadius: 20, padding: "26px 24px", background: hov ? t.surface2 : t.surface, border: `1px solid ${t.border}`, overflow: "hidden", transition: "background 0.2s", cursor: "pointer" }}
-            onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-        >
-            {hov && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: topLine }} />}
-            <div style={{ width: 42, height: 42, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, background: iconBg, border: `1px solid ${iconBorder}`, marginBottom: 16 }}>{icon}</div>
-            <h3 style={{ fontSize: 14, fontWeight: 500, letterSpacing: "-0.01em", color: t.text, marginBottom: 7 }}>{title}</h3>
-            <p style={{ fontSize: 12, lineHeight: 1.65, color: t.muted, fontWeight: 300, marginBottom: 18 }}>{desc}</p>
-            <button
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 500, fontFamily: "'DM Sans', sans-serif", background: btnBg, border: `1px solid ${btnBorder}`, color: btnColor, cursor: "pointer", transition: "all 0.15s" }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-                Open <ChevronRight size={11} />
-            </button>
+        <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
+                <defs>
+                    <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#7c6af7" />
+                        <stop offset="100%" stopColor="#3fd898" />
+                    </linearGradient>
+                </defs>
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#rg2)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} />
+            </svg>
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ ...t.serif, fontSize: size * 0.24, letterSpacing: "-0.04em", color: t.text, lineHeight: 1 }}>{score}</span>
+                <span style={{ fontSize: 9, color: t.faint }}>100</span>
+            </div>
         </div>
     );
 }

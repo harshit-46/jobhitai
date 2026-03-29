@@ -93,25 +93,22 @@ const SCORE_BARS = [
     { name: "Format", val: 92, gradient: "linear-gradient(90deg,#3fd898,#7c6af7)" },
 ];
 
-
-function FeatureCard({ title, desc, icon, iconBg, iconBorder, btnBg, btnBorder, btnColor, topLine }) {
+function StatCard({ title, value, delta, positive, icon, iconBg, iconBorder, accent, cardBorder, cardGrad }) {
     const [hov, setHov] = useState(false);
     return (
         <div
-            style={{ position: "relative", borderRadius: 20, padding: "26px 24px", background: hov ? t.surface2 : t.surface, border: `1px solid ${t.border}`, overflow: "hidden", transition: "background 0.2s", cursor: "pointer" }}
+            style={{ position: "relative", borderRadius: 20, padding: "20px 20px 16px", background: cardGrad, border: `1px solid ${hov ? cardBorder : t.border}`, overflow: "hidden", transition: "border-color 0.2s, transform 0.2s", transform: hov ? "translateY(-2px)" : "translateY(0)", cursor: "default" }}
             onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
         >
-            {hov && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: topLine }} />}
-            <div style={{ width: 42, height: 42, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, background: iconBg, border: `1px solid ${iconBorder}`, marginBottom: 16 }}>{icon}</div>
-            <h3 style={{ fontSize: 14, fontWeight: 500, letterSpacing: "-0.01em", color: t.text, marginBottom: 7 }}>{title}</h3>
-            <p style={{ fontSize: 12, lineHeight: 1.65, color: t.muted, fontWeight: 300, marginBottom: 18 }}>{desc}</p>
-            <button
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 500, fontFamily: "'DM Sans', sans-serif", background: btnBg, border: `1px solid ${btnBorder}`, color: btnColor, cursor: "pointer", transition: "all 0.15s" }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-                Open <ChevronRight size={11} />
-            </button>
+            {hov && <div style={{ position: "absolute", top: 0, left: "20%", right: "20%", height: 1, background: `linear-gradient(90deg,transparent,${accent},transparent)` }} />}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, background: iconBg, border: `1px solid ${iconBorder}` }}>{icon}</div>
+                <span style={{ fontSize: 11, fontWeight: 500, padding: "3px 9px", borderRadius: 999, color: positive ? t.green : t.pink, background: positive ? "rgba(63,216,152,0.08)" : "rgba(240,96,166,0.08)", border: `1px solid ${positive ? "rgba(63,216,152,0.2)" : "rgba(240,96,166,0.2)"}` }}>
+                    {positive ? "↑" : "↓"} {delta}
+                </span>
+            </div>
+            <div style={{ ...t.serif, fontSize: "2rem", letterSpacing: "-0.04em", color: t.text, lineHeight: 1 }}>{value}</div>
+            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: t.faint, marginTop: 4 }}>{title}</div>
         </div>
     );
 }

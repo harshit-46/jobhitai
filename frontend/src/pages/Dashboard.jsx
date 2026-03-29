@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , useLocation} from "react-router-dom";
 import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Bell, Search, ChevronRight } from "lucide-react";
 
 // ── Font Loader ────────────────────────────────────────────────────────────────
@@ -38,12 +38,12 @@ const t = {
 
 // ── Static Data ────────────────────────────────────────────────────────────────
 const MENU = [
-    { name: "Dashboard", icon: Home },
-    { name: "Resume Builder", icon: FileText },
-    { name: "Analyzer", icon: BarChart },
-    { name: "AI Predictions", icon: Brain },
-    { name: "My Resumes", icon: Folder },
-    { name: "Settings", icon: Settings },
+    { name: "Dashboard", icon: Home , path : "/dashboard" },
+    { name: "Resume Builder", icon: FileText , path : "/resume-builder" },
+    { name: "Analyzer", icon: BarChart , path : "/analyzer" },
+    { name: "AI Predictions", icon: Brain , path : "/ai-predictions" },
+    { name: "My Resumes", icon: Folder , path : "/myresumes" },
+    { name: "Settings", icon: Settings , path : "/settings" },
 ];
 
 const STATS = [
@@ -112,198 +112,14 @@ const SCORE_BARS = [
 ];
 
 // ── Micro components ───────────────────────────────────────────────────────────
-function ScoreRing({ score = 82, size = 84, stroke = 6 }) {
-    const r = (size - stroke) / 2;
-    const circ = 2 * Math.PI * r;
-    const offset = circ * (1 - score / 100);
-    return (
-        <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
-                <defs>
-                    <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#7c6af7" />
-                        <stop offset="100%" stopColor="#3fd898" />
-                    </linearGradient>
-                </defs>
-                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#rg2)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} />
-            </svg>
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ ...t.serif, fontSize: size * 0.24, letterSpacing: "-0.04em", color: t.text, lineHeight: 1 }}>{score}</span>
-                <span style={{ fontSize: 9, color: t.faint }}>100</span>
-            </div>
-        </div>
-    );
-}
 
 // ── Sidebar ────────────────────────────────────────────────────────────────────
-function Sidebar({ active, setActive, user, onLogout }) {
-    const initial = user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "U";
-    const displayName = user?.name ?? user?.email?.split("@")[0] ?? "User";
-
-    return (
-        <aside style={{
-            width: 256, minWidth: 256, background: t.sidebar,
-            borderRight: `1px solid ${t.border}`,
-            display: "flex", flexDirection: "column",
-            position: "fixed", top: 0, left: 0, bottom: 0, zIndex: 40,
-        }}>
-            {/* Logo */}
-            <div style={{ padding: "22px 26px", borderBottom: `1px solid ${t.border}` }}>
-                <span style={{ ...t.serif, fontSize: "1.42rem", letterSpacing: "-0.02em", color: t.text }}>
-                    JobHit<span style={{ color: t.purpleL }}>AI</span>
-                </span>
-            </div>
-
-            {/* User pill */}
-            <div style={{ margin: "14px 10px 4px", padding: "11px 12px", borderRadius: 16, background: t.surface, border: `1px solid ${t.border}`, display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#7c6af7,#5c4ed4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: "#fff", flexShrink: 0 }}>
-                    {initial}
-                </div>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em", color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayName}</div>
-                    <div style={{ fontSize: 11, color: t.faint, marginTop: 1 }}>Pro Plan</div>
-                </div>
-                <div style={{ width: 7, height: 7, borderRadius: "50%", background: t.green, boxShadow: `0 0 6px ${t.green}`, flexShrink: 0 }} />
-            </div>
-
-            {/* Nav items */}
-            <nav style={{ flex: 1, padding: "8px 8px", display: "flex", flexDirection: "column", gap: 2 }}>
-                {MENU.map(({ name, icon: Icon }) => {
-                    const on = active === name;
-                    return (
-                        <button key={name} onClick={() => setActive(name)}
-                            style={{
-                                display: "flex", alignItems: "center", gap: 10,
-                                padding: "10px 13px", borderRadius: 12, fontSize: 13,
-                                fontFamily: "'DM Sans', sans-serif", fontWeight: 400,
-                                background: on ? "rgba(124,106,247,0.12)" : "transparent",
-                                color: on ? t.purpleL : t.muted,
-                                border: on ? "1px solid rgba(124,106,247,0.2)" : "1px solid transparent",
-                                cursor: "pointer", width: "100%", textAlign: "left", transition: "all 0.15s",
-                            }}
-                            onMouseEnter={(e) => { if (!on) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.color = t.text; } }}
-                            onMouseLeave={(e) => { if (!on) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = t.muted; } }}
-                        >
-                            <Icon size={14} />
-                            {name}
-                            {on && <span style={{ marginLeft: "auto", width: 5, height: 5, borderRadius: "50%", background: t.purple }} />}
-                        </button>
-                    );
-                })}
-            </nav>
-
-            {/* Logout */}
-            <div style={{ padding: "10px 8px", borderTop: `1px solid ${t.border}` }}>
-                <button onClick={onLogout}
-                    style={{
-                        display: "flex", alignItems: "center", gap: 10, width: "100%",
-                        padding: "10px 13px", borderRadius: 12, fontSize: 13,
-                        fontFamily: "'DM Sans', sans-serif",
-                        background: "transparent", color: t.muted,
-                        border: "1px solid transparent", cursor: "pointer", transition: "all 0.15s",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = t.pink; e.currentTarget.style.background = "rgba(240,96,166,0.07)"; e.currentTarget.style.borderColor = "rgba(240,96,166,0.15)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = t.muted; e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "transparent"; }}
-                >
-                    <LogOut size={14} /> Logout
-                </button>
-            </div>
-        </aside>
-    );
-}
 
 // ── Topbar ─────────────────────────────────────────────────────────────────────
-function Topbar({ active }) {
-    return (
-        <header style={{
-            position: "fixed", top: 0, left: 256, right: 0, zIndex: 30,
-            background: "rgba(9,9,15,0.85)", backdropFilter: "blur(16px)",
-            borderBottom: `1px solid ${t.border}`,
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "13px 30px", fontFamily: "'DM Sans', sans-serif",
-        }}>
-            <div>
-                <h2 style={{ ...t.serif, fontSize: "1.15rem", letterSpacing: "-0.02em", color: t.text, margin: 0 }}>
-                    {active === "Dashboard"
-                        ? <>Good morning, <em style={t.serifItalic}>there</em> 👋</>
-                        : active}
-                </h2>
-                <p style={{ fontSize: 11, color: t.faint, marginTop: 2 }}>
-                    {active === "Dashboard" ? "Here's what's happening with your job search today." : `Manage your ${active.toLowerCase()}.`}
-                </p>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 999, background: t.surface, border: `1px solid ${t.border}`, fontSize: 12, color: t.faint }}>
-                    <Search size={11} /> Search jobs, resumes…
-                </div>
-
-                <button style={{ position: "relative", width: 34, height: 34, borderRadius: "50%", background: t.surface, border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: t.muted, transition: "all 0.15s" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.border2; e.currentTarget.style.color = t.text; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.muted; }}>
-                    <Bell size={13} />
-                    <span style={{ position: "absolute", top: 5, right: 5, width: 5, height: 5, borderRadius: "50%", background: t.pink, boxShadow: `0 0 4px ${t.pink}` }} />
-                </button>
-
-                <button style={{
-                    display: "flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 999,
-                    fontSize: 12, fontWeight: 500, color: "#fff", fontFamily: "'DM Sans', sans-serif",
-                    background: t.purple, border: "none", cursor: "pointer",
-                    boxShadow: "0 4px 18px rgba(124,106,247,0.35)", transition: "all 0.15s",
-                }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = t.purpleL; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = t.purple; e.currentTarget.style.transform = "translateY(0)"; }}>
-                    + New Resume
-                </button>
-            </div>
-        </header>
-    );
-}
 
 // ── Stat Card ──────────────────────────────────────────────────────────────────
-function StatCard({ title, value, delta, positive, icon, iconBg, iconBorder, accent, cardBorder, cardGrad }) {
-    const [hov, setHov] = useState(false);
-    return (
-        <div
-            style={{ position: "relative", borderRadius: 20, padding: "20px 20px 16px", background: cardGrad, border: `1px solid ${hov ? cardBorder : t.border}`, overflow: "hidden", transition: "border-color 0.2s, transform 0.2s", transform: hov ? "translateY(-2px)" : "translateY(0)", cursor: "default" }}
-            onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-        >
-            {hov && <div style={{ position: "absolute", top: 0, left: "20%", right: "20%", height: 1, background: `linear-gradient(90deg,transparent,${accent},transparent)` }} />}
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, background: iconBg, border: `1px solid ${iconBorder}` }}>{icon}</div>
-                <span style={{ fontSize: 11, fontWeight: 500, padding: "3px 9px", borderRadius: 999, color: positive ? t.green : t.pink, background: positive ? "rgba(63,216,152,0.08)" : "rgba(240,96,166,0.08)", border: `1px solid ${positive ? "rgba(63,216,152,0.2)" : "rgba(240,96,166,0.2)"}` }}>
-                    {positive ? "↑" : "↓"} {delta}
-                </span>
-            </div>
-            <div style={{ ...t.serif, fontSize: "2rem", letterSpacing: "-0.04em", color: t.text, lineHeight: 1 }}>{value}</div>
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: t.faint, marginTop: 4 }}>{title}</div>
-        </div>
-    );
-}
 
 // ── Feature Card ───────────────────────────────────────────────────────────────
-function FeatureCard({ title, desc, icon, iconBg, iconBorder, btnBg, btnBorder, btnColor, topLine }) {
-    const [hov, setHov] = useState(false);
-    return (
-        <div
-            style={{ position: "relative", borderRadius: 20, padding: "26px 24px", background: hov ? t.surface2 : t.surface, border: `1px solid ${t.border}`, overflow: "hidden", transition: "background 0.2s", cursor: "pointer" }}
-            onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-        >
-            {hov && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: topLine }} />}
-            <div style={{ width: 42, height: 42, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, background: iconBg, border: `1px solid ${iconBorder}`, marginBottom: 16 }}>{icon}</div>
-            <h3 style={{ fontSize: 14, fontWeight: 500, letterSpacing: "-0.01em", color: t.text, marginBottom: 7 }}>{title}</h3>
-            <p style={{ fontSize: 12, lineHeight: 1.65, color: t.muted, fontWeight: 300, marginBottom: 18 }}>{desc}</p>
-            <button
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 500, fontFamily: "'DM Sans', sans-serif", background: btnBg, border: `1px solid ${btnBorder}`, color: btnColor, cursor: "pointer", transition: "all 0.15s" }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-                Open <ChevronRight size={11} />
-            </button>
-        </div>
-    );
-}
 
 // ── Dashboard Main Content ─────────────────────────────────────────────────────
 function DashboardPage() {
@@ -358,10 +174,7 @@ function DashboardPage() {
                     ))}
                 </div>
 
-                {/* Right column */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-                    {/* AI Insights */}
                     <div style={{ borderRadius: 20, padding: "18px 20px", background: t.surface, border: `1px solid ${t.border}`, flex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
                             <div style={{ width: 34, height: 34, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, background: "rgba(124,106,247,0.12)", border: "1px solid rgba(124,106,247,0.2)" }}>🤖</div>
@@ -409,26 +222,13 @@ function DashboardPage() {
     );
 }
 
-// ── Placeholder for other pages ────────────────────────────────────────────────
-function PlaceholderPage({ name }) {
-    const icons = { "Resume Builder": "✍️", "Analyzer": "📊", "AI Predictions": "🧠", "My Resumes": "📁", "Settings": "⚙️" };
-    return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 420, gap: 16, textAlign: "center" }}>
-            <div style={{ width: 68, height: 68, borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, background: "rgba(124,106,247,0.1)", border: "1px solid rgba(124,106,247,0.2)" }}>{icons[name] ?? "🔧"}</div>
-            <div>
-                <h3 style={{ ...t.serif, fontSize: "1.7rem", letterSpacing: "-0.025em", marginBottom: 6, color: t.text }}>{name}</h3>
-                <p style={{ fontSize: 13, color: t.muted, fontWeight: 300 }}>This section is coming soon. Stay tuned!</p>
-            </div>
-            <div style={{ padding: "7px 18px", borderRadius: 999, fontSize: 12, background: "rgba(124,106,247,0.1)", border: "1px solid rgba(124,106,247,0.2)", color: t.purpleL }}>Under Construction</div>
-        </div>
-    );
-}
-
-// ── Root Component ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const [active, setActive] = useState("Dashboard");
+
+    const handleClick = () => {
+        navigate(path);
+    }
 
     const handleLogout = () => {
         logout();
@@ -447,16 +247,15 @@ export default function Dashboard() {
             `}</style>
 
             <div style={{ fontFamily: "'DM Sans', sans-serif", background: t.bg, color: t.text, minHeight: "100vh", display: "flex" }}>
-                {/* Ambient orbs — same as landing page */}
                 <div style={{ position: "fixed", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle,rgba(124,106,247,0.11) 0%,transparent 70%)", top: -140, left: 60, filter: "blur(80px)", pointerEvents: "none", zIndex: 0 }} />
                 <div style={{ position: "fixed", width: 340, height: 340, borderRadius: "50%", background: "radial-gradient(circle,rgba(63,216,152,0.07) 0%,transparent 70%)", bottom: "4%", right: "6%", filter: "blur(80px)", pointerEvents: "none", zIndex: 0 }} />
 
-                <Sidebar active={active} setActive={setActive} user={user} onLogout={handleLogout} />
-                <Topbar active={active} />
+                <Sidebar user={user} onLogout={handleLogout} onClick={handleClick} />
+                <Topbar />
 
                 <main style={{ marginLeft: 256, paddingTop: 68, flex: 1, minHeight: "100vh", position: "relative", zIndex: 10, overflowY: "auto" }}>
                     <div style={{ maxWidth: 1080, margin: "0 auto", padding: "26px 28px" }}>
-                        {active === "Dashboard" ? <DashboardPage /> : <PlaceholderPage name={active} />}
+                        <DashboardPage />
                     </div>
                 </main>
             </div>

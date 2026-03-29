@@ -94,24 +94,49 @@ const SCORE_BARS = [
 ];
 
 
-function FeatureCard({ title, desc, icon, iconBg, iconBorder, btnBg, btnBorder, btnColor, topLine }) {
-    const [hov, setHov] = useState(false);
+function Topbar({ active }) {
     return (
-        <div
-            style={{ position: "relative", borderRadius: 20, padding: "26px 24px", background: hov ? t.surface2 : t.surface, border: `1px solid ${t.border}`, overflow: "hidden", transition: "background 0.2s", cursor: "pointer" }}
-            onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-        >
-            {hov && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: topLine }} />}
-            <div style={{ width: 42, height: 42, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, background: iconBg, border: `1px solid ${iconBorder}`, marginBottom: 16 }}>{icon}</div>
-            <h3 style={{ fontSize: 14, fontWeight: 500, letterSpacing: "-0.01em", color: t.text, marginBottom: 7 }}>{title}</h3>
-            <p style={{ fontSize: 12, lineHeight: 1.65, color: t.muted, fontWeight: 300, marginBottom: 18 }}>{desc}</p>
-            <button
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 500, fontFamily: "'DM Sans', sans-serif", background: btnBg, border: `1px solid ${btnBorder}`, color: btnColor, cursor: "pointer", transition: "all 0.15s" }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-                Open <ChevronRight size={11} />
-            </button>
-        </div>
+        <header style={{
+            position: "fixed", top: 0, left: 256, right: 0, zIndex: 30,
+            background: "rgba(9,9,15,0.85)", backdropFilter: "blur(16px)",
+            borderBottom: `1px solid ${t.border}`,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "13px 30px", fontFamily: "'DM Sans', sans-serif",
+        }}>
+            <div>
+                <h2 style={{ ...t.serif, fontSize: "1.15rem", letterSpacing: "-0.02em", color: t.text, margin: 0 }}>
+                    {active === "Dashboard"
+                        ? <>Good morning, <em style={t.serifItalic}>there</em> 👋</>
+                        : active}
+                </h2>
+                <p style={{ fontSize: 11, color: t.faint, marginTop: 2 }}>
+                    {active === "Dashboard" ? "Here's what's happening with your job search today." : `Manage your ${active.toLowerCase()}.`}
+                </p>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 999, background: t.surface, border: `1px solid ${t.border}`, fontSize: 12, color: t.faint }}>
+                    <Search size={11} /> Search jobs, resumes…
+                </div>
+
+                <button style={{ position: "relative", width: 34, height: 34, borderRadius: "50%", background: t.surface, border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: t.muted, transition: "all 0.15s" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.border2; e.currentTarget.style.color = t.text; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.muted; }}>
+                    <Bell size={13} />
+                    <span style={{ position: "absolute", top: 5, right: 5, width: 5, height: 5, borderRadius: "50%", background: t.pink, boxShadow: `0 0 4px ${t.pink}` }} />
+                </button>
+
+                <button style={{
+                    display: "flex", alignItems: "center", gap: 5, padding: "7px 16px", borderRadius: 999,
+                    fontSize: 12, fontWeight: 500, color: "#fff", fontFamily: "'DM Sans', sans-serif",
+                    background: t.purple, border: "none", cursor: "pointer",
+                    boxShadow: "0 4px 18px rgba(124,106,247,0.35)", transition: "all 0.15s",
+                }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = t.purpleL; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = t.purple; e.currentTarget.style.transform = "translateY(0)"; }}>
+                    + New Resume
+                </button>
+            </div>
+        </header>
     );
 }

@@ -98,8 +98,8 @@ async def signup(user: UserSignup, response: Response):
             key="token",
             value=token,
             httponly=True,
-            secure=False,
-            samesite="lax",
+            secure=True,
+            samesite="none",
             max_age=60 * 60 * 24,
             path="/"
         )
@@ -147,8 +147,8 @@ async def login(user: UserLogin, response: Response):
             key="token",
             value=token,
             httponly=True,
-            secure=False,
-            samesite="lax",
+            secure=True,
+            samesite="none",
             path="/",
             max_age=60 * 60 * 24
         )
@@ -174,8 +174,8 @@ async def logout(response: Response):
     response.delete_cookie(
         key="token",
         path="/",
-        samesite="lax",
-        secure=False
+        samesite="none",
+        secure=True
     )
     return {"message": "Logged out successfully"}
 
@@ -231,8 +231,8 @@ async def google_callback(request: Request):
         key="token",
         value=jwt_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         path="/",
         max_age=60 * 60 * 24
     )
@@ -295,8 +295,8 @@ async def github_callback(request: Request):
         key="token",
         value=jwt_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         path="/",
         max_age=60 * 60 * 24
     )

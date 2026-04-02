@@ -1,3 +1,6 @@
+import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Bell, Search, ChevronRight } from "lucide-react";
+
+
 const t = {
     bg: "#09090f",
     surface: "#111118",
@@ -94,7 +97,7 @@ const SCORE_BARS = [
 ];
 
 
-function ScoreRing({ score = 82, size = 84, stroke = 6 }) {
+export default function ScoreRing({ score = 82, size = 84, stroke = 6 }) {
     const r = (size - stroke) / 2;
     const circ = 2 * Math.PI * r;
     const offset = circ * (1 - score / 100);

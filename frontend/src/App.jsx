@@ -7,11 +7,14 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import Analyzer from "./pages/Analyzer";
 import MyResumes from "./pages/MyResumes";
-import Predictions from "./pages/Predictions";
-import ResumeBuilder from "./pages/ResumeBuilder";
+import ResumeBuilder from "./components/resume/ResumeBuilder";
 import Settings from "./pages/Settings";
+import CareerInsight from "./pages/CareerInsight";
+import SkillMatcherPage from "./pages/SkillMatcherPage";
+import ResumeClassifierPage from "./pages/ResumeClassifierPage";
+import SkillMatchSetPage from "./pages/SkillMatchSetPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -42,21 +45,39 @@ function App() {
             </ProtectedRoute>}
           />
 
-          <Route path="/analyzer" element={
+          <Route path="/career-advisor" element={
             <ProtectedRoute>
-              <Analyzer />
+              <CareerInsight />
             </ProtectedRoute>}
           />
 
-          <Route path="/ai-prediction" element={
+          <Route path="/skill-matcher" element={
             <ProtectedRoute>
-              <Predictions />
+              <SkillMatcherPage />
+            </ProtectedRoute>}
+          />
+
+          <Route path="/job-category" element={
+            <ProtectedRoute>
+              <ResumeClassifierPage />
+            </ProtectedRoute>}
+          />
+
+          <Route path="/skill-match-set" element={
+            <ProtectedRoute>
+              <SkillMatchSetPage />
             </ProtectedRoute>}
           />
 
           <Route path="/myresumes" element={
             <ProtectedRoute>
               <MyResumes />
+            </ProtectedRoute>}
+          />
+
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>}
           />
 

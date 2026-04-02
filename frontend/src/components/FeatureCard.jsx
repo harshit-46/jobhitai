@@ -1,3 +1,7 @@
+import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Bell, Search, ChevronRight } from "lucide-react";
+import { useState } from "react";
+
+
 const t = {
     bg: "#09090f",
     surface: "#111118",
@@ -94,7 +98,7 @@ const SCORE_BARS = [
 ];
 
 
-function FeatureCard({ title, desc, icon, iconBg, iconBorder, btnBg, btnBorder, btnColor, topLine }) {
+export default function FeatureCard({ title, desc, icon, iconBg, iconBorder, btnBg, btnBorder, btnColor, topLine }) {
     const [hov, setHov] = useState(false);
     return (
         <div

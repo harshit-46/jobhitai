@@ -42,7 +42,8 @@ function StrengthBar({ password }) {
                     : /[^a-zA-Z0-9]/.test(password) ? 4
                         : 3;
     const labels = ["", "Weak", "Fair", "Good", "Strong"];
-    const colors = ["", "#f067a6", "#f0c060", "#a599ff", "#3fd898"];
+    // Remapped to landing palette: red → orange → lime-dim → lime-bright
+    const colors = ["", "#f87171", "#fbbf24", "#a3e635", "#E8FF47"];
     return (
         <div className="flex flex-col gap-1.5 mt-1">
             <div className="flex gap-1">
@@ -107,22 +108,41 @@ export default function SignupPage() {
 
     const inputClass = (field) =>
         `relative flex items-center rounded-xl border transition-all duration-200 ${focused === field
-            ? "border-[#7c6af7] shadow-[0_0_0_3px_rgba(124,106,247,0.15)] bg-[#111118]"
-            : "border-white/8 bg-[#111118] hover:border-white/15"
+            ? "border-lime-300/60 shadow-[0_0_0_3px_rgba(232,255,71,0.1)] bg-white/[0.04]"
+            : "border-white/8 bg-white/[0.03] hover:border-white/15"
         }`;
 
     return (
         <>
-            <div
-                className="min-h-screen bg-[#09090f] text-[#f0eff8] overflow-hidden flex"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-            >
-                {/* Background glows — identical to Login */}
-                <div className="fixed rounded-full pointer-events-none blur-[100px] z-0 w-175 h-175 bg-[radial-gradient(circle,rgba(124,106,247,0.13)_0%,transparent_70%)] -top-75 -left-50" />
-                <div className="fixed rounded-full pointer-events-none blur-[80px] z-0 w-125 h-125 bg-[radial-gradient(circle,rgba(63,216,152,0.06)_0%,transparent_70%)] bottom-0 right-0" />
-                <div className="fixed rounded-full pointer-events-none blur-[60px] z-0 w-75 h-75 bg-[radial-gradient(circle,rgba(240,192,96,0.07)_0%,transparent_70%)] top-[50%] right-[30%]" />
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&display=swap');
+                .font-fraunces { font-family: 'Fraunces', serif; }
+                .font-dm { font-family: 'DM Sans', sans-serif; }
+                .grid-dots {
+                    background-image:
+                        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+                    background-size: 52px 52px;
+                }
+                .btn-shimmer::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+                    transform: translateX(-100%);
+                    transition: transform 0.7s ease;
+                }
+                .btn-shimmer:hover::before { transform: translateX(100%); }
+            `}</style>
 
-                {/* Noise texture overlay */}
+            <div className="font-dm min-h-screen bg-[#0a0a0e] text-[#f0ede8] overflow-hidden flex">
+
+                {/* ── BG orbs (landing palette) ── */}
+                <div className="fixed rounded-full pointer-events-none blur-[120px] z-0 w-150 h-150 bg-[radial-gradient(circle,rgba(232,255,71,0.05)_0%,transparent_70%)] -top-64 -left-48" />
+                <div className="fixed rounded-full pointer-events-none blur-[80px] z-0 w-100 h-100 bg-[radial-gradient(circle,rgba(232,255,71,0.03)_0%,transparent_70%)] bottom-0 right-0" />
+                <div className="fixed rounded-full pointer-events-none blur-[60px] z-0 w-70 h-70 bg-[radial-gradient(circle,rgba(255,255,255,0.03)_0%,transparent_70%)] top-[50%] right-[30%]" />
+
+                {/* Noise overlay */}
                 <div
                     className="fixed inset-0 pointer-events-none z-9999 opacity-[0.028]"
                     style={{
@@ -131,69 +151,64 @@ export default function SignupPage() {
                     }}
                 />
 
-                {/* Left panel */}
+                {/* ── LEFT PANEL ── */}
                 <div className="hidden lg:flex w-[52%] relative flex-col justify-between p-14 border-r border-white/6">
-                    {/* Grid overlay */}
-                    <div
-                        className="absolute inset-0 opacity-[0.03]"
-                        style={{
-                            backgroundImage:
-                                "linear-gradient(rgba(255,255,255,0.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.6) 1px,transparent 1px)",
-                            backgroundSize: "48px 48px",
-                        }}
-                    />
-                    <div className="absolute top-0 left-0 w-72 h-72 bg-[radial-gradient(circle,rgba(124,106,247,0.12)_0%,transparent_70%)] blur-2xl" />
+
+                    {/* Grid dots */}
+                    <div className="absolute inset-0 grid-dots" />
+
+                    {/* Corner glow */}
+                    <div className="absolute top-0 left-0 w-72 h-72 bg-[radial-gradient(circle,rgba(232,255,71,0.07)_0%,transparent_70%)] blur-2xl pointer-events-none" />
+
+                    {/* Corner mark */}
+                    <svg className="absolute top-10 right-10 opacity-10" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                        <path d="M48 0v48H0" stroke="#E8FF47" strokeWidth="1" />
+                    </svg>
 
                     {/* Logo */}
                     <Link
                         to="/"
-                        className="relative z-10 no-underline text-[1.5rem] tracking-[-0.02em] text-[#f0eff8]"
-                        style={{ fontFamily: "'Instrument Serif', serif" }}
+                        className="relative z-10 no-underline font-fraunces font-black text-2xl tracking-tight text-[#f0ede8]"
                     >
-                        JobHit<span className="text-[#a599ff]">AI</span>
+                        JobHit<span className="text-lime-300">AI</span>
                     </Link>
 
-                    {/* Features */}
+                    {/* Hero copy */}
                     <div className="relative z-10 max-w-sm">
-                        <div
-                            className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium uppercase tracking-widest mb-8 text-[#a599ff] bg-[rgba(124,106,247,0.1)] border border-[rgba(124,106,247,0.25)]"
-                        >
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#3fd898] shadow-[0_0_8px_#3fd898] animate-pulse shrink-0" />
+
+                        {/* Badge */}
+                        <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-widest mb-8 text-lime-300 bg-lime-300/[0.07] border border-lime-300/20">
+                            <span className="w-1.5 h-1.5 rounded-full bg-lime-300 shadow-[0_0_8px_rgba(232,255,71,0.8)] animate-pulse shrink-0" />
                             Free forever — no card needed
                         </div>
 
-                        <h2
-                            className="text-[2.8rem] font-normal leading-[1.06] tracking-[-0.03em] mb-6 text-[#f0eff8]"
-                            style={{ fontFamily: "'Instrument Serif', serif" }}
-                        >
+                        <h2 className="font-fraunces font-black text-[2.75rem] leading-[1.05] tracking-[-0.035em] mb-5 text-[#f0ede8]">
                             Land your next job
                             <br />
-                            <em className="italic text-[#a599ff]" style={{ fontFamily: "'Instrument Serif', serif" }}>
-                                smarter
-                            </em>{" "}not harder
+                            <em className="italic text-lime-300">smarter</em>{" "}not harder
                         </h2>
 
-                        <p className="text-sm leading-relaxed font-light text-[#7b7a92] mb-10">
+                        <p className="text-sm leading-relaxed font-light text-white/40 mb-10">
                             Build ATS-ready resumes, score against real jobs, and track every application — all in one place.
                         </p>
 
+                        {/* Feature cards */}
                         <div className="flex flex-col gap-3">
                             {[
                                 { icon: "🧠", title: "AI Resume Builder", desc: "Craft ATS-ready resumes tailored to any job." },
-                                { icon: "📊", title: "Live Score Engine", desc: "Get real-time match scores vs. job descriptions." },
+                                { icon: "📊", title: "Live Score Engine", desc: "Get real-time match resume vs. job description score." },
                                 { icon: "⚡", title: "One-Click Apply", desc: "Apply to hundreds of jobs without manual effort." },
-                                { icon: "💬", title: "Interview Prep AI", desc: "Practice with mock interviews before the real thing." },
                             ].map((f) => (
                                 <div
                                     key={f.title}
-                                    className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#111118] border border-white/[0.07]"
+                                    className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/3 border border-white/[0.07]"
                                 >
-                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-[rgba(124,106,247,0.12)] border border-[rgba(124,106,247,0.2)]">
+                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-lime-300/8 border border-lime-300/18">
                                         {f.icon}
                                     </div>
                                     <div className="min-w-0">
-                                        <div className="text-xs font-medium text-[#f0eff8]">{f.title}</div>
-                                        <div className="text-xs text-[#4a4963] mt-0.5">{f.desc}</div>
+                                        <div className="text-xs font-medium text-[#f0ede8]">{f.title}</div>
+                                        <div className="text-xs text-white/20 mt-0.5">{f.desc}</div>
                                     </div>
                                 </div>
                             ))}
@@ -208,43 +223,36 @@ export default function SignupPage() {
                             { num: "6 wks", label: "Avg. to offer" },
                         ].map((s, i) => (
                             <div key={s.label} className={`${i > 0 ? "pl-8 border-l border-white/[0.07]" : ""}`}>
-                                <div
-                                    className="text-xl text-[#f0eff8] tracking-[-0.03em]"
-                                    style={{ fontFamily: "'Instrument Serif', serif" }}
-                                >
+                                <div className="font-fraunces font-black text-xl text-[#f0ede8] tracking-tight">
                                     {s.num}
                                 </div>
-                                <div className="text-xs text-[#4a4963] uppercase tracking-widest mt-0.5">{s.label}</div>
+                                <div className="text-[10px] text-white/25 uppercase tracking-widest mt-0.5">{s.label}</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Right panel — form */}
+                {/* ── RIGHT PANEL ── */}
                 <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 relative z-10">
 
                     {/* Mobile logo */}
                     <Link
                         to="/"
-                        className="lg:hidden no-underline text-[1.4rem] tracking-[-0.02em] text-[#f0eff8] mb-12"
-                        style={{ fontFamily: "'Instrument Serif', serif" }}
+                        className="lg:hidden no-underline font-fraunces font-black text-2xl tracking-tight text-[#f0ede8] mb-12"
                     >
-                        JobHit<span className="text-[#a599ff]">AI</span>
+                        JobHit<span className="text-lime-300">AI</span>
                     </Link>
 
-                    <div className="w-full max-w-100">
+                    <div className="w-full max-w-sm">
 
                         {/* Heading */}
                         <div className="mb-8">
-                            <h1
-                                className="text-[2rem] font-normal tracking-[-0.025em] text-[#f0eff8] mb-2"
-                                style={{ fontFamily: "'Instrument Serif', serif" }}
-                            >
+                            <h1 className="font-fraunces font-black text-[2rem] tracking-[-0.03em] text-[#f0ede8] mb-2">
                                 Create your account
                             </h1>
-                            <p className="text-sm text-[#7b7a92] font-light">
+                            <p className="text-sm text-white/40 font-light">
                                 Already have one?{" "}
-                                <Link to="/login" className="text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">
+                                <Link to="/login" className="text-lime-300 no-underline hover:text-yellow-200 transition-colors duration-200">
                                     Sign in instead
                                 </Link>
                             </p>
@@ -254,14 +262,14 @@ export default function SignupPage() {
                         <div className="flex gap-3 mb-6">
                             <button
                                 onClick={loginGoogle}
-                                className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer"
+                                className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-white/40 bg-white/3 border border-white/8 hover:border-white/16 hover:text-[#f0ede8] hover:bg-white/6 transition-all duration-200 cursor-pointer"
                             >
                                 <GoogleIcon />
                                 Google
                             </button>
                             <button
                                 onClick={loginGithub}
-                                className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-[#7b7a92] bg-[#111118] border border-white/8 hover:border-white/16 hover:text-[#f0eff8] hover:bg-[#16161f] transition-all duration-200 cursor-pointer"
+                                className="flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium text-white/40 bg-white/3 border border-white/8 hover:border-white/16 hover:text-[#f0ede8] hover:bg-white/6 transition-all duration-200 cursor-pointer"
                             >
                                 <GitHubIcon />
                                 GitHub
@@ -271,7 +279,7 @@ export default function SignupPage() {
                         {/* Divider */}
                         <div className="flex items-center gap-3 mb-6">
                             <div className="flex-1 h-px bg-white/[0.07]" />
-                            <span className="text-xs text-[#4a4963] uppercase tracking-widest">or</span>
+                            <span className="text-[10px] text-white/20 uppercase tracking-widest">or</span>
                             <div className="flex-1 h-px bg-white/[0.07]" />
                         </div>
 
@@ -280,7 +288,7 @@ export default function SignupPage() {
 
                             {/* Full name */}
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
+                                <label className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
                                     Full name
                                 </label>
                                 <div className={inputClass("name")}>
@@ -292,7 +300,7 @@ export default function SignupPage() {
                                         onFocus={() => setFocused("name")}
                                         onBlur={() => setFocused(null)}
                                         placeholder="Arjun Mehta"
-                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0eff8] placeholder-[#4a4963] outline-none"
+                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0ede8] placeholder-white/20 outline-none"
                                         required
                                     />
                                 </div>
@@ -300,7 +308,7 @@ export default function SignupPage() {
 
                             {/* Username */}
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
+                                <label className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
                                     Username
                                 </label>
                                 <div className={inputClass("username")}>
@@ -312,7 +320,7 @@ export default function SignupPage() {
                                         onFocus={() => setFocused("username")}
                                         onBlur={() => setFocused(null)}
                                         placeholder="arjunmehta"
-                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0eff8] placeholder-[#4a4963] outline-none"
+                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0ede8] placeholder-white/20 outline-none"
                                         required
                                     />
                                 </div>
@@ -320,7 +328,7 @@ export default function SignupPage() {
 
                             {/* Email */}
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
+                                <label className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
                                     Email address
                                 </label>
                                 <div className={inputClass("email")}>
@@ -332,7 +340,7 @@ export default function SignupPage() {
                                         onFocus={() => setFocused("email")}
                                         onBlur={() => setFocused(null)}
                                         placeholder="you@company.com"
-                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0eff8] placeholder-[#4a4963] outline-none"
+                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0ede8] placeholder-white/20 outline-none"
                                         required
                                     />
                                 </div>
@@ -340,7 +348,7 @@ export default function SignupPage() {
 
                             {/* Password */}
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-medium uppercase tracking-widest text-[#7b7a92]">
+                                <label className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
                                     Password
                                 </label>
                                 <div className={inputClass("password")}>
@@ -352,13 +360,13 @@ export default function SignupPage() {
                                         onFocus={() => setFocused("password")}
                                         onBlur={() => setFocused(null)}
                                         placeholder="Min. 8 characters"
-                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0eff8] placeholder-[#4a4963] outline-none pr-12"
+                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#f0ede8] placeholder-white/20 outline-none pr-12"
                                         required
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-4 text-[#4a4963] hover:text-[#7b7a92] transition-colors duration-200 cursor-pointer"
+                                        className="absolute right-4 text-white/20 hover:text-white/50 transition-colors duration-200 cursor-pointer"
                                     >
                                         <EyeIcon open={showPassword} />
                                     </button>
@@ -366,63 +374,25 @@ export default function SignupPage() {
                                 <StrengthBar password={form.password} />
                             </div>
 
-                            {/* Terms checkbox */}
-                            <label className="flex items-start gap-2.5 cursor-pointer mt-1">
-                                <div
-                                    onClick={() => setAgreed(!agreed)}
-                                    className="w-4 h-4 rounded shrink-0 mt-0.5 flex items-center justify-center transition-all duration-200 cursor-pointer"
-                                    style={{
-                                        background: agreed ? "#7c6af7" : "#111118",
-                                        border: `1px solid ${agreed ? "#7c6af7" : "rgba(255,255,255,0.12)"}`,
-                                        boxShadow: agreed ? "0 0 0 3px rgba(124,106,247,0.15)" : "none",
-                                    }}
-                                >
-                                    {agreed && (
-                                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                                            <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    )}
-                                </div>
-                                <span className="text-xs leading-relaxed text-[#7b7a92]">
-                                    I agree to the{" "}
-                                    <a href="#" className="text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">Terms of Service</a>
-                                    {" "}and{" "}
-                                    <a href="#" className="text-[#a599ff] no-underline hover:text-[#c4baff] transition-colors duration-200">Privacy Policy</a>
-                                </span>
-                            </label>
-
                             {/* Submit */}
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="relative mt-2 w-full py-3.5 rounded-xl text-white text-sm font-medium cursor-pointer overflow-hidden transition-all duration-200 disabled:opacity-70 hover:-translate-y-px"
-                                style={{
-                                    background: "linear-gradient(135deg,#7c6af7,#5c4ed4)",
-                                    boxShadow: "0 4px 24px rgba(124,106,247,0.4), 0 0 0 1px rgba(124,106,247,0.2)",
-                                }}
+                                className="btn-shimmer relative mt-2 w-full py-3.5 rounded-xl text-[#0a0a0e] text-sm font-bold cursor-pointer overflow-hidden transition-all duration-200 disabled:opacity-70 hover:-translate-y-px bg-lime-300 hover:bg-yellow-200 shadow-[0_4px_24px_rgba(232,255,71,0.25),0_0_0_1px_rgba(232,255,71,0.15)]"
                             >
-                                <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/[0.07] to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
-
                                 {loading ? (
                                     <span className="flex items-center justify-center gap-2">
                                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                                            <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" />
-                                            <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                                            <circle cx="12" cy="12" r="10" stroke="rgba(10,10,14,0.25)" strokeWidth="2.5" />
+                                            <path d="M12 2a10 10 0 0 1 10 10" stroke="#0a0a0e" strokeWidth="2.5" strokeLinecap="round" />
                                         </svg>
                                         Creating account…
                                     </span>
                                 ) : (
-                                    "Create Account →"
+                                    "Create Account"
                                 )}
                             </button>
                         </form>
-
-                        <p className="text-xs text-[#4a4963] text-center mt-6 leading-relaxed">
-                            By signing up you agree to our{" "}
-                            <a href="#" className="text-[#7b7a92] no-underline hover:text-[#f0eff8] transition-colors duration-200">Terms</a>
-                            {" "}&amp;{" "}
-                            <a href="#" className="text-[#7b7a92] no-underline hover:text-[#f0eff8] transition-colors duration-200">Privacy Policy</a>
-                        </p>
                     </div>
                 </div>
             </div>

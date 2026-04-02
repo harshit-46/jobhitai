@@ -1,3 +1,6 @@
+import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Bell, Search, ChevronRight } from "lucide-react";
+import { useState } from "react";
+
 const t = {
     bg: "#09090f",
     surface: "#111118",
@@ -93,7 +96,7 @@ const SCORE_BARS = [
     { name: "Format", val: 92, gradient: "linear-gradient(90deg,#3fd898,#7c6af7)" },
 ];
 
-function StatCard({ title, value, delta, positive, icon, iconBg, iconBorder, accent, cardBorder, cardGrad }) {
+export default function StatCard({ title, value, delta, positive, icon, iconBg, iconBorder, accent, cardBorder, cardGrad }) {
     const [hov, setHov] = useState(false);
     return (
         <div

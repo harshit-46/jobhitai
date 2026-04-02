@@ -13,6 +13,13 @@ from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import RedirectResponse
 import os
 
+#Features
+from routes.career import router as career_router # career advisor
+from routes.job_match import router as jobmatcher_router # Skill Matcher
+from routes.resume_classifier import router as resume_router # Job category
+from routes.skills_matcher import router as skill_router # Skill Match Set
+from routes.resume import router as resumebuilder_router # Resume Builder
+
 # -------------------- CONFIG --------------------
 config = Config('.env')
 oauth = OAuth(config)
@@ -39,6 +46,13 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("JWT_SECRET_KEY")
 )
+
+#Registering routes
+app.include_router(career_router, prefix="/api/career", tags=["Career"])
+app.include_router(jobmatcher_router, prefix="/api/job")
+app.include_router(resume_router, prefix="/api/resume")
+app.include_router(skill_router, prefix="/api/skills")
+app.include_router(resumebuilder_router , prefix="/resume-builder", tags=["resume"])
 
 # -------------------- ROOT --------------------
 @app.get("/")
@@ -84,8 +98,8 @@ async def signup(user: UserSignup, response: Response):
             key="token",
             value=token,
             httponly=True,
-            secure=True,
-            samesite="none",
+            secure=False,
+            samesite="lax",
             max_age=60 * 60 * 24,
             path="/"
         )
@@ -133,8 +147,8 @@ async def login(user: UserLogin, response: Response):
             key="token",
             value=token,
             httponly=True,
-            secure=True,
-            samesite="none",
+            secure=False,
+            samesite="lax",
             path="/",
             max_age=60 * 60 * 24
         )
@@ -160,8 +174,8 @@ async def logout(response: Response):
     response.delete_cookie(
         key="token",
         path="/",
-        samesite="none",
-        secure=True
+        samesite="lax",
+        secure=False
     )
     return {"message": "Logged out successfully"}
 
@@ -217,8 +231,8 @@ async def google_callback(request: Request):
         key="token",
         value=jwt_token,
         httponly=True,
-        secure=True,
-        samesite="none",
+        secure=False,
+        samesite="lax",
         path="/",
         max_age=60 * 60 * 24
     )
@@ -281,8 +295,8 @@ async def github_callback(request: Request):
         key="token",
         value=jwt_token,
         httponly=True,
-        secure=True,
-        samesite="none",
+        secure=False,
+        samesite="lax",
         path="/",
         max_age=60 * 60 * 24
     )

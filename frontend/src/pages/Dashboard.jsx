@@ -111,6 +111,13 @@ const SCORE_BARS = [
 ];
 
 function DashboardPage() {
+
+    const navigate = useNavigate();
+
+    const handleFeatureClick = (path) => {
+        navigate(`/${path}`);
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
@@ -149,7 +156,7 @@ function DashboardPage() {
 
             {/* ── Feature cards ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
-                {FEATURES.map((f) => <FeatureCard key={f.title} {...f} />)}
+                {FEATURES.map((f) => <FeatureCard key={f.title} {...f} onClick={() => handleFeatureClick(f.path)} />)}
             </div>
 
             {/* ── Bottom row ── */}
@@ -231,7 +238,7 @@ export default function Dashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    const handleClick = () => {
+    const handleClick = (path) => {
         navigate(path);
     };
 

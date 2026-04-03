@@ -20,14 +20,6 @@ from routes.resume_classifier import router as resume_router # Job category
 from routes.skills_matcher import router as skill_router # Skill Match Set
 from routes.resume import router as resumebuilder_router # Resume Builder
 
-import os
-
-port = int(os.environ.get("PORT", 8000))
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
-
 # -------------------- CONFIG --------------------
 config = Config('.env')
 oauth = OAuth(config)
@@ -232,7 +224,7 @@ async def google_callback(request: Request):
     jwt_token = create_token({"sub": email})
 
     response = RedirectResponse(
-        url= localURL
+        url= prodURL
     )
 
     response.set_cookie(
@@ -296,7 +288,7 @@ async def github_callback(request: Request):
     jwt_token = create_token({"sub": email})
 
     response = RedirectResponse(
-        url= localURL
+        url= prodURL
     )
 
     response.set_cookie(

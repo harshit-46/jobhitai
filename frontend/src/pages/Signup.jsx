@@ -170,7 +170,7 @@ export default function SignupPage() {
                         to="/"
                         className="relative z-10 no-underline font-fraunces font-black text-2xl tracking-tight text-[#f0ede8]"
                     >
-                        JobHit<span className="text-lime-300">AI</span>
+                        Career<span className="text-lime-300">Crafter</span>
                     </Link>
 
                     {/* Hero copy */}
@@ -240,7 +240,7 @@ export default function SignupPage() {
                         to="/"
                         className="lg:hidden no-underline font-fraunces font-black text-2xl tracking-tight text-[#f0ede8] mb-12"
                     >
-                        JobHit<span className="text-lime-300">AI</span>
+                        Career<span className="text-lime-300">Crafter</span>
                     </Link>
 
                     <div className="w-full max-w-sm">

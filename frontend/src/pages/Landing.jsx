@@ -182,7 +182,7 @@ export default function Landing() {
                         </svg>
                     </div>
                     <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 800, fontSize: "18px", letterSpacing: "-0.02em" }}>
-                        JobHit<span style={{ color: "#E8FF47" }}>AI</span>
+                        Career<span style={{ color: "#E8FF47" }}>Crafter</span>
                     </span>
                 </div>
 
@@ -485,9 +485,9 @@ export default function Landing() {
                         <div style={{ width: 24, height: 24, background: "#E8FF47", borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M4 5h12M4 10h8M4 15h10" stroke="#0a0a0e" strokeWidth="2" strokeLinecap="round" /></svg>
                         </div>
-                        <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 800, fontSize: "16px" }}>JobHit<span style={{ color: "#E8FF47" }}>AI</span></span>
+                        <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 800, fontSize: "16px" }}>Career<span style={{ color: "#E8FF47" }}>Crafter</span></span>
                     </div>
-                    <div style={{ fontSize: "12px", color: "rgba(240,237,232,0.25)" }}>© 2026 JobHitAI. All rights reserved.</div>
+                    <div style={{ fontSize: "12px", color: "rgba(240,237,232,0.25)" }}>© 2026 CareerCrafter. All rights reserved.</div>
                 </div>
             </footer>
         </div>

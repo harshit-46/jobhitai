@@ -58,11 +58,11 @@ const pill = (active) => ({
 
 // ── Mock initial data (replace with real user context / API) ─────────────────
 const INIT = {
-    name:       "Harshit Sharma",
-    email:      "harshit@jobhitai.com",
+    name:       "Harshit Gupta",
+    email:      "harshit@careercrafter.com",
     phone:      "+91 98765 43210",
     location:   "Dehradun, India",
-    linkedin:   "linkedin.com/in/harshit-sharma",
+    linkedin:   "linkedin.com/in/harshithere",
     github:     "github.com/harshit-46",
     portfolio:  "harshit.dev",
     bio:        "Full-stack developer specialising in React, FastAPI and AI-integrated systems. Passionate about developer tooling and open-source.",

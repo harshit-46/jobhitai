@@ -70,7 +70,7 @@ export default function Sidebar({ user, onLogout }) {
             {/* Logo */}
             <div style={{ padding: "19px 26px", borderBottom: `1px solid ${t.border}` }}>
                 <span style={{ ...t.serif, fontSize: "1.42rem", letterSpacing: "-0.03em", color: t.text }}>
-                    JobHit<span style={{ color: t.lime }}>AI</span>
+                    Career<span style={{ color: t.lime }}>Crafter</span>
                 </span>
             </div>
 

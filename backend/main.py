@@ -1,3 +1,5 @@
+"""
+
 from fastapi import FastAPI, HTTPException, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -289,6 +291,181 @@ async def github_callback(request: Request):
         samesite="none",
         path="/",
         max_age=60 * 60 * 24
+    )
+
+    return response
+
+"""
+
+
+from fastapi import FastAPI, HTTPException, Response, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
+import os
+
+from database import users_collection
+from models import UserSignup, UserLogin
+from auth import hash_password, verify_password, create_token, get_current_user
+
+from authlib.integrations.starlette_client import OAuth
+from starlette.config import Config
+from starlette.requests import Request
+from starlette.middleware.sessions import SessionMiddleware
+from fastapi.responses import RedirectResponse
+
+from routes.resume import router as resumebuilder_router
+
+# ---------------- CONFIG ----------------
+config = Config('.env')
+oauth = OAuth(config)
+
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+
+app = FastAPI()
+
+# ---------------- CORS ----------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        FRONTEND_URL,
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------------- SESSION ----------------
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("JWT_SECRET_KEY")
+)
+
+# ---------------- ROUTES ----------------
+app.include_router(resumebuilder_router, prefix="/resume-builder", tags=["resume"])
+
+# ---------------- ROOT ----------------
+@app.get("/")
+async def root():
+    return {"message": "API running 🚀"}
+
+# ---------------- AUTH ----------------
+@app.post("/api/signup")
+async def signup(user: UserSignup, response: Response):
+    existing_user = await users_collection.find_one({"email": user.email})
+
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")
+
+    hashed_password = hash_password(user.password)
+
+    await users_collection.insert_one({
+        "name": user.name,
+        "username": user.username,
+        "email": user.email,
+        "providers": ["local"],
+        "password": hashed_password,
+        "created_at": datetime.utcnow()
+    })
+
+    token = create_token({"sub": user.email})
+
+    response.set_cookie(
+        key="token",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=60 * 60 * 24
+    )
+
+    return {"message": "User created successfully"}
+
+
+@app.post("/api/login")
+async def login(user: UserLogin, response: Response):
+    db_user = await users_collection.find_one({
+        "$or": [
+            {"email": user.identifier},
+            {"username": user.identifier}
+        ]
+    })
+
+    if not db_user:
+        raise HTTPException(status_code=400, detail="User not found")
+
+    if not verify_password(user.password, db_user["password"]):
+        raise HTTPException(status_code=400, detail="Invalid password")
+
+    token = create_token({"sub": db_user["email"]})
+
+    response.set_cookie(
+        key="token",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=60 * 60 * 24
+    )
+
+    return {"message": "Login successful"}
+
+
+@app.get("/api/me")
+async def get_me(user=Depends(get_current_user)):
+    db_user = await users_collection.find_one({"email": user["sub"]})
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "name": db_user["name"],
+        "email": db_user["email"]
+    }
+
+
+@app.post("/api/logout")
+async def logout(response: Response):
+    response.delete_cookie("token")
+    return {"message": "Logged out successfully"}
+
+
+# ---------------- OAUTH ----------------
+@app.get("/auth/google")
+async def login_google(request: Request):
+    redirect_uri = request.url_for("google_callback")
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+
+@app.get("/auth/google/callback")
+async def google_callback(request: Request):
+    token = await oauth.google.authorize_access_token(request)
+    user_info = token.get("userinfo")
+
+    email = user_info["email"]
+
+    user = await users_collection.find_one({"email": email})
+
+    if not user:
+        await users_collection.insert_one({
+            "name": user_info["name"],
+            "email": email,
+            "providers": ["google"],
+            "created_at": datetime.utcnow()
+        })
+
+    jwt_token = create_token({"sub": email})
+
+    response = RedirectResponse(url=f"{FRONTEND_URL}/dashboard")
+
+    response.set_cookie(
+        key="token",
+        value=jwt_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
     )
 
     return response

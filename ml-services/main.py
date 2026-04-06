@@ -1,7 +1,16 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from services import resume_classifier, skill_matcher, job_matcher, career
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # later restrict
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 def root():

@@ -4,8 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
-import anthropic
 import io
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 from auth import get_current_user  # your existing auth dependency
 from database import get_db           # your existing MongoDB connection
@@ -155,43 +158,45 @@ async def generate_summary(
     resume: ResumeData,
     current_user: dict = Depends(get_current_user),
 ):
-    client = anthropic.Anthropic()
+    if not client:
+        return {"summary": "AI service not configured."}
 
-    # Build context from resume data
-    experience_text = ""
-    for exp in resume.experience:
-        experience_text += f"\n- {exp.role} at {exp.company}"
-        if exp.bullets:
-            experience_text += ": " + "; ".join(exp.bullets[:2])
+    try:
+        experience_text = ""
+        for exp in resume.experience:
+            experience_text += f"\n- {exp.role} at {exp.company}"
+            if exp.bullets:
+                experience_text += ": " + "; ".join(exp.bullets[:2])
 
-    skills_text = ", ".join(resume.skills.technical[:10])
-    projects_text = ", ".join([p.title for p in resume.projects if p.title])
+        skills_text = ", ".join(resume.skills.technical[:10])
+        projects_text = ", ".join([p.title for p in resume.projects if p.title])
 
-    prompt = f"""You are a professional resume writer. Write a compelling 2-3 sentence professional summary for this person.
+        prompt = f"""
+Write a strong professional resume summary (2-3 sentences).
 
 Name: {resume.personal.name}
-Experience:{experience_text or " Not provided"}
-Key Skills: {skills_text or "Not provided"}
-Projects: {projects_text or "Not provided"}
+Experience: {experience_text}
+Skills: {skills_text}
+Projects: {projects_text}
 
-Requirements:
-- 2-3 sentences only
-- Start with a strong professional identity statement
-- Mention key skills and value proposition
-- Use active voice, no first-person pronouns (no "I", "my")
-- Tailored for software/tech roles in India
-- Sound human and authentic, not generic
+Make it concise, impactful, and tailored for tech roles.
+"""
 
-Return ONLY the summary text, nothing else."""
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a professional resume writer."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+        )
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=300,
-        messages=[{"role": "user", "content": prompt}],
-    )
+        summary = response.choices[0].message.content.strip()
 
-    summary = message.content[0].text.strip()
-    return {"summary": summary}
+        return {"summary": summary}
+
+    except Exception as e:
+        return {"summary": "Failed to generate summary."}
 
 
 # ─────────────────────────────────────────────
@@ -203,27 +208,34 @@ async def enhance_bullet(
     request: BulletEnhanceRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    client = anthropic.Anthropic()
+    if not client:
+        return {"enhanced": request.bullet}
 
-    prompt = f"""You are a professional resume writer. Improve this resume bullet point to be more impactful.
+    try:
+        prompt = f"""
+Improve this resume bullet point:
 
-Original bullet: "{request.bullet}"
+"{request.bullet}"
 
-Rules:
-- Start with a strong action verb (Engineered, Architected, Optimized, Spearheaded, etc.)
-- Include quantifiable metrics if possible (%, ms, users, requests/sec)
-- Keep it concise — one sentence only
-- Focus on impact, not just tasks
-- Maintain technical accuracy
-- Do NOT add fake numbers — if no metrics exist, focus on quality/impact language
+Make it:
+- impactful
+- concise
+- action-oriented
+- one sentence only
+"""
 
-Return ONLY the improved bullet point text. No quotes, no explanation."""
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a professional resume writer."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+        )
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=150,
-        messages=[{"role": "user", "content": prompt}],
-    )
+        enhanced = response.choices[0].message.content.strip()
 
-    enhanced = message.content[0].text.strip().strip('"')
-    return {"enhanced": enhanced}
+        return {"enhanced": enhanced}
+
+    except Exception:
+        return {"enhanced": request.bullet}

@@ -1,3 +1,5 @@
+"""
+
 # Job description matcher
 
 from fastapi import APIRouter, UploadFile, File, Form
@@ -81,3 +83,34 @@ async def match_job(
     except Exception as e:
         print("ERROR:", e)
         return {"score": float(score)}
+
+
+"""
+
+
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from utils.text import clean_text, extract_pdf_text
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+def keyword_overlap(resume, job):
+    resume_words = set(resume.split())
+    job_words = set(job.split())
+
+    if len(job_words) == 0:
+        return 0
+
+    return len(resume_words & job_words) / len(job_words)
+
+def calculate_match(resume_file, jobdesc):
+    jobdesc = clean_text(jobdesc)
+    resume_text = extract_pdf_text(resume_file)
+
+    emb = model.encode([resume_text, jobdesc])
+    semantic = cosine_similarity([emb[0]], [emb[1]])[0][0]
+    keyword = keyword_overlap(resume_text, jobdesc)
+
+    score = (0.7 * semantic) + (0.3 * keyword)
+
+    return min(82, round(score * 100, 2) + 30)

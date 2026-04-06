@@ -1,3 +1,6 @@
+
+"""
+
 # Career advisor
 
 from fastapi import APIRouter, HTTPException
@@ -58,3 +61,23 @@ async def ask(data: AskRequest):
 @router.get("/categories")
 async def get_categories():
     return {"categories": list(career_data.keys())}
+
+"""
+
+
+
+
+from data.career_data import career_data
+
+def get_categories():
+    return list(career_data.keys())
+
+def get_career_info(name):
+    return career_data.get(name)
+
+def get_answer(career, question):
+    career_info = career_data.get(career)
+    if not career_info:
+        return None
+
+    return career_info["questions"].get(question)

@@ -1,3 +1,5 @@
+"""
+
 # Skill match set
 
 from fastapi import APIRouter, HTTPException
@@ -71,3 +73,29 @@ async def match_skills(data: SkillRequest):
     except Exception as e:
         print("ERROR:", e)
         raise HTTPException(status_code=500, detail="Prediction failed")
+
+
+"""
+
+
+import pickle
+import numpy as np
+
+model = pickle.load(open("models/model.pkl", "rb"))
+vectorizer = pickle.load(open("models/cv.pkl", "rb"))
+lb = pickle.load(open("models/label_encoder.pkl", "rb"))
+
+def match_skills(skills: str):
+    vec = vectorizer.transform([skills])
+
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba(vec)[0]
+        top_idx = np.argsort(probs)[::-1][:3]
+
+        roles = lb.inverse_transform(top_idx)
+        scores = [round(float(probs[i] * 100), 1) for i in top_idx]
+    else:
+        roles = [lb.inverse_transform(model.predict(vec))[0]]
+        scores = [100.0]
+
+    return roles, scores

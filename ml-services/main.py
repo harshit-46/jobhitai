@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from services import resume_classifier, skill_matcher, job_matcher, career
+from services import resume_classifier, skills_matcher, job_match, career
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -25,7 +25,7 @@ def predict_resume(resume: UploadFile = File(...)):
 # ---------------- SKILLS ----------------
 @app.post("/predict/skills")
 def predict_skills(skills: str = Form(...)):
-    roles, scores = skill_matcher.match_skills(skills)
+    roles, scores = skills_matcher.match_skills(skills)
 
     return {
         "best_role": roles[0],
@@ -39,7 +39,7 @@ def predict_skills(skills: str = Form(...)):
 # ---------------- JOB MATCH ----------------
 @app.post("/predict/job")
 def match_job(resume: UploadFile = File(...), jobdesc: str = Form(...)):
-    score = job_matcher.calculate_match(resume, jobdesc)
+    score = job_match.calculate_match(resume, jobdesc)
     return {"score": float(score)}
 
 # ---------------- CAREER ----------------

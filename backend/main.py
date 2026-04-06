@@ -13,18 +13,12 @@ from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import RedirectResponse
 import os
 
-#Features
-from routes.career import router as career_router # career advisor
-from routes.job_match import router as jobmatcher_router # Skill Matcher
-from routes.resume_classifier import router as resume_router # Job category
-from routes.skills_matcher import router as skill_router # Skill Match Set
 from routes.resume import router as resumebuilder_router # Resume Builder
 
 # -------------------- CONFIG --------------------
 config = Config('.env')
 oauth = OAuth(config)
 
-localURL = "http://localhost:5173/dashboard"
 prodURL = "https://jobhitai.vercel.app/dashboard"
 
 app = FastAPI()
@@ -48,10 +42,6 @@ app.add_middleware(
 )
 
 #Registering routes
-app.include_router(career_router, prefix="/api/career", tags=["Career"])
-app.include_router(jobmatcher_router, prefix="/api/job")
-app.include_router(resume_router, prefix="/api/resume")
-app.include_router(skill_router, prefix="/api/skills")
 app.include_router(resumebuilder_router , prefix="/resume-builder", tags=["resume"])
 
 # -------------------- ROOT --------------------

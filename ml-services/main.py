@@ -11,6 +11,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from routes.ml_routes import router as ml_router
+
+app.include_router(ml_router, prefix="/api/ml", tags=["ML"])
 
 @app.get("/")
 def root():

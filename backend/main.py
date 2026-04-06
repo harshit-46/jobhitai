@@ -432,13 +432,21 @@ async def logout(response: Response):
     return {"message": "Logged out successfully"}
 
 
-# ---------------- OAUTH ----------------
+# -------------------- GOOGLE AUTH --------------------
+oauth.register(
+    name='google',
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
+
 @app.get("/auth/google")
 async def login_google(request: Request):
     redirect_uri = request.url_for("google_callback")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-
+# -------------------- GOOGLE CALLBACK --------------------
 @app.get("/auth/google/callback")
 async def google_callback(request: Request):
     token = await oauth.google.authorize_access_token(request)
@@ -448,17 +456,29 @@ async def google_callback(request: Request):
 
     user = await users_collection.find_one({"email": email})
 
-    if not user:
-        await users_collection.insert_one({
+    if user:
+        # ✅ LINK GOOGLE if not already linked
+        if "google" not in user.get("providers", []):
+            await users_collection.update_one(
+                {"email": email},
+                {"$push": {"providers": "google"}}
+            )
+    else:
+        # ✅ CREATE NEW USER
+        user = {
             "name": user_info["name"],
             "email": email,
             "providers": ["google"],
+            "avatar": user_info.get("picture"),
             "created_at": datetime.utcnow()
-        })
+        }
+        await users_collection.insert_one(user)
 
     jwt_token = create_token({"sub": email})
 
-    response = RedirectResponse(url=f"{FRONTEND_URL}/dashboard")
+    response = RedirectResponse(
+        url= "https://jobhitai.vercel.app/dashboard"
+    )
 
     response.set_cookie(
         key="token",
@@ -466,6 +486,72 @@ async def google_callback(request: Request):
         httponly=True,
         secure=True,
         samesite="none",
+        path="/",
+        max_age=60 * 60 * 24
+    )
+
+    return response
+
+# -------------------- GITHUB AUTH --------------------
+oauth.register(
+    name='github',
+    client_id=os.getenv("GITHUB_CLIENT_ID"),
+    client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
+    access_token_url='https://github.com/login/oauth/access_token',
+    authorize_url='https://github.com/login/oauth/authorize',
+    api_base_url='https://api.github.com/',
+    client_kwargs={'scope': 'user:email'},
+)
+
+# -------------------- GITHUB CALLBACK --------------------
+@app.get("/auth/github/callback")
+async def github_callback(request: Request):
+    token = await oauth.github.authorize_access_token(request)
+
+    resp = await oauth.github.get("user", token=token)
+    user_data = resp.json()
+
+    email = user_data.get("email")
+
+    if not email:
+        resp = await oauth.github.get("user/emails", token=token)
+        emails = resp.json()
+        email = next((e["email"] for e in emails if e["primary"]), None)
+
+    user = await users_collection.find_one({"email": email})
+
+    if user:
+        # ✅ LINK GITHUB
+        if "github" not in user.get("providers", []):
+            await users_collection.update_one(
+                {"email": email},
+                {"$push": {"providers": "github"}}
+            )
+    else:
+        # ✅ CREATE NEW USER
+        user = {
+            "name": user_data["login"],
+            "email": email,
+            "providers": ["github"],
+            "avatar": user_data["avatar_url"],
+            "created_at": datetime.utcnow()
+        }
+        await users_collection.insert_one(user)
+
+    jwt_token = create_token({"sub": email})
+
+    response = RedirectResponse(
+        url= "https://jobhitai.vercel.app/dashboard"
+    )
+
+    response.set_cookie(
+        key="token",
+        value=jwt_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=60 * 60 * 24
     )
 
     return response

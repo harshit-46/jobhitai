@@ -345,7 +345,7 @@ app.add_middleware(
 
 # ---------------- ROUTES ----------------
 app.include_router(resumebuilder_router, prefix="/resume-builder", tags=["resume"])
-app.include_router(career_router , prefix="api/career" , tags=["career"])
+app.include_router(career_router , prefix="/api/career" , tags=["career"])
 app.include_router(ml_router)
 
 # ---------------- ROOT ----------------

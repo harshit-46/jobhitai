@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from services import resume_classifier, skills_matcher, job_match, career
+from services import resume_classifier, skills_matcher, job_match
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -44,21 +44,3 @@ def predict_skills(skills: str = Form(...)):
 def match_job(resume: UploadFile = File(...), jobdesc: str = Form(...)):
     score = job_match.calculate_match(resume, jobdesc)
     return {"score": float(score)}
-
-# ---------------- CAREER ----------------
-@app.get("/career/categories")
-def categories():
-    return {"categories": career.get_categories()}
-
-@app.post("/career/info")
-def info(name: str):
-    return career.get_career_info(name)
-
-@app.post("/career/ask")
-def ask(career_name: str, question: str):
-    ans = career.get_answer(career_name, question)
-
-    if not ans:
-        raise HTTPException(status_code=404, detail="Not found")
-
-    return {"answer": ans}

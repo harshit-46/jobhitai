@@ -315,6 +315,7 @@ from fastapi.responses import RedirectResponse
 
 from routes.resume import router as resumebuilder_router
 from routes.career import router as career_router
+from routes.ml_routes import router as ml_router
 
 # ---------------- CONFIG ----------------
 config = Config('.env')
@@ -344,7 +345,8 @@ app.add_middleware(
 
 # ---------------- ROUTES ----------------
 app.include_router(resumebuilder_router, prefix="/resume-builder", tags=["resume"])
-app.include_router(career_router , prefix="/career" , tags=["career"])
+app.include_router(career_router , prefix="api/career" , tags=["career"])
+app.include_router(ml_router)
 
 # ---------------- ROOT ----------------
 @app.get("/")

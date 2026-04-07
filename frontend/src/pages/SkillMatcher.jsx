@@ -165,8 +165,8 @@ export default function SkillMatcher() {
         if (!file || !jobDesc.trim()) { setError("Please upload a resume and enter a job description."); return; }
         setLoading(true); setError(null); setScore(null);
         const form = new FormData();
-        form.append("resume", file);
-        form.append("jobdesc", jobDesc);
+        form.append("file", file);
+        form.append("job_description", jobDescription);
         try {
             const res = await fetch("https://jobhitai-server.onrender.com/predict/resumejobmatcher", { method:"POST", body:form });
             if (!res.ok) throw new Error("Server error");

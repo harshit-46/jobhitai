@@ -13,7 +13,7 @@ def predict_resume(file):
 
 def match_skills(skills):
     res = requests.post(
-        f"{ML_URL}/predict/skills",
+        f"{ML_URL}/predict/resumejdscore",
         data={"skills": skills},
         timeout=10
     )

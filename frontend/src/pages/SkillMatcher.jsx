@@ -168,7 +168,7 @@ export default function SkillMatcher() {
         form.append("resume", file);
         form.append("jobdesc", jobDesc);
         try {
-            const res = await fetch("https://jobhitai-server.onrender.com/api/job", { method:"POST", body:form });
+            const res = await fetch("https://jobhitai-server.onrender.com/predict/resumejobmatcher", { method:"POST", body:form });
             if (!res.ok) throw new Error("Server error");
             const data = await res.json();
             setScore(data.score);

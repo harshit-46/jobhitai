@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File , Form
 from pydantic import BaseModel
 import httpx
 
@@ -17,37 +17,21 @@ async def call_ml_service(method: str, endpoint: str, **kwargs):
 
     return response.json()
 
-
 # ================================
-# 📄 Resume Classification
+# 🧠 Resume + Job Description Matcher
 # ================================
-@router.post("/predict/resume")
-async def predict_resume(file: UploadFile = File(...)):
+@router.post("/predict/resumejobmatcher")
+async def match_skills(
+    file: UploadFile = File(...),
+    job_description: str = Form(...)
+):
     file_bytes = await file.read()
 
     result = await call_ml_service(
         "POST",
-        "/api/ml/resume",
-        files={"file": ("resume.pdf", file_bytes)}
-    )
-
-    return result
-
-
-# ================================
-# 🧠 Skill Matcher
-# ================================
-class SkillMatchRequest(BaseModel):
-    resume_text: str
-    job_description: str
-
-
-@router.post("/predict/skills")
-async def match_skills(data: SkillMatchRequest):
-    result = await call_ml_service(
-        "POST",
-        "/api/ml/skills",
-        json=data.dict()
+        "/api/ml/resumejd",
+        files={"file": ("resume.pdf", file_bytes)},
+        data={"job_description": job_description}
     )
 
     return result

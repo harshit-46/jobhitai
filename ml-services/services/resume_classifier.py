@@ -62,6 +62,8 @@ async def predict_resume(resume: UploadFile = File(...)):
 
 """
 
+
+'''
 import pickle
 from utils.text import extract_pdf_text
 
@@ -82,3 +84,35 @@ def predict_resume(file):
     pred = clf.predict(vec)[0]
 
     return label_map.get(pred, "unknown role")
+
+'''
+
+
+
+import pickle
+from utils.text import extract_pdf_text
+
+clf = None
+tfidf = None
+
+label_map = {
+    0: "Web Developer",
+    1: "Data Scientist",
+    2: "DevOps Engineer",
+    3: "HR",
+    4: "Business Analyst"
+}
+
+def load_models():
+    global clf, tfidf
+    if clf is None or tfidf is None:
+        clf = pickle.load(open("models/clf.pkl", "rb"))
+        tfidf = pickle.load(open("models/tfidf.pkl", "rb"))
+
+def predict_resume(file):
+    load_models()
+    text = extract_pdf_text(file)
+    vec = tfidf.transform([text])
+    pred = clf.predict(vec)[0]
+
+    return label_map.get(pred, "Unknown Role")

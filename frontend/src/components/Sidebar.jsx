@@ -92,7 +92,6 @@ export default function Sidebar({ user, onLogout }) {
                     <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em", color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {displayName}
                     </div>
-                    <div style={{ fontSize: 11, color: t.faint, marginTop: 1 }}>Pro Plan</div>
                 </div>
                 {/* Online dot */}
                 <div style={{ width: 7, height: 7, borderRadius: "50%", background: t.lime, boxShadow: `0 0 8px rgba(232,255,71,0.7)`, flexShrink: 0 }} />

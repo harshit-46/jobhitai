@@ -145,7 +145,7 @@ function Tips({ score }) {
 
 export default function SkillMatcher() {
     const [file, setFile]         = useState(null);
-    const [jobDesc, setJobDesc]   = useState("");
+    const [jobDescription, setjobDescription]   = useState("");
     const [score, setScore]       = useState(null);
     const [loading, setLoading]   = useState(false);
     const [error, setError]       = useState(null);
@@ -162,7 +162,7 @@ export default function SkillMatcher() {
     }, []);
 
     async function handleSubmit() {
-        if (!file || !jobDesc.trim()) { setError("Please upload a resume and enter a job description."); return; }
+        if (!file || !jobDescription.trim()) { setError("Please upload a resume and enter a job description."); return; }
         setLoading(true); setError(null); setScore(null);
         const form = new FormData();
         form.append("file", file);
@@ -179,7 +179,7 @@ export default function SkillMatcher() {
         setLoading(false);
     }
 
-    function reset() { setScore(null); setFile(null); setJobDesc(""); setError(null); }
+    function reset() { setScore(null); setFile(null); setjobDescription(""); setError(null); }
 
     // Pure content component — page shell & layout handled by SkillMatcherPage
     return (
@@ -247,12 +247,12 @@ export default function SkillMatcher() {
                         <div style={{ flex:1, display:"flex", flexDirection:"column" }}>
                             <p style={{ fontSize:11, color:FAINT, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:12, fontWeight:600 }}>Job Description</p>
                             <textarea
-                                value={jobDesc} onChange={(e) => setJobDesc(e.target.value)}
+                                value={jobDescription} onChange={(e) => setjobDescription(e.target.value)}
                                 placeholder="Paste the full job description here…"
                                 style={{ flex:1, minHeight:200, background:SURFACE, border:`1px solid ${BORDER2}`, borderRadius:12, padding:"14px 16px", color:TEXT, fontSize:13, fontFamily:"'DM Sans', sans-serif", lineHeight:1.7, resize:"none", transition:"border-color 0.2s" }}
                             />
                             <p style={{ fontSize:11, color:FAINT, marginTop:6, textAlign:"right" }}>
-                                {jobDesc.trim().split(/\s+/).filter(Boolean).length} words
+                                {jobDescription.trim().split(/\s+/).filter(Boolean).length} words
                             </p>
                         </div>
                     </div>
@@ -292,7 +292,7 @@ export default function SkillMatcher() {
                             </div>
                         )}
 
-                        <button className="submit-btn" onClick={handleSubmit} disabled={loading || !file || !jobDesc.trim()}
+                        <button className="submit-btn" onClick={handleSubmit} disabled={loading || !file || !jobDescription.trim()}
                             style={{ width:"100%", padding:"14px", border:`1px solid rgba(232,255,71,0.4)`, borderRadius:12, background:"rgba(232,255,71,0.06)", color:ACCENT, fontSize:14, fontWeight:700, fontFamily:"'DM Sans', sans-serif", cursor:"pointer", letterSpacing:"0.02em", display:"flex", alignItems:"center", justifyContent:"center", gap:10 }}>
                             {loading ? (
                                 <>
@@ -324,7 +324,7 @@ export default function SkillMatcher() {
                             <p style={{ fontSize:12, color:MUTED }}>
                                 Resume: <span style={{ color:TEXT }}>{file?.name}</span>
                                 <span style={{ margin:"0 10px", color:FAINT }}>·</span>
-                                {jobDesc.trim().split(/\s+/).filter(Boolean).length} words in JD
+                                {jobDescription.trim().split(/\s+/).filter(Boolean).length} words in JD
                             </p>
                         </div>
                     </div>

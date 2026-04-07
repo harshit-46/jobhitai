@@ -314,6 +314,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import RedirectResponse
 
 from routes.resume import router as resumebuilder_router
+from routes.career import router as career_router
 
 # ---------------- CONFIG ----------------
 config = Config('.env')
@@ -343,6 +344,7 @@ app.add_middleware(
 
 # ---------------- ROUTES ----------------
 app.include_router(resumebuilder_router, prefix="/resume-builder", tags=["resume"])
+app.include_router(career_router , prefix="/career" , tags=["career"])
 
 # ---------------- ROOT ----------------
 @app.get("/")

@@ -1,6 +1,6 @@
 import requests
 
-ML_URL = "https://your-ml-service.onrender.com"
+ML_URL = "https://jobhitai-ml-service.onrender.com"
 
 def predict_resume(file):
     res = requests.post(

@@ -4,6 +4,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 from fastapi import Request, HTTPException
+import hashlib
 
 load_dotenv()
 
@@ -18,16 +19,13 @@ ACCESS_TOKEN_EXPIRE_DAYS = 1
 # 🔒 Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
-# 🔐 Hash password
-def hash_password(password: str):
+def hash_password(password):
+    password = hashlib.sha256(password.encode()).hexdigest()
     return pwd_context.hash(password)
 
-
-# 🔍 Verify password
-def verify_password(plain_password: str, hashed_password: str):
+def verify_password(plain_password, hashed_password):
+    plain_password = hashlib.sha256(plain_password.encode()).hexdigest()
     return pwd_context.verify(plain_password, hashed_password)
-
 
 # 🎟️ Create JWT token
 def create_token(data: dict):

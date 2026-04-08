@@ -90,7 +90,7 @@ def predict_resume(file):
 
 
 import pickle
-from utils.text import extract_pdf_text
+from utils.text import extract_text
 
 clf = None
 tfidf = None

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form
-from services.ml_client import predict_resume, match_skills, match_job
+from services.resume_classifier import predict_resume
+from services.job_match import calculate_match
+from services.skills_matcher import match_skills
 
 router = APIRouter()
 
@@ -13,9 +15,11 @@ def skills_predict(skills: str = Form(...)):
     return match_skills(skills)
 
 
-@router.post("/job")
-def job_predict(
-    resume: UploadFile = File(...),
-    jobdesc: str = Form(...)
+@router.post("/resumejd")
+async def resume_jd_predict(
+    file: UploadFile = File(...),
+    job_description: str = Form(...)
 ):
-    return match_job(resume.file, jobdesc)
+    contents = await file.read()
+
+    return calculate_match(contents, job_description)

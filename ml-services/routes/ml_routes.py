@@ -22,4 +22,8 @@ async def resume_jd_predict(
 ):
     contents = await file.read()
 
-    return calculate_match(contents, job_description)
+    score = calculate_match(contents, job_description)
+
+    print("score is : ",score)
+
+    return {"score" : score}

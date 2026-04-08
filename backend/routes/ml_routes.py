@@ -37,6 +37,8 @@ async def match_skills(
         data={"job_description": job_description}
     )
 
+    print("From backend result is :" , result)
+
     return result
 
 

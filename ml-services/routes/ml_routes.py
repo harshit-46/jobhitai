@@ -10,7 +10,7 @@ def resume_predict(resume: UploadFile = File(...)):
     return predict_resume(resume.file)
 
 
-@router.post("/resumejd")
+@router.post("/skills")
 def skills_predict(skills: str = Form(...)):
     return match_skills(skills)
 

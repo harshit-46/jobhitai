@@ -13,18 +13,18 @@ def predict_resume(file):
 
 def match_skills(skills):
     res = requests.post(
-        f"{ML_URL}/predict/resumejdscore",
+        f"{ML_URL}/predict/skills",
         data={"skills": skills},
         timeout=10
     )
     return res.json()
 
 
-def match_job(file, jobdesc):
+def match_job(file, job_description):
     res = requests.post(
-        f"{ML_URL}/predict/job",
-        files={"resume": file},
-        data={"jobdesc": jobdesc},
+        f"{ML_URL}/api/ml/resumejd",
+        files={"file": file},
+        data={"job_description": job_description},
         timeout=10
     )
     return res.json()

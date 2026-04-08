@@ -15,10 +15,23 @@ async def call_ml_service(method: str, endpoint: str, **kwargs):
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.request(method, url, **kwargs)
 
-    print("STATUS:", response.status_code)
-    print("RAW RESPONSE:", response.text)  # 🔥 IMPORTANT
+    print("ML STATUS:", response.status_code)
+    print("ML RAW:", response.text)
 
-    return response.json()
+    if response.status_code != 200:
+        return {
+            "error": "ML service error",
+            "status": response.status_code,
+            "details": response.text
+        }
+
+    try:
+        return response.json()
+    except Exception:
+        return {
+            "error": "Invalid JSON from ML service",
+            "raw": response.text
+        }
 
 # ================================
 # 🧠 Resume + Job Description Matcher

@@ -15,6 +15,9 @@ async def call_ml_service(method: str, endpoint: str, **kwargs):
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.request(method, url, **kwargs)
 
+    print("STATUS:", response.status_code)
+    print("RAW RESPONSE:", response.text)  # 🔥 IMPORTANT
+
     return response.json()
 
 # ================================

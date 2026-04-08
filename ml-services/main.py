@@ -18,29 +18,3 @@ app.include_router(ml_router, prefix="/api/ml", tags=["ML"])
 @app.get("/")
 def root():
     return {"message": "ML Service Running 🚀"}
-
-# ---------------- RESUME ----------------
-@app.post("/predict/resume")
-def predict_resume(resume: UploadFile = File(...)):
-    result = resume_classifier.predict_resume(resume)
-    return {"role": result}
-
-# ---------------- SKILLS ----------------
-@app.post("/predict/skills")
-def predict_skills(skills: str = Form(...)):
-    roles, scores = skills_matcher.match_skills(skills)
-
-    return {
-        "best_role": roles[0],
-        "confidence": scores[0],
-        "others": [
-            {"role": r, "confidence": s}
-            for r, s in zip(roles[1:], scores[1:])
-        ]
-    }
-
-# ---------------- JOB MATCH ----------------
-@app.post("/predict/job")
-def match_job(resume: UploadFile = File(...), jobdesc: str = Form(...)):
-    score = job_match.calculate_match(resume, jobdesc)
-    return {"score": float(score)}

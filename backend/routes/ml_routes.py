@@ -15,9 +15,6 @@ async def call_ml_service(method: str, endpoint: str, **kwargs):
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.request(method, url, **kwargs)
 
-    print("ML STATUS:", response.status_code)
-    print("ML RAW:", response.text)
-
     if response.status_code != 200:
         return {
             "error": "ML service error",
@@ -49,8 +46,6 @@ async def match_skills(
         files={"file": ("resume.pdf", file_bytes)},
         data={"job_description": job_description}
     )
-
-    print("From backend result is :" , result)
 
     return result
 

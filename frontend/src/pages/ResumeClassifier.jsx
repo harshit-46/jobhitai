@@ -886,7 +886,7 @@ export default function ResumeClassifier() {
         const form = new FormData();
         form.append("resume", file);
         try {
-            const res = await fetch("https://jobhitai-server.onrender.com/api/resume/predict", { method:"POST", body:form, credentials:"include" });
+            const res = await fetch("https://jobhitai-server.onrender.com/predict/job", { method:"POST", body:form, credentials:"include" });
             if (!res.ok) { const err = await res.text(); console.error("Backend error:", err); throw new Error("Server error"); }
             const data = await res.json();
             setPrediction(data.prediction || "Unknown Role");

@@ -884,7 +884,7 @@ export default function ResumeClassifier() {
         if (!file) { setError("Please upload a resume PDF."); return; }
         setLoading(true); setError(null); setPrediction(null);
         const form = new FormData();
-        form.append("resume", file);
+        form.append("file", file);
         try {
             const res = await fetch("https://jobhitai-server.onrender.com/predict/job", { method:"POST", body:form, credentials:"include" });
             if (!res.ok) { const err = await res.text(); console.error("Backend error:", err); throw new Error("Server error"); }

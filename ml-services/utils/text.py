@@ -41,18 +41,16 @@ def clean_text(text: str) -> str:
 
 def extract_text(file) -> str:
     text = ""
-
     try:
-        file.file.seek(0)  # IMPORTANT
-
-        with pdfplumber.open(file.file) as pdf:
+        # handle both UploadFile and raw file stream
+        raw = file.file if hasattr(file, 'file') else file
+        raw.seek(0)
+        with pdfplumber.open(raw) as pdf:
             for page in pdf.pages:
                 page_text = page.extract_text()
                 if page_text:
                     text += page_text
-
     except Exception as e:
         print("PDF Error:", e)
         return ""
-
     return clean_text(text)

@@ -111,7 +111,7 @@ def load_models():
 
 def predict_resume(file):
     load_models()
-    text = extract_pdf_text(file)
+    text = extract_text(file)
     vec = tfidf.transform([text])
     pred = clf.predict(vec)[0]
 

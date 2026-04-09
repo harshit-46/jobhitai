@@ -7,7 +7,6 @@ router = APIRouter()
 # 🔗 ML Service Base URL
 ML_API = "https://jobhitai-ml-service.onrender.com"
 
-
 # 🔥 Generic helper to call ML service
 async def call_ml_service(method: str, endpoint: str, **kwargs):
     url = f"{ML_API}{endpoint}"
@@ -53,7 +52,6 @@ async def match_skills(
 # ================================
 # 🧠 Job Category Predictor
 # ================================
-
 @router.post("/predict/job")
 async def predict_job(file: UploadFile = File(...)):
     file_bytes = await file.read()
@@ -71,7 +69,6 @@ async def predict_job(file: UploadFile = File(...)):
 # ================================
 class SkillSetRequest(BaseModel):
     skills: str
-
 
 @router.post("/predict/skillset")
 async def skillset_match(data: SkillSetRequest):

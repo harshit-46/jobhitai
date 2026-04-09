@@ -10,8 +10,8 @@ from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-from auth import get_current_user  # your existing auth dependency
-from database import get_db           # your existing MongoDB connection
+from auth import get_current_user
+from database import get_db
 
 router = APIRouter()
 

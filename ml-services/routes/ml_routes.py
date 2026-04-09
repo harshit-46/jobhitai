@@ -1,8 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form
 from services.resume_classifier import predict_resume
 from services.skills_matcher import match_skills
-
-#job description
 from utils.text import clean_text , extract_text
 from services.job_match import calculate_similarity
 

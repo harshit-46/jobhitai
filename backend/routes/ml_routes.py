@@ -76,10 +76,11 @@ class SkillSetRequest(BaseModel):
 @router.post("/predict/skillset")
 async def skillset_match(data: SkillSetRequest):
     skills_str = " ".join([s.strip().lower() for s in data.skills.split(",")])
+    print("Sending from backend to ml service : ", skills_str)
     result = await call_ml_service(
         "POST",
         "/api/ml/skills",
-        json= {"skills" : skills_str}
+        data= {"skills" : skills_str}
     )
 
     return result

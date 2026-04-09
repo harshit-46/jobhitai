@@ -61,7 +61,7 @@ async def predict_job(file: UploadFile = File(...)):
     result = await call_ml_service(
         "POST",
         "/api/ml/resume",
-        files={"file": (file.filename, file_bytes)}
+        files={"resume": (file.filename, file_bytes)}
     )
 
     return result

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File , Form
+import pdfplumber
 from pydantic import BaseModel
 import httpx
 
@@ -53,6 +54,8 @@ async def match_skills(
 # ================================
 # 🧠 Job Category Predictor
 # ================================
+
+"""
 class JobPredictRequest(BaseModel):
     resume_text: str
 
@@ -66,7 +69,28 @@ async def predict_job(data: JobPredictRequest):
     )
 
     return result
+"""
 
+@router.post("/predict/job")
+async def predict_job(file: UploadFile = File(...)):
+    contents = await file.read()
+
+    # extract text from PDF
+    with open("temp.pdf", "wb") as f:
+        f.write(contents)
+
+    text = ""
+    with pdfplumber.open("temp.pdf") as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() or ""
+
+    result = await call_ml_service(
+        "POST",
+        "/api/ml/resume",
+        json={"resume_text": text}
+    )
+
+    return result
 
 # ================================
 # 🧠 Skill Set Matcher

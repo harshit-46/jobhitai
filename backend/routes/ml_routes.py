@@ -70,7 +70,7 @@ async def predict_job(file: UploadFile = File(...)):
 # 🧠 Skill Set Matcher
 # ================================
 class SkillSetRequest(BaseModel):
-    skills: list[str]
+    skills: str
 
 
 @router.post("/predict/skillset")

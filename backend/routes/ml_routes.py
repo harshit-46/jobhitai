@@ -54,29 +54,13 @@ async def match_skills(
 # 🧠 Job Category Predictor
 # ================================
 
-"""
-class JobPredictRequest(BaseModel):
-    resume_text: str
-
-
-@router.post("/predict/job")
-async def predict_job(data: JobPredictRequest):
-    result = await call_ml_service(
-        "POST",
-        "/api/ml/job",
-        json=data.dict()
-    )
-
-    return result
-"""
-
 @router.post("/predict/job")
 async def predict_job(file: UploadFile = File(...)):
     file_bytes = await file.read()
 
     result = await call_ml_service(
         "POST",
-        "/api/ml/job",
+        "/api/ml/resume",
         files={"file": (file.filename, file_bytes)}
     )
 
@@ -93,7 +77,7 @@ class SkillSetRequest(BaseModel):
 async def skillset_match(data: SkillSetRequest):
     result = await call_ml_service(
         "POST",
-        "/api/ml/skillset",
+        "/api/ml/skills",
         json=data.dict()
     )
 

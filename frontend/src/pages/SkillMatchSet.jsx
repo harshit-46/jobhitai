@@ -814,7 +814,7 @@ export default function SkillMatchSet() {
         setLoading(true); setError(null); setResult(null);
         const payload = { skills: allSkills.join(", ") };
         try {
-            const res = await fetch("https://jobhitai-server.onrender.com/api/skills/match", {
+            const res = await fetch("https://jobhitai-server.onrender.com/predict/skillset", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

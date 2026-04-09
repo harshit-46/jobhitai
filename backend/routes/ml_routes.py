@@ -1,5 +1,4 @@
 from fastapi import APIRouter, UploadFile, File , Form
-import pdfplumber
 from pydantic import BaseModel
 import httpx
 

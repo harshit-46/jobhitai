@@ -1,6 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form
 from services.resume_classifier import predict_resume
-#from services.job_match import calculate_match
 from services.skills_matcher import match_skills
 
 #job description
@@ -17,27 +16,6 @@ def resume_predict(resume: UploadFile = File(...)):
 @router.post("/skills")
 def skills_predict(skills: str = Form(...)):
     return match_skills(skills)
-
-
-
-"""
-
-# This is code for the job description matcher last working
-
-@router.post("/resumejd")
-async def resume_jd_predict(
-    file: UploadFile = File(...),
-    job_description: str = Form(...)
-):
-    contents = await file.read()
-
-    score = calculate_match(contents, job_description)
-
-    print("score is : ",score)
-
-    return {"score" : score}
-
-"""
 
 
 @router.post("/resumejd")

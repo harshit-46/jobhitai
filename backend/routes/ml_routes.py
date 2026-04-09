@@ -73,21 +73,12 @@ async def predict_job(data: JobPredictRequest):
 
 @router.post("/predict/job")
 async def predict_job(file: UploadFile = File(...)):
-    contents = await file.read()
-
-    # extract text from PDF
-    with open("temp.pdf", "wb") as f:
-        f.write(contents)
-
-    text = ""
-    with pdfplumber.open("temp.pdf") as pdf:
-        for page in pdf.pages:
-            text += page.extract_text() or ""
+    file_bytes = await file.read()
 
     result = await call_ml_service(
         "POST",
-        "/api/ml/resume",
-        json={"resume_text": text}
+        "/api/ml/job",
+        files={"file": (file.filename, file_bytes)}
     )
 
     return result

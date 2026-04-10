@@ -507,6 +507,12 @@ oauth.register(
     client_kwargs={'scope': 'user:email'},
 )
 
+@app.get("/auth/github")
+async def github_login(request: Request):
+    redirect_uri = "https://jobhitai-server.onrender.com/auth/github/callback"
+    
+    return await oauth.github.authorize_redirect(request, redirect_uri)
+
 # -------------------- GITHUB CALLBACK --------------------
 @app.get("/auth/github/callback")
 async def github_callback(request: Request):

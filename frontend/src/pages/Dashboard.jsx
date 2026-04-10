@@ -112,6 +112,10 @@ const SCORE_BARS = [
 
 function DashboardPage() {
 
+    const [stats, setStats] = useState(null);
+    const [activity, setActivity] = useState([]);
+    const [score, setScore] = useState(null);
+
     const navigate = useNavigate();
 
     const handleFeatureClick = (path) => {

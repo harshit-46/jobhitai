@@ -84,8 +84,8 @@ export default function ForgotPassword() {
                     </svg>
 
                     {/* Logo */}
-                    <Link to="/" className="relative z-10 no-underline font-fraunces font-black text-2xl tracking-tight text-[#f0ede8]">
-                        JobHit<span className="text-lime-300">AI</span>
+                    <Link to="/login" className="relative z-10 no-underline font-fraunces font-black text-2xl tracking-tight text-[#f0ede8]">
+                        Career<span className="text-lime-300">Crafter</span>
                     </Link>
 
                     {/* Hero copy */}

@@ -294,6 +294,8 @@ from starlette.requests import Request
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import RedirectResponse
 
+from utils.email import send_verification_email, send_reset_email
+
 # ---------------- CONFIG ----------------
 config = Config('.env')
 oauth = OAuth(config)
@@ -354,6 +356,7 @@ async def signup(user: UserSignup):
 
     # 🔥 TODO: send email here
     # send_verification_email(user.email, verification_token)
+    send_verification_email(user.email, verification_token, FRONTEND_URL)
 
     return {"message": "Signup successful. Please verify your email"}
 

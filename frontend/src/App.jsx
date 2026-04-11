@@ -15,6 +15,7 @@ import ResumeClassifierPage from "./pages/ResumeClassifierPage";
 import SkillMatchSetPage from "./pages/SkillMatchSetPage";
 import ProfilePage from "./pages/ProfilePage";
 import ForgotPassword from "./pages/ForgotPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/reset-password" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Protected Route */}
           <Route path="/dashboard" element={

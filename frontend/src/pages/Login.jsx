@@ -323,7 +323,7 @@ export default function LoginPage() {
                                     <label className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
                                         Password
                                     </label>
-                                    <Link to="/forgot-password" className="text-[11px] text-lime-300 no-underline hover:text-yellow-200 transition-colors duration-200">
+                                    <Link to="/reset-password" className="text-[11px] text-lime-300 no-underline hover:text-yellow-200 transition-colors duration-200">
                                         Forgot password?
                                     </Link>
                                 </div>

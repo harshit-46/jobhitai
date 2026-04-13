@@ -471,7 +471,10 @@ async def login_google(request: Request):
 @app.get("/auth/google/callback")
 async def google_callback(request: Request):
     token = await oauth.google.authorize_access_token(request)
-    resp = await oauth.google.get("userinfo", token=token)
+    resp = await oauth.google.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        token=token
+    )    
     user_info = resp.json()
 
     email = user_info["email"]

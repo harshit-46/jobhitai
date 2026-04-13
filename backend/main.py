@@ -356,7 +356,8 @@ async def signup(user: UserSignup):
 
     # 🔥 TODO: send email here
     # send_verification_email(user.email, verification_token)
-    send_verification_email(user.email, verification_token, FRONTEND_URL)
+    #send_verification_email(user.email, verification_token, FRONTEND_URL)
+    print(f"Verify link: {FRONTEND_URL}/verify-email?token={verification_token}")
 
     return {"message": "Signup successful. Please verify your email"}
 
@@ -378,7 +379,7 @@ async def login(user: UserLogin, response: Response):
     if "password" not in db_user:
         raise HTTPException(
             status_code=400,
-            detail=f"Use {db_user['providers'][0]} login"
+            detail=f"This account is associated with {db_user['providers'][0]} login"
         )
 
     # ❗ Email not verified
@@ -500,6 +501,76 @@ async def google_callback(request: Request):
     jwt_token = create_token({"sub": email})
 
     response = RedirectResponse(url=f"{FRONTEND_URL}/dashboard")
+
+    response.set_cookie(
+        key="token",
+        value=jwt_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=60 * 60 * 24
+    )
+
+    return response
+
+# -------------------- GITHUB AUTH --------------------
+oauth.register(
+    name='github',
+    client_id=os.getenv("GITHUB_CLIENT_ID"),
+    client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
+    access_token_url='https://github.com/login/oauth/access_token',
+    authorize_url='https://github.com/login/oauth/authorize',
+    api_base_url='https://api.github.com/',
+    client_kwargs={'scope': 'user:email'},
+)
+
+@app.get("/auth/github")
+async def github_login(request: Request):
+    redirect_uri = "https://jobhitai-server.onrender.com/auth/github/callback"
+    
+    return await oauth.github.authorize_redirect(request, redirect_uri)
+
+# -------------------- GITHUB CALLBACK --------------------
+@app.get("/auth/github/callback")
+async def github_callback(request: Request):
+    token = await oauth.github.authorize_access_token(request)
+
+    resp = await oauth.github.get("user", token=token)
+    user_data = resp.json()
+
+    email = user_data.get("email")
+
+    if not email:
+        resp = await oauth.github.get("user/emails", token=token)
+        emails = resp.json()
+        email = next((e["email"] for e in emails if e["primary"]), None)
+
+    user = await users_collection.find_one({"email": email})
+
+    if user:
+        # LINK GITHUB
+        if "github" not in user.get("providers", []):
+            await users_collection.update_one(
+                {"email": email},
+                {"$push": {"providers": "github"}}
+            )
+    else:
+        # CREATE NEW USER
+        user = {
+            "name": user_data["login"],
+            "email": email,
+            "providers": ["github"],
+            "avatar": user_data["avatar_url"],
+            "created_at": datetime.utcnow()
+        }
+        await users_collection.insert_one(user)
+
+    jwt_token = create_token({"sub": email})
+
+    response = RedirectResponse(
+        url= "https://jobhitai.vercel.app/dashboard"
+    )
 
     response.set_cookie(
         key="token",

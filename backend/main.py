@@ -436,6 +436,53 @@ async def verify_email(token: str):
     return {"message": "Email verified successfully"}
 
 
+
+# Forgot Password
+@app.post("/api/forgot-password")
+async def forgot_password(email: str):
+    user = await users_collection.find_one({"email": email})
+
+    if not user:
+        raise HTTPException(400, "User not found")
+
+    token = generate_token()
+
+    await users_collection.update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {
+                "reset_token": token,
+                "reset_expires": datetime.utcnow()
+            }
+        }
+    )
+
+    # send email
+    # send_reset_email(email, token)
+
+    return {"message": "Password reset email sent"}
+
+# Reset Password
+@app.post("/api/reset-password")
+async def reset_password(token: str, new_password: str):
+    user = await users_collection.find_one({"reset_token": token})
+
+    if not user:
+        raise HTTPException(400, "Invalid token")
+
+    hashed = hash_password(new_password)
+
+    await users_collection.update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {"password": hashed},
+            "$unset": {"reset_token": "", "reset_expires": ""}
+        }
+    )
+
+    return {"message": "Password updated successfully"}
+
+
 # ✅ GET USER
 @app.get("/api/me")
 async def get_me(user=Depends(get_current_user)):

@@ -294,7 +294,7 @@ from starlette.requests import Request
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.responses import RedirectResponse
 
-from utils.email import send_verification_email, send_reset_email
+from utils.email import send_verification_email
 
 from routes.resume import router as resumebuilder_router
 from routes.career import router as career_router

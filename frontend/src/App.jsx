@@ -18,6 +18,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import CheckEmail from "./pages/CheckEmail";
 import VerifySuccess from "./pages/Verifysuccess";
 import VerifyFailed from "./pages/Verifyfailed";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/reset-password" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/check-email" element={<CheckEmail />} />
           <Route path="/verification-successful" element={<VerifySuccess />} />
           <Route path="/verify-failed" element={<VerifyFailed />} />

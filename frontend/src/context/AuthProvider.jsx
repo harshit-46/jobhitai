@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const signup = async (userData) => {
-        await api.post("/signup", userData);
+        const res = await api.post("/signup", userData);
 
         if (res.data.message) {
             navigate("/check-email");

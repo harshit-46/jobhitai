@@ -8,7 +8,7 @@ def send_verification_email(email: str, token: str, frontend_url: str):
     link = f"{frontend_url}/verify-email?token={token}"
 
     try:
-        resend.emails.send({
+        resend.Emails.send({
             "from": f"CareerCrafter <{EMAIL_FROM}>",
             "to": [email],
             "subject": "Verify your email",

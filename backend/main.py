@@ -578,7 +578,7 @@ async def github_callback(request: Request):
     jwt_token = create_token({"sub": email})
 
     response = RedirectResponse(
-        url= "https://jobhitai.vercel.app/dashboard"
+        url= "https://careercrafter.online/dashboard"
     )
 
     response.set_cookie(

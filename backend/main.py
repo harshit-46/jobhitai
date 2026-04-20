@@ -296,6 +296,10 @@ from fastapi.responses import RedirectResponse
 
 from utils.email import send_verification_email, send_reset_email
 
+from routes.resume import router as resumebuilder_router
+from routes.career import router as career_router
+from routes.ml_routes import router as ml_router
+
 # ---------------- CONFIG ----------------
 config = Config('.env')
 oauth = OAuth(config)
@@ -320,6 +324,11 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("JWT_SECRET_KEY")
 )
+
+# ---------------- ROUTES ----------------
+app.include_router(resumebuilder_router, prefix="/resume-builder", tags=["resume"])
+app.include_router(career_router , prefix="/api/career" , tags=["career"])
+app.include_router(ml_router)
 
 # ---------------- UTILS ----------------
 def generate_token():

@@ -91,7 +91,7 @@ export default function SignupPage() {
         setLoading(true);
         try {
             await signup(form);
-            navigate("/verify-email");
+            navigate("/check-email");
         } catch (err) {
             console.error(err);
             alert(err.response?.data?.detail || "Signup failed");

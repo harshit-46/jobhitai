@@ -368,9 +368,6 @@ async def signup(user: UserSignup):
     except Exception as e:
         print("Email error:", e)
 
-
-    #print(f"Verify link: {FRONTEND_URL}/verify-email?token={verification_token}")
-
     return {"message": "Signup successful. Please verify your email"}
 
 

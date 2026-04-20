@@ -363,10 +363,13 @@ async def signup(user: UserSignup):
         "created_at": datetime.utcnow()
     })
 
-    # 🔥 TODO: send email here
-    # send_verification_email(user.email, verification_token)
-    #send_verification_email(user.email, verification_token, FRONTEND_URL)
-    print(f"Verify link: {FRONTEND_URL}/verify-email?token={verification_token}")
+    try:
+        send_verification_email(user.email, verification_token, FRONTEND_URL)
+    except Exception as e:
+        print("Email error:", e)
+
+
+    #print(f"Verify link: {FRONTEND_URL}/verify-email?token={verification_token}")
 
     return {"message": "Signup successful. Please verify your email"}
 

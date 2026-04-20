@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import AuthContext from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -29,7 +31,7 @@ export const AuthProvider = ({ children }) => {
         const res = await api.post("/signup", userData);
 
         if (res.data.message) {
-            navigate("/check-email");
+            navigate("/verify-email");
         }
     };
 

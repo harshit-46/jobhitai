@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 function EyeIcon({ open }) {
@@ -65,6 +65,8 @@ function StrengthBar({ password }) {
 export default function SignupPage() {
     const { user, signup } = useAuth();
 
+    const navigate = useNavigate();
+
     const [form, setForm] = useState({
         name: "",
         username: "",
@@ -75,7 +77,6 @@ export default function SignupPage() {
     const [focused, setFocused] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [agreed, setAgreed] = useState(false);
 
     if (user) {
         return <Navigate to="/dashboard" replace />;
@@ -90,6 +91,7 @@ export default function SignupPage() {
         setLoading(true);
         try {
             await signup(form);
+            navigate("/verify-email");
         } catch (err) {
             console.error(err);
             alert(err.response?.data?.detail || "Signup failed");

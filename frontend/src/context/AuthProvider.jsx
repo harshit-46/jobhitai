@@ -30,9 +30,7 @@ export const AuthProvider = ({ children }) => {
     const signup = async (userData) => {
         const res = await api.post("/signup", userData);
 
-        if (res.data.message) {
-            navigate("/verify-email");
-        }
+        return res.data;
     };
 
     const login = async (userData) => {

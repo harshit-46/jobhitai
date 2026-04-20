@@ -28,8 +28,9 @@ export const AuthProvider = ({ children }) => {
     const signup = async (userData) => {
         await api.post("/signup", userData);
 
-        const res = await api.get("/me");
-        setUser(res.data);
+        if (res.data.message) {
+            navigate("/check-email");
+        }
     };
 
     const login = async (userData) => {

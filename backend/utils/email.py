@@ -1,52 +1,39 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
+import resend
 
-EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
+resend.api_key = os.getenv("RESEND_API_KEY")
+
+EMAIL_FROM = os.getenv("EMAIL_FROM")
 
 
 def send_verification_email(email: str, token: str, frontend_url: str):
     link = f"{frontend_url}/verify-email?token={token}"
 
-    msg = MIMEText(f"""
-    Hello,
+    resend.Emails.send({
+        "from": f"CareerCrafter <{EMAIL_FROM}>",
+        "to": email,
+        "subject": "Verify your email",
+        "html": f"""
+        <div style="font-family: Arial; padding: 20px;">
+            <h2>Verify your email</h2>
+            <p>Click the button below to verify your account:</p>
+            
+            <a href="{link}" 
+               style="
+                   display:inline-block;
+                   padding:12px 20px;
+                   background:#E8FF47;
+                   color:#000;
+                   text-decoration:none;
+                   border-radius:8px;
+                   font-weight:bold;
+               ">
+               Verify Email
+            </a>
 
-    Please verify your email by clicking the link below:
-
-    {link}
-
-    If you didn't request this, ignore this email.
-    """)
-
-    msg["Subject"] = "Verify your email"
-    msg["From"] = EMAIL_USER
-    msg["To"] = email
-
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
-        server.send_message(msg)
-
-
-def send_reset_email(email: str, token: str, frontend_url: str):
-    link = f"{frontend_url}/reset-password?token={token}"
-
-    msg = MIMEText(f"""
-    Hello,
-
-    Reset your password using the link below:
-
-    {link}
-
-    This link will expire soon.
-    """)
-
-    msg["Subject"] = "Reset your password"
-    msg["From"] = EMAIL_USER
-    msg["To"] = email
-
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
-        server.send_message(msg)
+            <p style="margin-top:20px; color:#888;">
+                If you didn’t sign up, ignore this email.
+            </p>
+        </div>
+        """
+    })

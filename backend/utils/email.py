@@ -1,7 +1,8 @@
 import os
-import resend
+from resend import Resend
 
-resend.api_key = os.getenv("RESEND_API_KEY")
+resend = Resend(api_key=os.getenv("RESEND_API_KEY"))
+
 EMAIL_FROM = os.getenv("EMAIL_FROM", "onboarding@resend.dev")
 
 def send_verification_email(email: str, token: str, frontend_url: str):
@@ -12,7 +13,10 @@ def send_verification_email(email: str, token: str, frontend_url: str):
             "from": f"CareerCrafter <{EMAIL_FROM}>",
             "to": [email],
             "subject": "Verify your email",
-            "html": f"""...""",
+            "html": f"""
+                <h2>Verify your email</h2>
+                <a href="{link}">Verify</a>
+            """,
             "text": f"Verify your email: {link}"
         })
     except Exception as e:

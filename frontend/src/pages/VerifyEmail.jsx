@@ -18,7 +18,7 @@ export default function VerifyEmail() {
                     return;
                 }
 
-                await api.get(`/verify-email?token=${token}`);
+                await api.get(`/api/verify-email?token=${token}`);
 
                 setStatus("success");
 

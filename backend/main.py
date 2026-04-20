@@ -322,7 +322,9 @@ app.add_middleware(
 # ---------------- SESSION ----------------
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("JWT_SECRET_KEY")
+    secret_key=os.getenv("JWT_SECRET_KEY"),
+    samesite="none",
+    https_only=True
 )
 
 # ---------------- ROUTES ----------------

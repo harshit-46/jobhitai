@@ -670,7 +670,7 @@ from fastapi.responses import RedirectResponse
 
 from pydantic import BaseModel
 
-from utils.email import send_verification_email
+from utils.email import send_verification_email , send_reset_email
 
 # ✅ KEEP YOUR ROUTES (IMPORTANT)
 from routes.resume import router as resumebuilder_router
@@ -832,7 +832,7 @@ async def forgot_password(data: ForgotPasswordRequest):
     )
 
     # 🔥 You should create a proper reset email function later
-    send_verification_email(data.email, token, FRONTEND_URL)
+    send_reset_email(data.email, token, FRONTEND_URL)
 
     return {"message": "Reset email sent"}
 

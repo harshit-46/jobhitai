@@ -672,7 +672,6 @@ from pydantic import BaseModel
 
 from utils.email import send_verification_email , send_reset_email
 
-# ✅ KEEP YOUR ROUTES (IMPORTANT)
 from routes.resume import router as resumebuilder_router
 from routes.career import router as career_router
 from routes.ml_routes import router as ml_router
@@ -698,8 +697,8 @@ app.add_middleware(
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("JWT_SECRET_KEY"),
-    same_site="none",     # ✅ FIX
-    https_only=True       # ✅ FIX
+    same_site="none",     
+    https_only=True       
 )
 
 # ---------------- ROUTES (UNCHANGED) ----------------
@@ -722,7 +721,7 @@ class ResetPasswordRequest(BaseModel):
 # ---------------- ROOT ----------------
 @app.get("/")
 async def root():
-    return {"message": "API running 🚀"}
+    return {"message": "API running"}
 
 # ---------------- SIGNUP ----------------
 @app.post("/api/signup")
@@ -831,7 +830,6 @@ async def forgot_password(data: ForgotPasswordRequest):
         }
     )
 
-    # 🔥 You should create a proper reset email function later
     send_reset_email(data.email, token, FRONTEND_URL)
 
     return {"message": "Reset email sent"}
@@ -949,7 +947,7 @@ oauth.register(
 
 @app.get("/auth/github")
 async def github_login(request: Request):
-    redirect_uri = request.url_for("github_callback")  # ✅ FIXED
+    redirect_uri = request.url_for("github_callback")
     return await oauth.github.authorize_redirect(request, redirect_uri)
 
 @app.get("/auth/github/callback")

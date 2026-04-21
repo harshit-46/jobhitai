@@ -39,7 +39,7 @@ def send_reset_email(email: str, token: str, frontend_url: str):
     link = f"{frontend_url}/reset-password?token={token}"
 
     try:
-        resend.emails.send({
+        resend.Emails.send({
             "from": f"CareerCrafter <{EMAIL_FROM}>",
             "to": [email],
             "subject": "Reset your password",

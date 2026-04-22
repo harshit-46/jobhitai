@@ -287,7 +287,7 @@ export default function CareerAdvisor() {
                     <div style={{ width: 30, height: 30, borderRadius: 9, background: "rgba(232,255,71,0.08)", border: "1px solid rgba(232,255,71,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>🤖</div>
                     <div>
                         <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em", color: t.text }}>Career AI</div>
-                        <div style={{ fontSize: 11, color: t.faint }}>Ask anything about your selected career</div>
+                        <div style={{ fontSize: 11, color: t.faint }}>Ask anything about your career</div>
                     </div>
                     <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: t.green }}>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: t.green, boxShadow: `0 0 6px ${t.green}`, display: "inline-block" }} />

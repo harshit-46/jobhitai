@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Briefcase, Anchor, User, ChevronUp } from "lucide-react";
+import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Briefcase, Anchor, User, ChevronUp , BotIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 
@@ -28,6 +28,7 @@ const MENU = [
     { name: "Skill Matcher",  icon: Brain,     path: "/skill-matcher" },
     { name: "Job Category",   icon: Briefcase, path: "/job-category" },
     { name: "Skill Match Set",icon: Anchor,    path: "/skill-match-set" },
+    { name: "Career Guru", icon: BotIcon,    path: "/career-guru" }
 ];
 
 const SETTINGS_MENU = [

@@ -20,6 +20,7 @@ import VerifySuccess from "./pages/Verifysuccess";
 import VerifyFailed from "./pages/Verifyfailed";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
+import CareerAdvisorChat from "./pages/CareerAdvisorChat";
 
 function App() {
   return (
@@ -71,6 +72,12 @@ function App() {
           <Route path="/skill-match-set" element={
             <ProtectedRoute>
               <SkillMatchSetPage />
+            </ProtectedRoute>}
+          />
+
+          <Route path="/career-guru" element={
+            <ProtectedRoute>
+              <CareerAdvisorChat />
             </ProtectedRoute>}
           />
 

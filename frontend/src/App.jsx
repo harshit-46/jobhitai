@@ -20,7 +20,7 @@ import VerifySuccess from "./pages/Verifysuccess";
 import VerifyFailed from "./pages/Verifyfailed";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
-import CareerAdvisorChat from "./pages/CareerAdvisorChat";
+import CareerGuru from "./pages/CareerGuru";
 
 function App() {
   return (
@@ -77,7 +77,7 @@ function App() {
 
           <Route path="/career-guru" element={
             <ProtectedRoute>
-              <CareerAdvisorChat />
+              <CareerGuru />
             </ProtectedRoute>}
           />
 

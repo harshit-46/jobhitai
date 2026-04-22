@@ -173,7 +173,7 @@ def detect_intent(question: str) -> str:
 
 # ── Greeting — handled locally, no LLM call needed ────────────────────────────
 
-GREETING_RESPONSE = """Hey there! 👋 I'm your AI Career Advisor on **JobHitAI**.
+GREETING_RESPONSE = """Hey there! 👋 I'm your AI Career Advisor on **Career Crafter**.
 
 I can help you with:
 - 🗺️ **Roadmaps** — step-by-step learning paths for any tech career

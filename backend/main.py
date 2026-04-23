@@ -22,6 +22,7 @@ from routes.resume import router as resumebuilder_router
 from routes.career import router as career_router
 from routes.ml_routes import router as ml_router
 from routes.resume_upload import router as resume_upload_router
+from routes.profile import router as profile_router
 
 # ---------------- CONFIG ----------------
 config = Config('.env')
@@ -53,6 +54,7 @@ app.include_router(resumebuilder_router, prefix="/resume-builder", tags=["resume
 app.include_router(career_router, prefix="/api/career", tags=["career"])
 app.include_router(ml_router)
 app.include_router(resume_upload_router, prefix="/api/resume", tags=["resume-upload"])
+app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
 
 # ---------------- UTILS ----------------
 def generate_token():

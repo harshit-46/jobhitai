@@ -290,7 +290,7 @@ def build_prompt(question: str, career: str) -> tuple[str, str]:
     career_context = build_career_context(career)
     intent_instruction = build_intent_instruction(intent, career)
 
-    system_prompt = f"""You are an expert AI Career Advisor on JobHitAI, a platform for fresh graduates and students in India.
+    system_prompt = f"""You are an expert AI Career Advisor on Career Crafter, a platform for fresh graduates and students in India.
 
 You have deep knowledge of the Indian tech job market — including top companies (TCS, Infosys, Wipro, Flipkart, Zomato, startups, MNCs), placement processes, salary trends, and skill demand.
 

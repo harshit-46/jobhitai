@@ -312,7 +312,7 @@ function UploadZone({ onUpload, uploading, progress }) {
 
 // ── Resume card ───────────────────────────────────────────────────────────────
 function ResumeCard({ resume, onDelete, index }) {
-    const ext = getExt(resume.filename);
+    const ext = getExt(resume.resume_filename);
     const extColor = getExtColor(ext);
     const [hovered, setHovered] = useState(false);
 
@@ -341,8 +341,8 @@ function ResumeCard({ resume, onDelete, index }) {
                 position: "relative", overflow: "hidden",
             }}>
                 <iframe
-                    src={resume.url}
-                    title={resume.filename}
+                    src={resume.resume_url}
+                    title={resume.resume_filename}
                     style={{
                         width: "100%", height: "100%",
                         border: "none", borderRadius: 0,
@@ -359,7 +359,7 @@ function ResumeCard({ resume, onDelete, index }) {
                     transition: "opacity 0.2s",
                 }}>
                     <button
-                        onClick={() => window.open(resume.url, "_blank")}
+                        onClick={() => window.open(resume.resume_url, "_blank")}
                         style={{
                             display: "flex", alignItems: "center", gap: 7,
                             padding: "9px 18px", borderRadius: 10,
@@ -390,7 +390,7 @@ function ResumeCard({ resume, onDelete, index }) {
                         fontSize: 12, fontWeight: 600, color: t.text, margin: "0 0 2px",
                         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                     }}>
-                        {resume.filename}
+                        {resume.resume_filename}
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <span style={{
@@ -398,8 +398,8 @@ function ResumeCard({ resume, onDelete, index }) {
                             background: `${extColor}12`, border: `1px solid ${extColor}22`,
                             color: extColor, letterSpacing: "0.04em",
                         }}>{ext}</span>
-                        {resume.uploaded_at && (
-                            <span style={{ fontSize: 10, color: t.faint }}>{formatDate(resume.uploaded_at)}</span>
+                        {resume.resume_uploaded_at && (
+                            <span style={{ fontSize: 10, color: t.faint }}>{formatDate(resume.resume_uploaded_at)}</span>
                         )}
                     </div>
                 </div>
@@ -407,7 +407,7 @@ function ResumeCard({ resume, onDelete, index }) {
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                     <button
-                        onClick={() => window.open(resume.url, "_blank")}
+                        onClick={() => window.open(resume.resume_url, "_blank")}
                         title="View"
                         style={{
                             width: 30, height: 30, borderRadius: 8,

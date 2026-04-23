@@ -252,9 +252,8 @@ export default function Dashboard() {
         navigate("/login");
     };
 
-
-
     const [showUpload, setShowUpload] = useState(!user.hasResume);
+    console.log("Has resume : " , user.hasResume);
 
     return (
         <>

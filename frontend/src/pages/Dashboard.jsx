@@ -252,8 +252,15 @@ export default function Dashboard() {
         navigate("/login");
     };
 
-    const [showUpload, setShowUpload] = useState(!user.hasResume);
-    console.log("Has resume : " , user.hasResume);
+    const [showUpload, setShowUpload] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            setShowUpload(!user.hasResume);
+        }
+    }, [user]);
+
+    console.log("Has resume : " , user?.hasResume);
 
     return (
         <>

@@ -260,9 +260,6 @@ export default function Dashboard() {
         }
     }, [user]);
 
-    console.log("Full user : ", user);
-    console.log("Has resume : " , user?.has_resume);
-
     return (
         <>
             <FontLoader />

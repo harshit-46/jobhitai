@@ -91,19 +91,65 @@ export default function ResumePage () {
                     </button>
                 </>
             ) : (
-                <>
-                    <p>📄 {filename}</p>
-
-                    <a href={resumeUrl} target="_blank" rel="noreferrer">
-                        View Resume
-                    </a>
-
-                    <br /><br />
-
-                    <button onClick={handleDelete}>
-                        Delete Resume
-                    </button>
-                </>
+                <div style={{
+                    maxWidth: 500,
+                    margin: "0 auto",
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 16,
+                    padding: 16
+                }}>
+                
+                    {/* 📄 File Name */}
+                    <p style={{ marginBottom: 10, fontWeight: 500 }}>
+                        📄 {filename}
+                    </p>
+                
+                    {/* 🔥 PDF Preview */}
+                    <iframe
+                        src={resumeUrl}
+                        width="100%"
+                        height="300px"
+                        style={{
+                            borderRadius: 10,
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            marginBottom: 12
+                        }}
+                    />
+                
+                    {/* 🔘 Actions */}
+                    <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                        
+                        <button
+                            onClick={() => window.open(resumeUrl, "_blank")}
+                            style={{
+                                padding: "8px 14px",
+                                borderRadius: 8,
+                                background: "#E8FF47",
+                                border: "none",
+                                cursor: "pointer",
+                                fontWeight: 600
+                            }}
+                        >
+                            View Full
+                        </button>
+                
+                        <button
+                            onClick={handleDelete}
+                            style={{
+                                padding: "8px 14px",
+                                borderRadius: 8,
+                                background: "rgba(255,0,0,0.1)",
+                                border: "1px solid rgba(255,0,0,0.3)",
+                                color: "#ff6b6b",
+                                cursor: "pointer"
+                            }}
+                        >
+                            Delete
+                        </button>
+                
+                    </div>
+                </div>
             )}
         </div>
     );

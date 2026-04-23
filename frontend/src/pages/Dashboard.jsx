@@ -256,12 +256,12 @@ export default function Dashboard() {
 
     useEffect(() => {
         if (user) {
-            setShowUpload(!user?.has_Resume);
+            setShowUpload(!user?.has_resume);
         }
     }, [user]);
 
     console.log("Full user : ", user);
-    console.log("Has resume : " , user?.has_Resume);
+    console.log("Has resume : " , user?.has_resume);
 
     return (
         <>

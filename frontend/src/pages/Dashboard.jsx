@@ -260,6 +260,7 @@ export default function Dashboard() {
         }
     }, [user]);
 
+    console.log("Full user : ", user);
     console.log("Has resume : " , user?.hasResume);
 
     return (

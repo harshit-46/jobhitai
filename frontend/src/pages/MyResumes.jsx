@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
+import ResumePage from "./ResumePage";
 
 const t = {
     bg: "#0a0a0e",
@@ -21,23 +22,6 @@ const t = {
     pink: "#f9a8d4",
     serif: { fontFamily: "'Fraunces', serif", fontWeight: 800 },
     serifItalic: { fontFamily: "'Fraunces', serif", fontStyle: "italic", fontWeight: 300 },
-};
-
-const ResumePage = () => {
-    return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 420, gap: 16, textAlign: "center" }}>
-            <div style={{ width: 68, height: 68, borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, background: "rgba(232,255,71,0.07)", border: "1px solid rgba(232,255,71,0.18)" }}>
-                {"🔧"}
-            </div>
-            <div>
-                <h3 style={{ ...t.serif, fontSize: "1.7rem", letterSpacing: "-0.03em", marginBottom: 6, color: t.text }}>My Resumes</h3>
-                <p style={{ fontSize: 13, color: t.muted, fontWeight: 300 }}>This section is coming soon. Stay tuned!</p>
-            </div>
-            <div style={{ padding: "7px 18px", borderRadius: 999, fontSize: 12, background: "rgba(232,255,71,0.07)", border: "1px solid rgba(232,255,71,0.2)", color: t.lime, fontWeight: 600, letterSpacing: "0.04em" }}>
-                Under Construction
-            </div>
-        </div>
-    );
 };
 
 const FontLoader = () => {

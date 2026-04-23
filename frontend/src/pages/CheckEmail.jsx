@@ -53,19 +53,19 @@ export default function CheckEmail() {
                 <div className="absolute inset-0 grid-dots" />
 
                 {/* BG orbs */}
-                <div className="fixed rounded-full pointer-events-none blur-[120px] z-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(232,255,71,0.05)_0%,transparent_70%)] -top-64 -left-48" />
-                <div className="fixed rounded-full pointer-events-none blur-[80px] z-0 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(232,255,71,0.03)_0%,transparent_70%)] bottom-0 right-0" />
+                <div className="fixed rounded-full pointer-events-none blur-[120px] z-0 w-150 h-150 bg-[radial-gradient(circle,rgba(232,255,71,0.05)_0%,transparent_70%)] -top-64 -left-48" />
+                <div className="fixed rounded-full pointer-events-none blur-[80px] z-0 w-100 h-100 bg-[radial-gradient(circle,rgba(232,255,71,0.03)_0%,transparent_70%)] bottom-0 right-0" />
 
                 {/* Noise */}
                 <div
-                    className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.028]"
+                    className="fixed inset-0 pointer-events-none z-9999 opacity-[0.028]"
                     style={{
                         backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
                     }}
                 />
 
                 <div className="relative z-10 w-full max-w-md px-6">
-                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm p-10 text-center">
+                    <div className="rounded-2xl border border-white/8 bg-white/3 backdrop-blur-sm p-10 text-center">
 
                         {/* Logo */}
                         <div className="anim-1 font-fraunces font-black text-2xl tracking-tight text-[#f0ede8] mb-8">
@@ -99,7 +99,7 @@ export default function CheckEmail() {
                         </p>
 
                         {/* Tip box */}
-                        <div className="anim-4 rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-3 mb-7 text-left flex gap-3 items-start">
+                        <div className="anim-4 rounded-xl bg-white/3 border border-white/6 px-4 py-3 mb-7 text-left flex gap-3 items-start">
                             <span className="text-[#E8FF47] mt-0.5 text-sm">💡</span>
                             <p className="text-xs text-white/30 leading-relaxed">
                                 Can't find the email? Check your <span className="text-white/50">spam or junk folder</span>. It may take a minute to arrive.

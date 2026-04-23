@@ -30,6 +30,7 @@ class UserInDB(UserBase):
 
     has_resume: bool = False
     resume_filename: Optional[str] = None
+    resume_url: Optional[str] = None   
 
     created_at: Optional[str] = None
 
@@ -38,3 +39,5 @@ class UserResponse(BaseModel):
     email: EmailStr
     avatar: Optional[str] = None
     has_resume : bool = False
+    resume_filename: Optional[str] = None
+    resume_url: Optional[str] = None       

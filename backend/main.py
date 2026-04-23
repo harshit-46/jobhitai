@@ -216,7 +216,10 @@ async def get_me(user=Depends(get_current_user)):
     return {
         "name": db_user["name"],
         "email": db_user["email"],
-        "has_resume": db_user.get("has_resume", False)
+        "avatar": db_user.get("avatar"),
+        "has_resume": db_user.get("has_resume", False),
+        "resume_filename": db_user.get("resume_filename"),
+        "resume_url": db_user.get("resume_url"),
     }
 
 # ---------------- LOGOUT ----------------

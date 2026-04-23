@@ -1,4 +1,4 @@
-import { useEffect , useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -74,21 +74,21 @@ const STATS = [
 
 const FEATURES = [
     {
-        title: "Resume Builder", icon: "✍️", path : "resume-builder",
+        title: "Resume Builder", icon: "✍️", path: "resume-builder",
         desc: "Create AI-powered, ATS-optimized resumes tailored to any job description in minutes.",
         iconBg: "rgba(232,255,71,0.1)", iconBorder: "rgba(232,255,71,0.2)",
         btnBg: "rgba(232,255,71,0.1)", btnBorder: "rgba(232,255,71,0.25)", btnColor: "#E8FF47",
         topLine: "linear-gradient(90deg,transparent,#E8FF47,transparent)",
     },
     {
-        title: "Resume Analyzer", icon: "📊", path : "skill-matcher",
+        title: "Resume Analyzer", icon: "📊", path: "skill-matcher",
         desc: "Get a real-time ATS score and line-by-line feedback to maximize your interview chances.",
         iconBg: "rgba(134,239,172,0.1)", iconBorder: "rgba(134,239,172,0.2)",
         btnBg: "rgba(134,239,172,0.1)", btnBorder: "rgba(134,239,172,0.25)", btnColor: "#86efac",
         topLine: "linear-gradient(90deg,transparent,#86efac,transparent)",
     },
     {
-        title: "AI Predictor", icon: "🎯", path : "job-category",
+        title: "AI Predictor", icon: "🎯", path: "job-category",
         desc: "Predict your ideal job category and get personalised recommendations based on your profile.",
         iconBg: "rgba(252,211,77,0.1)", iconBorder: "rgba(252,211,77,0.2)",
         btnBg: "rgba(252,211,77,0.1)", btnBorder: "rgba(252,211,77,0.25)", btnColor: "#fcd34d",
@@ -97,17 +97,17 @@ const FEATURES = [
 ];
 
 const ACTIVITY = [
-    { label: "Updated Resume",          time: "2 min ago",  icon: "✏️", dot: "#E8FF47" },
-    { label: "Analysed Resume",         time: "1 hr ago",   icon: "📊", dot: "#86efac" },
-    { label: "Generated AI Suggestions",time: "3 hr ago",   icon: "🤖", dot: "#fcd34d" },
-    { label: "New Job Match Found",     time: "Yesterday",  icon: "🎯", dot: "#f9a8d4" },
+    { label: "Updated Resume", time: "2 min ago", icon: "✏️", dot: "#E8FF47" },
+    { label: "Analysed Resume", time: "1 hr ago", icon: "📊", dot: "#86efac" },
+    { label: "Generated AI Suggestions", time: "3 hr ago", icon: "🤖", dot: "#fcd34d" },
+    { label: "New Job Match Found", time: "Yesterday", icon: "🎯", dot: "#f9a8d4" },
 ];
 
 const SCORE_BARS = [
     { name: "Keywords", val: 88, gradient: "linear-gradient(90deg,#E8FF47,#c8dd00)" },
-    { name: "Skills",   val: 76, gradient: "linear-gradient(90deg,#E8FF47,#86efac)" },
-    { name: "Impact",   val: 82, gradient: "linear-gradient(90deg,#fcd34d,#f9a8d4)" },
-    { name: "Format",   val: 92, gradient: "linear-gradient(90deg,#86efac,#E8FF47)" },
+    { name: "Skills", val: 76, gradient: "linear-gradient(90deg,#E8FF47,#86efac)" },
+    { name: "Impact", val: 82, gradient: "linear-gradient(90deg,#fcd34d,#f9a8d4)" },
+    { name: "Format", val: 92, gradient: "linear-gradient(90deg,#86efac,#E8FF47)" },
 ];
 
 function DashboardPage() {
@@ -251,6 +251,10 @@ export default function Dashboard() {
         navigate("/login");
     };
 
+
+
+    const [showUpload, setShowUpload] = useState(!user.hasResume);
+
     return (
         <>
             <FontLoader />
@@ -263,6 +267,13 @@ export default function Dashboard() {
             `}</style>
 
             <div style={{ fontFamily: "'DM Sans', sans-serif", background: t.bg, color: t.text, minHeight: "100vh", display: "flex" }}>
+                {showUpload && (
+                    <ResumeUploadModal
+                        onClose={() => setShowUpload(false)}
+                        onSkip={() => setShowUpload(false)}
+                        onSuccess={() => setShowUpload(false)}
+                    />
+                )}
                 <Sidebar user={user} onLogout={handleLogout} onClick={handleClick} />
                 <Topbar />
                 <main style={{ marginLeft: 256, paddingTop: 68, flex: 1, minHeight: "100vh", position: "relative", zIndex: 10, overflowY: "auto" }}>

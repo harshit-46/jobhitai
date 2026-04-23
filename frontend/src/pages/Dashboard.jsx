@@ -256,7 +256,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         if (user) {
-            setShowUpload(!user.has_Resume);
+            setShowUpload(!user?.has_Resume);
         }
     }, [user]);
 

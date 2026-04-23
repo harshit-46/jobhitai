@@ -7,6 +7,7 @@ import Topbar from "../components/Topbar";
 import StatCard from "../components/StatCard";
 import FeatureCard from "../components/FeatureCard";
 import ScoreRing from "../components/ScoreRing";
+import ResumeUploadModal from "../components/ResumeUploadModal";
 
 const FontLoader = () => {
     useEffect(() => {

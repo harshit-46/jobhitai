@@ -11,3 +11,4 @@ def get_db():
 
 users_collection    = db["users"]
 resumes_collection  = db["resumes"]     # separate collection for resume storage
+created_resume_collection = db["built_resumes"]

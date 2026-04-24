@@ -51,6 +51,12 @@ function App() {
             </ProtectedRoute>}
           />
 
+          <Route path="/resume-builder/:resumeId?" element={
+            <ProtectedRoute>
+              <ResumeBuilder initialResumeId={params.resumeId}  />
+            </ProtectedRoute>}
+          />
+
           <Route path="/career-advisor" element={
             <ProtectedRoute>
               <CareerInsight />

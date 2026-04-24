@@ -53,7 +53,7 @@ function App() {
 
           <Route path="/resume-builder/:resumeId?" element={
             <ProtectedRoute>
-              <ResumeBuilder initialResumeId={params.resumeId}  />
+              <ResumeBuilder />
             </ProtectedRoute>}
           />
 

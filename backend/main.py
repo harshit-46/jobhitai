@@ -50,7 +50,7 @@ app.add_middleware(
 )
 
 # ---------------- ROUTES (UNCHANGED) ----------------
-app.include_router(resumebuilder_router, prefix="/resume-builder", tags=["resume"])
+app.include_router(resumebuilder_router, prefix="/builder", tags=["resume-builder"])
 app.include_router(career_router, prefix="/api/career", tags=["career"])
 app.include_router(ml_router)
 app.include_router(resume_upload_router, prefix="/api/resume", tags=["resume-upload"])

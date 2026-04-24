@@ -29,6 +29,7 @@ function getInlineUrl(url, mimeType) {
 }
 
 // Download URL — forces download with original filename preserved
+/*
 function getDownloadUrl(url, filename, mimeType) {
     const safe = filename.replace(/\s+/g, "_");
     if (mimeType === "application/pdf") {
@@ -38,6 +39,7 @@ function getDownloadUrl(url, filename, mimeType) {
     // DOC/DOCX uploaded as raw
     return url.replace("/raw/upload/", `/raw/upload/fl_attachment:${safe}/`);
 }
+*/
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatSize(bytes) {

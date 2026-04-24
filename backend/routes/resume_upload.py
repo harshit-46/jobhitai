@@ -267,13 +267,17 @@ async def upload_resume(
     public_id = f"jobhitai/resumes/{user_id}/{timestamp}"
 
     try:
+        # detect resource type based on file
+        resource_type = "image" if file.content_type == "application/pdf" else "raw"
+
         result = cloudinary.uploader.upload(
-            contents,
-            resource_type="raw",
-            public_id=public_id,
-            overwrite=False,
-            use_filename=False,
-        )
+        contents,
+        resource_type=resource_type,
+        public_id=public_id,
+        overwrite=False,
+        use_filename=False,
+        format="pdf" if file.content_type == "application/pdf" else None,
+    )
     except Exception as e:
         print("Cloudinary error:", e)
         raise HTTPException(500, "Failed to upload file. Please try again.")

@@ -64,6 +64,18 @@ function formatDate(iso) {
     });
 }
 
+function getPdfThumbnail(url) {
+    return url.replace(
+        "/upload/",
+        "/upload/pg_1,w_400,h_500,c_fill,f_jpg/"
+    );
+}
+
+function getDownloadUrl(url, filename) {
+    const safe = filename.replace(/\s+/g, "_");
+    return url.replace("/upload/", `/upload/fl_attachment:${safe}/`);
+}
+
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const Icon = {
     file: (color = t.lime, size = 22) => (

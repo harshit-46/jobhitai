@@ -18,7 +18,7 @@ from pydantic import BaseModel
 
 from utils.email import send_verification_email , send_reset_email
 
-from routes.resume import router as resumebuilder_router
+from routes.resume_builder import router as resumebuilder_router
 from routes.career import router as career_router
 from routes.ml_routes import router as ml_router
 from routes.resume_upload import router as resume_upload_router

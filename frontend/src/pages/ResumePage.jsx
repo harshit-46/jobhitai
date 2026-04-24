@@ -501,7 +501,7 @@ function ResumeCard({ resume, onDelete, index }) {
                 transform: hovered ? "translateY(-3px)" : "translateY(0)",
                 boxShadow: hovered ? "0 16px 48px rgba(0,0,0,0.45)" : "0 2px 12px rgba(0,0,0,0.2)",
                 display: "flex", flexDirection: "column",
-                animation: `fadeUp 0.4s ${index * 0.06}s cubic-bezier(0.22,1,0.36,1) both`,
+                animation: `fadeIn 0.3s ${index * 0.05}s ease both`,
             }}
         >
             {/* Thumbnail area */}
@@ -658,7 +658,7 @@ function EmptyState() {
             display: "flex", flexDirection: "column", alignItems: "center",
             gap: 18, padding: "56px 24px 52px",
             borderRadius: 22, background: t.surface, border: `1px solid ${t.border}`,
-            animation: "fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both",
+            animation: "fadeIn 0.3s ease both",
             position: "relative", overflow: "hidden",
         }}>
             {/* Subtle bg glow */}
@@ -699,7 +699,7 @@ function EmptyState() {
                         fontSize: 11.5, padding: "5px 12px", borderRadius: 8,
                         background: t.surface2, border: `1px solid ${t.border}`,
                         color: t.faint, display: "flex", alignItems: "center", gap: 6,
-                        animation: `fadeUp 0.4s ${0.08 + i * 0.05}s cubic-bezier(0.22,1,0.36,1) both`,
+                        animation: "fadeIn 0.3s ease both",
                     }}>
                         <span style={{ color: t.lime, fontSize: 8 }}>✦</span>
                         {f}
@@ -711,12 +711,11 @@ function EmptyState() {
 }
 
 // ── Stat Chip ─────────────────────────────────────────────────────────────────
-function StatChip({ label, value, accent, delay = 0 }) {
+function StatChip({ label, value, accent }) {
     return (
         <div className="stat-chip" style={{
             flex: 1, padding: "14px 18px", borderRadius: 16,
             background: t.surface, border: `1px solid ${t.border}`,
-            animation: `fadeUp 0.4s ${delay}s cubic-bezier(0.22,1,0.36,1) both`,
             transition: "all 0.2s ease",
             cursor: "default", minWidth: 0,
         }}>
@@ -813,7 +812,7 @@ export default function ResumePage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 26, fontFamily: "'DM Sans', sans-serif", maxWidth: 900 }}>
 
                 {/* ── Header ── */}
-                <div style={{ animation: "fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both" }}>
+                <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                         <span style={{
                             fontSize: 10, color: t.lime, letterSpacing: "0.18em",
@@ -821,6 +820,11 @@ export default function ResumePage() {
                         }}>
                             Resume Vault
                         </span>
+                        <div style={{
+                            width: 5, height: 5, borderRadius: "50%",
+                            background: t.lime, opacity: 0.6,
+                            animation: "floatDot 2.2s ease-in-out infinite",
+                        }} />
                     </div>
 
                     <h1 style={{
@@ -843,19 +847,19 @@ export default function ResumePage() {
                 {/* ── Stats ── */}
                 {!loading && resumes.length > 0 && (
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                        <StatChip label="Total Resumes" value={resumes.length} accent={t.lime} delay={0.04} />
-                        <StatChip label="Latest Upload" value={latestDate} delay={0.08} />
-                        <StatChip label="Formats" value={formats} delay={0.12} />
+                        <StatChip label="Total Resumes" value={resumes.length} accent={t.lime} />
+                        <StatChip label="Latest Upload" value={latestDate} />
+                        <StatChip label="Formats" value={formats} />
                     </div>
                 )}
 
                 {/* ── Upload Zone ── */}
-                <div style={{ animation: "fadeUp 0.4s 0.1s cubic-bezier(0.22,1,0.36,1) both" }}>
+                <div>
                     <UploadZone onUpload={handleUpload} uploading={uploading} progress={progress} />
                 </div>
 
                 {/* ── Grid ── */}
-                <div style={{ animation: "fadeUp 0.4s 0.14s cubic-bezier(0.22,1,0.36,1) both" }}>
+                <div>
                     {loading ? (
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))", gap: 14 }}>
                             <SkeletonCard delay={0} />

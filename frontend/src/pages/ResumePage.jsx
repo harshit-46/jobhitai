@@ -28,19 +28,6 @@ function getInlineUrl(url, mimeType) {
     return url.replace("/image/upload/", "/image/upload/fl_inline/");
 }
 
-// Download URL — forces download with original filename preserved
-/*
-function getDownloadUrl(url, filename, mimeType) {
-    const safe = filename.replace(/\s+/g, "_");
-    if (mimeType === "application/pdf") {
-        // PDF was uploaded as image resource_type
-        return url.replace("/image/upload/", `/image/upload/fl_attachment:${safe}/`);
-    }
-    // DOC/DOCX uploaded as raw
-    return url.replace("/raw/upload/", `/raw/upload/fl_attachment:${safe}/`);
-}
-*/
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatSize(bytes) {
     if (!bytes) return "";

@@ -1,3 +1,5 @@
+"""
+
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 
@@ -42,20 +44,14 @@ class UserResponse(BaseModel):
     resume_filename: Optional[str] = None
     resume_url: Optional[str] = None       
 
-
-
-
-
-
-
 """
+
 
 
 # models.py
 
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
-from datetime import datetime
 
 
 class UserSignup(BaseModel):
@@ -77,16 +73,7 @@ class UserBase(BaseModel):
     avatar: Optional[str] = None
 
 
-# ── Resume entry ───────────────────────────────────────────────────────────────
-class ResumeEntry(BaseModel):
-    resume_id: str
-    filename: str
-    url: str
-    cloudinary_public_id: str
-    uploaded_at: str
-
-
-# ── Full user stored in MongoDB ────────────────────────────────────────────────
+# ── User stored in MongoDB ─────────────────────────────────────────────────────
 class UserInDB(UserBase):
     password: Optional[str] = None
     providers: List[str] = Field(default=["local"])
@@ -96,21 +83,39 @@ class UserInDB(UserBase):
     reset_token_expiry: Optional[str] = None
     created_at: Optional[str] = None
 
-    # ── Profile fields ─────────────────────────────────────────────────────────
+    # Profile fields
     phone: Optional[str] = None
     location: Optional[str] = None
     bio: Optional[str] = None
-    role: Optional[str] = None          # job title e.g. "Software Engineer"
+    role: Optional[str] = None
     linkedin: Optional[str] = None
     github: Optional[str] = None
     portfolio: Optional[str] = None
     skills: List[str] = Field(default=[])
 
-    # ── Resume array ───────────────────────────────────────────────────────────
-    resumes: List[ResumeEntry] = Field(default=[])
+    # Quick flag — avoids querying resumes collection on every auth check
+    has_resume: bool = False
 
 
-# ── What /api/me returns (lightweight — used in auth context) ──────────────────
+# ── Resume document — stored in resumes collection ────────────────────────────
+class ResumeInDB(BaseModel):
+    user_id: str                    # str(_id) of the user
+    filename: str                   # original file name shown in UI
+    url: str                        # Cloudinary secure_url
+    cloudinary_public_id: str       # needed for deletion
+    uploaded_at: str                # ISO datetime string
+
+
+# ── Resume response returned to frontend ──────────────────────────────────────
+class ResumeResponse(BaseModel):
+    resume_id: str                  # str(_id) of the resume document
+    user_id: str
+    filename: str
+    url: str
+    uploaded_at: str
+
+
+# ── Lightweight — used in auth context ────────────────────────────────────────
 class UserResponse(BaseModel):
     name: str
     email: EmailStr
@@ -118,37 +123,26 @@ class UserResponse(BaseModel):
     has_resume: bool = False
 
 
-# ── What /api/profile returns (full — used on profile page only) ───────────────
+# ── Full profile — used only on profile page ──────────────────────────────────
 class ProfileResponse(BaseModel):
-    # Identity
     name: str
     email: EmailStr
     username: Optional[str] = None
     avatar: Optional[str] = None
     role: Optional[str] = None
     bio: Optional[str] = None
-    joined: Optional[str] = None        # formatted from created_at
-
-    # Contact
+    joined: Optional[str] = None
     phone: Optional[str] = None
     location: Optional[str] = None
-
-    # Links
     linkedin: Optional[str] = None
     github: Optional[str] = None
     portfolio: Optional[str] = None
-
-    # Skills
     skills: List[str] = Field(default=[])
-
-    # Resume stats (derived)
     resume_count: int = 0
-
-    # Auth
     providers: List[str] = Field(default=["local"])
 
 
-# ── What PUT /api/profile accepts ─────────────────────────────────────────────
+# ── Profile update payload ────────────────────────────────────────────────────
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
     role: Optional[str] = None
@@ -159,7 +153,3 @@ class ProfileUpdate(BaseModel):
     github: Optional[str] = None
     portfolio: Optional[str] = None
     skills: Optional[List[str]] = None
-
-
-
-"""

@@ -518,6 +518,7 @@ export default function ResumePage() {
     const fetchResumes = async () => {
         try {
             const res = await api.get(`${API}/status`);
+            console.log("Data from backend is  : ", res);
             setResumes(res.data.resumes || []);
         } catch (err) {
             console.error(err);

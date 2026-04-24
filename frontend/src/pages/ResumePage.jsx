@@ -821,11 +821,6 @@ export default function ResumePage() {
                         }}>
                             Resume Vault
                         </span>
-                        <div style={{
-                            width: 5, height: 5, borderRadius: "50%",
-                            background: t.lime, opacity: 0.6,
-                            animation: "floatDot 2.2s ease-in-out infinite",
-                        }} />
                     </div>
 
                     <h1 style={{

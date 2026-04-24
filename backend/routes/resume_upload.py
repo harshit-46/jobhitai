@@ -259,6 +259,7 @@ async def upload_resume(
             use_filename=False,
             # Keep pdf format explicitly so Cloudinary doesn't rename it
             format="pdf" if is_pdf else None,
+            access_mode="public"
         )
     except Exception as e:
         print("Cloudinary error:", e)

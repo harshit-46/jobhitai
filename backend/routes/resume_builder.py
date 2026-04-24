@@ -88,7 +88,7 @@ async def save_resume(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = str(current_user["_id"])
+    user_id = current_user["sub"]
     now = datetime.now(timezone.utc).isoformat()
     resume_dict = resume.model_dump()
     resume_dict["user_id"] = user_id
@@ -121,7 +121,7 @@ async def list_resumes(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = str(current_user["_id"])
+    user_id = current_user["sub"]
     cursor = db["built_resumes"].find(
         {"user_id": user_id},
         {
@@ -148,7 +148,7 @@ async def get_resume(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = str(current_user["_id"])
+    user_id = current_user["sub"]
     resume = await db["built_resumes"].find_one(
         {"resume_id": resume_id, "user_id": user_id},
         {"_id": 0},
@@ -168,7 +168,7 @@ async def delete_resume(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = str(current_user["_id"])
+    user_id = current_user["sub"]
     result = await db["built_resumes"].delete_one(
         {"resume_id": resume_id, "user_id": user_id}
     )
@@ -225,7 +225,7 @@ async def export_pdf_by_id(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = str(current_user["_id"])
+    user_id = current_user["sub"]
     doc = await db["built_resumes"].find_one(
         {"resume_id": resume_id, "user_id": user_id},
         {"_id": 0},

@@ -7,15 +7,51 @@ from typing import Optional, List
 import io
 import os
 import uuid
+import httpx
 from datetime import datetime, timezone
-from openai import OpenAI
+from dotenv import load_dotenv
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL   = "llama-3.3-70b-versatile"
 
 from auth import get_current_user
 from database import get_db
 
 router = APIRouter()
+
+# ─────────────────────────────────────────────
+# Groq helper
+# ─────────────────────────────────────────────
+
+async def groq_chat(system: str, user: str) -> str:
+    """Call Groq and return the assistant message text."""
+    if not GROQ_API_KEY:
+        raise ValueError("GROQ_API_KEY not set")
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.post(
+            GROQ_URL,
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": GROQ_MODEL,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user",   "content": user},
+                ],
+                "temperature": 0.7,
+            },
+        )
+    data = response.json()
+    if "choices" not in data:
+        raise ValueError(f"Groq error: {data}")
+    return data["choices"][0]["message"]["content"].strip()
+
 
 # ─────────────────────────────────────────────
 # Pydantic Models
@@ -88,7 +124,7 @@ async def save_resume(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = current_user["sub"]
+    user_id = current_user["sub"]   # email from JWT — consistent with rest of app
     now = datetime.now(timezone.utc).isoformat()
     resume_dict = resume.model_dump()
     resume_dict["user_id"] = user_id
@@ -216,7 +252,6 @@ async def export_pdf(
 
 # ─────────────────────────────────────────────
 # Export PDF by resume_id (for the vault download button)
-# Fetches the saved resume from DB then generates PDF on the fly
 # ─────────────────────────────────────────────
 
 @router.get("/export-pdf/{resume_id}")
@@ -271,44 +306,31 @@ async def generate_summary(
     resume: ResumeData,
     current_user: dict = Depends(get_current_user),
 ):
-    if not client:
-        return {"summary": "AI service not configured."}
+    experience_text = ""
+    for exp in resume.experience:
+        experience_text += f"\n- {exp.role} at {exp.company}"
+        if exp.bullets:
+            experience_text += ": " + "; ".join(exp.bullets[:2])
 
-    try:
-        experience_text = ""
-        for exp in resume.experience:
-            experience_text += f"\n- {exp.role} at {exp.company}"
-            if exp.bullets:
-                experience_text += ": " + "; ".join(exp.bullets[:2])
+    skills_text   = ", ".join(resume.skills.technical[:10])
+    projects_text = ", ".join([p.title for p in resume.projects if p.title])
 
-        skills_text = ", ".join(resume.skills.technical[:10])
-        projects_text = ", ".join([p.title for p in resume.projects if p.title])
-
-        prompt = f"""
-Write a strong professional resume summary (2-3 sentences).
+    system = "You are a professional resume writer. Write only the summary text — no labels, no preamble, no quotes."
+    user   = f"""Write a strong professional resume summary (2-3 sentences).
 
 Name: {resume.personal.name}
-Experience: {experience_text}
-Skills: {skills_text}
-Projects: {projects_text}
+Experience: {experience_text or "None yet"}
+Skills: {skills_text or "Not specified"}
+Projects: {projects_text or "None"}
 
-Make it concise, impactful, and tailored for tech roles.
-"""
+Make it concise, impactful, and tailored for tech roles in the Indian job market."""
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a professional resume writer."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
-        )
-
-        summary = response.choices[0].message.content.strip()
+    try:
+        summary = await groq_chat(system, user)
         return {"summary": summary}
-
-    except Exception:
-        return {"summary": "Failed to generate summary."}
+    except Exception as e:
+        print(f"Groq summary error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate summary.")
 
 
 # ─────────────────────────────────────────────
@@ -320,33 +342,20 @@ async def enhance_bullet(
     request: BulletEnhanceRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    if not client:
-        return {"enhanced": request.bullet}
-
-    try:
-        prompt = f"""
-Improve this resume bullet point:
+    system = "You are a professional resume writer. Return only the improved bullet point — no labels, no preamble, no quotes."
+    user   = f"""Improve this resume bullet point:
 
 "{request.bullet}"
 
 Make it:
-- impactful
-- concise
-- action-oriented
-- one sentence only
-"""
+- Start with a strong action verb
+- Quantify impact where possible
+- Concise and one sentence only
+- Suitable for a tech resume in the Indian job market"""
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a professional resume writer."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
-        )
-
-        enhanced = response.choices[0].message.content.strip()
+    try:
+        enhanced = await groq_chat(system, user)
         return {"enhanced": enhanced}
-
-    except Exception:
-        return {"enhanced": request.bullet}
+    except Exception as e:
+        print(f"Groq bullet error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to enhance bullet.")

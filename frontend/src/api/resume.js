@@ -22,6 +22,7 @@ export async function fetchResume() {
 }
 
 // Export resume as PDF (returns Blob)
+/*
 export async function exportResumePDF(resumeData) {
     const res = await fetch(`${BASE_URL}/builder/export-pdf`, {
         method: "POST",
@@ -32,6 +33,33 @@ export async function exportResumePDF(resumeData) {
     if (!res.ok) throw new Error("PDF export failed");
     return res.blob();
 }
+*/
+
+export async function exportResumePDF(resumeData) {
+    const res = await fetch(`${BASE_URL}/builder/export-pdf`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(resumeData),
+    });
+
+    if (!res.ok) {
+        const text = await res.text(); // 👈 IMPORTANT DEBUG
+        console.error("Backend error:", text);
+        throw new Error("PDF export failed");
+    }
+
+    const blob = await res.blob();
+
+    console.log("Blob type:", blob.type); // 👈 DEBUG
+
+    return blob;
+}
+
+
+
 
 // AI: Generate professional summary
 export async function generateSummaryWithAI(resumeData) {

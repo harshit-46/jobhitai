@@ -1,3 +1,6 @@
+/*
+
+
 import { useEffect, useState, useRef, useCallback } from "react";
 import api from "../api/axios";
 
@@ -236,11 +239,9 @@ function DeleteModal({ filename, onConfirm, onCancel, loading }) {
                 fontFamily: "'DM Sans', sans-serif",
                 boxShadow: "0 32px 80px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(252,165,165,0.1)",
             }}>
-                {/* Top accent line */}
                 <div style={{ height: 2, background: `linear-gradient(90deg, transparent 0%, ${t.red} 40%, rgba(252,165,165,0.4) 100%)` }} />
 
                 <div style={{ padding: "24px 24px 22px" }}>
-                    {/* Icon + title */}
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
                         <div style={{
                             width: 42, height: 42, borderRadius: 13, flexShrink: 0,
@@ -263,7 +264,6 @@ function DeleteModal({ filename, onConfirm, onCancel, loading }) {
                         </div>
                     </div>
 
-                    {/* Warning note */}
                     <div style={{
                         padding: "10px 14px", borderRadius: 11, marginBottom: 18,
                         background: "rgba(252,165,165,0.05)", border: "1px solid rgba(252,165,165,0.12)",
@@ -275,7 +275,6 @@ function DeleteModal({ filename, onConfirm, onCancel, loading }) {
                         </span>
                     </div>
 
-                    {/* Buttons */}
                     <div style={{ display: "flex", gap: 9 }}>
                         <button onClick={onConfirm} disabled={loading} style={{
                             flex: 1, padding: "11px 0", borderRadius: 12,
@@ -361,7 +360,6 @@ function UploadZone({ onUpload, uploading, progress }) {
                 overflow: "hidden",
             }}
         >
-            {/* Subtle grid bg */}
             {isIdle && (
                 <div style={{
                     position: "absolute", inset: 0, opacity: dragging ? 0.08 : 0.04,
@@ -504,7 +502,6 @@ function ResumeCard({ resume, onDelete, index }) {
                 animation: `fadeIn 0.3s ${index * 0.05}s ease both`,
             }}
         >
-            {/* Thumbnail area */}
             <div style={{
                 height: 210, background: "#0c0c10", position: "relative",
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -521,7 +518,6 @@ function ResumeCard({ resume, onDelete, index }) {
                                 opacity: imgLoaded ? 1 : 0, transition: "opacity 0.3s ease",
                             }}
                         />
-                        {/* Gradient overlay (always) */}
                         <div style={{
                             position: "absolute", bottom: 0, left: 0, right: 0, height: 60,
                             background: "linear-gradient(to top, rgba(12,12,16,0.9), transparent)",
@@ -543,7 +539,6 @@ function ResumeCard({ resume, onDelete, index }) {
                     </div>
                 )}
 
-                {/* Ext badge */}
                 <div style={{
                     position: "absolute", top: 12, left: 12,
                     padding: "3px 9px", borderRadius: 7, fontSize: 10, fontWeight: 800,
@@ -555,7 +550,6 @@ function ResumeCard({ resume, onDelete, index }) {
                     {ext}
                 </div>
 
-                {/* Hover overlay */}
                 <div className="rcard-overlay" style={{
                     position: "absolute", inset: 0,
                     background: "rgba(0,0,0,0.55)",
@@ -589,7 +583,6 @@ function ResumeCard({ resume, onDelete, index }) {
                 </div>
             </div>
 
-            {/* Footer */}
             <div style={{
                 padding: "13px 14px 14px",
                 display: "flex", alignItems: "center", gap: 10,
@@ -610,7 +603,6 @@ function ResumeCard({ resume, onDelete, index }) {
                     </p>
                 </div>
 
-                {/* Actions */}
                 <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                     <a href={downloadUrl} download={resume.filename} className="action-btn download" style={{ textDecoration: "none" }}>
                         {Icon.download(t.muted, 14)}
@@ -661,7 +653,6 @@ function EmptyState() {
             animation: "fadeIn 0.3s ease both",
             position: "relative", overflow: "hidden",
         }}>
-            {/* Subtle bg glow */}
             <div style={{
                 position: "absolute", top: "50%", left: "50%",
                 transform: "translate(-50%,-60%)",
@@ -811,7 +802,6 @@ export default function ResumePage() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 26, fontFamily: "'DM Sans', sans-serif", maxWidth: 900 }}>
 
-                {/* ── Header ── */}
                 <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                         <span style={{
@@ -839,7 +829,6 @@ export default function ResumePage() {
                     </p>
                 </div>
 
-                {/* ── Stats ── */}
                 {!loading && resumes.length > 0 && (
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                         <StatChip label="Total Resumes" value={resumes.length} accent={t.lime} />
@@ -848,12 +837,10 @@ export default function ResumePage() {
                     </div>
                 )}
 
-                {/* ── Upload Zone ── */}
                 <div>
                     <UploadZone onUpload={handleUpload} uploading={uploading} progress={progress} />
                 </div>
 
-                {/* ── Grid ── */}
                 <div>
                     {loading ? (
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))", gap: 14 }}>
@@ -876,7 +863,6 @@ export default function ResumePage() {
                 </div>
             </div>
 
-            {/* Modals / Toasts */}
             {deleteTarget && (
                 <DeleteModal
                     filename={deleteTarget.filename}
@@ -885,6 +871,543 @@ export default function ResumePage() {
                     loading={deleteLoading}
                 />
             )}
+            {toast && <Toast msg={toast.msg} type={toast.type} />}
+        </>
+    );
+}
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+
+// ── Design tokens ─────────────────────────────────────────────────────────────
+const t = {
+    bg: "#0a0a0e",
+    surface: "rgba(255,255,255,0.028)",
+    surface2: "rgba(255,255,255,0.055)",
+    text: "#f0ede8",
+    muted: "rgba(240,237,232,0.48)",
+    faint: "rgba(240,237,232,0.22)",
+    border: "rgba(255,255,255,0.07)",
+    border2: "rgba(255,255,255,0.13)",
+    lime: "#E8FF47",
+    limeDim: "rgba(232,255,71,0.08)",
+    green: "#86efac",
+    blue: "#93c5fd",
+    red: "#fca5a5",
+};
+
+const UPLOAD_API  = "https://jobhitai-server.onrender.com/api/resume";
+const BUILDER_API = "https://jobhitai-server.onrender.com/api/builder";
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function formatSize(bytes) {
+    if (!bytes) return "";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+}
+function getExt(filename) { return filename?.split(".").pop()?.toUpperCase() || "FILE"; }
+function getExtColor(ext) {
+    if (ext === "PDF") return "#f87171";
+    if (ext === "DOC" || ext === "DOCX") return "#93c5fd";
+    return t.muted;
+}
+function formatDate(iso) {
+    if (!iso) return "";
+    return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+function getPdfThumbnail(url) {
+    return url.replace("/upload/", "/upload/pg_1,w_500,h_640,c_fill,f_jpg/");
+}
+function getDownloadUrl(url, filename) {
+    const safe = filename.replace(/\s+/g, "_");
+    return url.replace("/upload/", `/upload/fl_attachment:${safe}/`);
+}
+function getTemplateStyle(template) {
+    if (template === "classic") return { color: "rgba(240,237,232,0.7)", bg: "rgba(240,237,232,0.06)", border: "rgba(240,237,232,0.15)" };
+    return { color: t.lime, bg: t.limeDim, border: "rgba(232,255,71,0.22)" };
+}
+
+// ── Global CSS ────────────────────────────────────────────────────────────────
+const GLOBAL_CSS = `
+    @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp  { from{opacity:0;transform:translateY(22px) scale(0.975)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes spin     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes toastIn  { from{opacity:0;transform:translateY(10px) scale(0.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    @keyframes shimmer  { from{background-position:-400px 0} to{background-position:400px 0} }
+    @keyframes floatDot { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+    .rcard:hover .card-overlay { opacity:1!important; }
+    .bcard:hover .card-overlay { opacity:1!important; }
+
+    .action-btn {
+        width:32px;height:32px;border-radius:9px;
+        background:transparent;border:1px solid rgba(255,255,255,0.07);
+        display:flex;align-items:center;justify-content:center;
+        cursor:pointer;transition:all 0.18s ease;flex-shrink:0;text-decoration:none;
+    }
+    .action-btn:hover { background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.16); }
+    .action-btn.danger:hover { background:rgba(252,165,165,0.1);border-color:rgba(252,165,165,0.28); }
+    .action-btn.download:hover { background:rgba(232,255,71,0.07);border-color:rgba(232,255,71,0.24); }
+    .action-btn.edit:hover { background:rgba(147,197,253,0.08);border-color:rgba(147,197,253,0.28); }
+    .stat-chip:hover { border-color:rgba(255,255,255,0.16)!important;background:rgba(255,255,255,0.042)!important; }
+`;
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
+const Icon = {
+    file:     (c=t.lime,s=20)  => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+    upload:   (c=t.lime,s=22)  => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>,
+    trash:    (c=t.faint,s=14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
+    eye:      (c=t.text,s=14)  => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+    download: (c=t.muted,s=14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+    edit:     (c=t.blue,s=14)  => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+    pen:      (c=t.lime,s=26)  => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>,
+    x:        (c=t.faint,s=12) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    check:    (c=t.green,s=13) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+    warning:  (c=t.red,s=13)   => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+    plus:     (c="#0a0a0e",s=14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+    arrowR:   (c="#0a0a0e",s=13) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+};
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function Toast({ msg, type }) {
+    const isErr = type === "error";
+    return (
+        <div style={{ position:"fixed",bottom:28,right:28,zIndex:3000,padding:"12px 18px",borderRadius:14,background:"rgba(10,10,14,0.95)",border:`1px solid ${isErr?"rgba(252,165,165,0.25)":"rgba(134,239,172,0.25)"}`,color:isErr?t.red:t.green,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",animation:"toastIn 0.35s cubic-bezier(0.22,1,0.36,1) both",backdropFilter:"blur(20px)",display:"flex",alignItems:"center",gap:10,boxShadow:"0 8px 32px rgba(0,0,0,0.6)",minWidth:220 }}>
+            <div style={{ width:24,height:24,borderRadius:8,flexShrink:0,background:isErr?"rgba(252,165,165,0.12)":"rgba(134,239,172,0.12)",display:"flex",alignItems:"center",justifyContent:"center" }}>
+                {isErr ? Icon.warning(t.red,12) : Icon.check(t.green,12)}
+            </div>
+            {msg}
+        </div>
+    );
+}
+
+// ── Delete Modal ──────────────────────────────────────────────────────────────
+function DeleteModal({ filename, onConfirm, onCancel, loading }) {
+    return (
+        <div style={{ position:"fixed",inset:0,zIndex:2000,background:"rgba(0,0,0,0.78)",backdropFilter:"blur(12px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20,animation:"fadeIn 0.18s ease both" }}>
+            <div style={{ width:"100%",maxWidth:380,background:"rgba(16,16,20,0.98)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:22,overflow:"hidden",animation:"slideUp 0.32s cubic-bezier(0.22,1,0.36,1) both",fontFamily:"'DM Sans',sans-serif",boxShadow:"0 32px 80px rgba(0,0,0,0.7)" }}>
+                <div style={{ height:2,background:`linear-gradient(90deg,transparent,${t.red},rgba(252,165,165,0.4))` }} />
+                <div style={{ padding:"24px 24px 22px" }}>
+                    <div style={{ display:"flex",alignItems:"flex-start",gap:14,marginBottom:16 }}>
+                        <div style={{ width:42,height:42,borderRadius:13,flexShrink:0,background:"rgba(252,165,165,0.08)",border:"1px solid rgba(252,165,165,0.2)",display:"flex",alignItems:"center",justifyContent:"center" }}>
+                            {Icon.trash(t.red,18)}
+                        </div>
+                        <div>
+                            <h3 style={{ fontFamily:"'Fraunces',serif",fontWeight:800,fontSize:17,color:t.text,margin:"0 0 5px",letterSpacing:"-0.025em" }}>Delete this resume?</h3>
+                            <p style={{ fontSize:12.5,color:t.muted,margin:0,lineHeight:1.55 }}><span style={{ color:t.text,fontWeight:600 }}>{filename}</span> will be permanently removed.</p>
+                        </div>
+                    </div>
+                    <div style={{ display:"flex",gap:9 }}>
+                        <button onClick={onConfirm} disabled={loading} style={{ flex:1,padding:"11px 0",borderRadius:12,fontSize:13,fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:"rgba(252,165,165,0.1)",border:"1px solid rgba(252,165,165,0.25)",color:t.red,cursor:loading?"not-allowed":"pointer",opacity:loading?0.6:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7 }}>
+                            {loading ? <><div style={{ width:12,height:12,borderRadius:"50%",border:"2px solid rgba(252,165,165,0.2)",borderTopColor:t.red,animation:"spin 0.75s linear infinite" }} />Deleting…</> : "Delete permanently"}
+                        </button>
+                        <button onClick={onCancel} disabled={loading} style={{ flex:1,padding:"11px 0",borderRadius:12,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",background:"transparent",border:`1px solid ${t.border}`,color:t.muted,cursor:"pointer" }}>Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ── Upload Zone ───────────────────────────────────────────────────────────────
+function UploadZone({ onUpload, uploading, progress }) {
+    const [dragging, setDragging] = useState(false);
+    const [picked, setPicked] = useState(null);
+    const inputRef = useRef(null);
+    const ALLOWED = ["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    const pick = (f) => { if (!ALLOWED.includes(f.type) || f.size > 5*1024*1024) return; setPicked(f); };
+    const handleDrop = useCallback((e) => { e.preventDefault(); setDragging(false); const f=e.dataTransfer.files[0]; if(f) pick(f); },[]);
+    const submit = async () => { if(!picked) return; await onUpload(picked); setPicked(null); };
+    const isIdle = !picked && !uploading;
+
+    return (
+        <div onDragOver={(e)=>{e.preventDefault();setDragging(true);}} onDragLeave={()=>setDragging(false)} onDrop={handleDrop} onClick={()=>isIdle&&inputRef.current?.click()}
+            style={{ borderRadius:20,border:`1.5px dashed ${dragging?t.lime:picked?"rgba(134,239,172,0.4)":uploading?"rgba(232,255,71,0.3)":"rgba(255,255,255,0.1)"}`,background:dragging?"rgba(232,255,71,0.04)":picked?"rgba(134,239,172,0.025)":"rgba(255,255,255,0.02)",padding:picked||uploading?"18px 22px":"22px 26px",cursor:isIdle?"pointer":"default",transition:"all 0.22s ease",position:"relative",overflow:"hidden" }}>
+            {isIdle && (
+                <div style={{ display:"flex",alignItems:"center",gap:18 }}>
+                    <div style={{ width:48,height:48,borderRadius:14,flexShrink:0,background:dragging?"rgba(232,255,71,0.1)":"rgba(255,255,255,0.04)",border:`1px solid ${dragging?"rgba(232,255,71,0.28)":"rgba(255,255,255,0.08)"}`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s" }}>
+                        {Icon.upload(dragging?t.lime:t.muted,20)}
+                    </div>
+                    <div style={{ flex:1 }}>
+                        <p style={{ fontSize:13.5,fontWeight:600,color:dragging?t.lime:t.text,margin:"0 0 3px",transition:"color 0.2s" }}>{dragging?"Release to upload":"Upload a resume"}</p>
+                        <p style={{ fontSize:12,color:t.faint,margin:0 }}>PDF, DOC, DOCX · Max 5 MB · Drag & drop or click</p>
+                    </div>
+                    <div style={{ padding:"7px 16px",borderRadius:10,fontSize:12,fontWeight:700,background:"rgba(255,255,255,0.04)",border:`1px solid ${t.border2}`,color:t.muted,pointerEvents:"none" }}>Browse</div>
+                </div>
+            )}
+            {picked && !uploading && (
+                <div style={{ display:"flex",alignItems:"center",gap:14 }}>
+                    <div style={{ width:44,height:44,borderRadius:13,flexShrink:0,background:"rgba(134,239,172,0.08)",border:"1px solid rgba(134,239,172,0.22)",display:"flex",alignItems:"center",justifyContent:"center" }}>{Icon.file(t.green,20)}</div>
+                    <div style={{ flex:1,minWidth:0 }}>
+                        <p style={{ fontSize:13,fontWeight:600,color:t.text,margin:"0 0 2px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis" }}>{picked.name}</p>
+                        <p style={{ fontSize:11.5,color:t.faint,margin:0 }}>{formatSize(picked.size)} · Ready</p>
+                    </div>
+                    <div style={{ display:"flex",gap:8,flexShrink:0 }}>
+                        <button onClick={(e)=>{e.stopPropagation();submit();}} style={{ padding:"9px 20px",borderRadius:11,fontSize:13,fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:t.lime,color:"#0a0a0e",border:"none",cursor:"pointer",boxShadow:"0 4px 18px rgba(232,255,71,0.28)",display:"flex",alignItems:"center",gap:7 }}>Upload {Icon.arrowR()}</button>
+                        <button onClick={(e)=>{e.stopPropagation();setPicked(null);}} style={{ width:36,height:36,borderRadius:10,background:"transparent",border:`1px solid ${t.border}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}>{Icon.x()}</button>
+                    </div>
+                </div>
+            )}
+            {uploading && (
+                <div style={{ display:"flex",alignItems:"center",gap:16 }}>
+                    <div style={{ width:44,height:44,borderRadius:13,flexShrink:0,background:"rgba(232,255,71,0.07)",border:"1px solid rgba(232,255,71,0.18)",display:"flex",alignItems:"center",justifyContent:"center" }}>
+                        <div style={{ width:20,height:20,borderRadius:"50%",border:"2.5px solid rgba(232,255,71,0.15)",borderTopColor:t.lime,animation:"spin 0.75s linear infinite" }} />
+                    </div>
+                    <div style={{ flex:1 }}>
+                        <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:9 }}>
+                            <p style={{ fontSize:13.5,fontWeight:600,color:t.text,margin:0 }}>Uploading…</p>
+                            <span style={{ fontSize:13,fontWeight:800,color:t.lime,fontFamily:"'Fraunces',serif" }}>{progress}%</span>
+                        </div>
+                        <div style={{ height:4,borderRadius:99,background:"rgba(255,255,255,0.05)",overflow:"hidden" }}>
+                            <div style={{ height:"100%",borderRadius:99,background:`linear-gradient(90deg,${t.lime},rgba(232,255,71,0.75))`,width:`${progress}%`,transition:"width 0.12s ease",boxShadow:"0 0 10px rgba(232,255,71,0.5)" }} />
+                        </div>
+                    </div>
+                </div>
+            )}
+            <input ref={inputRef} type="file" accept=".pdf,.doc,.docx" style={{ display:"none" }} onChange={(e)=>{if(e.target.files[0]) pick(e.target.files[0]);}} />
+        </div>
+    );
+}
+
+// ── Uploaded Card ─────────────────────────────────────────────────────────────
+function UploadedCard({ resume, onDelete, index }) {
+    const ext = getExt(resume.filename);
+    const isPdf = resume.mime_type === "application/pdf";
+    const [hovered, setHovered] = useState(false);
+    const [imgLoaded, setImgLoaded] = useState(false);
+    const thumbnail  = isPdf ? getPdfThumbnail(resume.url) : null;
+    const downloadUrl = getDownloadUrl(resume.url, resume.filename);
+
+    return (
+        <div className="rcard" onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)}
+            style={{ borderRadius:20,background:t.surface,border:`1px solid ${hovered?"rgba(255,255,255,0.13)":t.border}`,overflow:"hidden",display:"flex",flexDirection:"column",transition:"all 0.22s cubic-bezier(0.22,1,0.36,1)",transform:hovered?"translateY(-3px)":"translateY(0)",boxShadow:hovered?"0 16px 48px rgba(0,0,0,0.45)":"0 2px 12px rgba(0,0,0,0.2)",animation:`fadeIn 0.3s ${index*0.05}s ease both` }}>
+            {/* Thumbnail */}
+            <div style={{ height:200,background:"#0c0c10",position:"relative",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden" }}>
+                {isPdf && thumbnail
+                    ? <><img src={thumbnail} alt={resume.filename} onLoad={()=>setImgLoaded(true)} style={{ width:"100%",height:"100%",objectFit:"cover",opacity:imgLoaded?1:0,transition:"opacity 0.3s ease" }} /><div style={{ position:"absolute",bottom:0,left:0,right:0,height:60,background:"linear-gradient(to top,rgba(12,12,16,0.9),transparent)",pointerEvents:"none" }} /></>
+                    : <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:10 }}><div style={{ width:52,height:52,borderRadius:16,background:"rgba(255,255,255,0.03)",border:`1px solid ${t.border}`,display:"flex",alignItems:"center",justifyContent:"center" }}>{Icon.file(t.faint,24)}</div><span style={{ fontSize:11,color:t.faint }}>No preview</span></div>
+                }
+                {/* Ext badge */}
+                <div style={{ position:"absolute",top:12,left:12,padding:"3px 9px",borderRadius:7,fontSize:10,fontWeight:800,letterSpacing:"0.06em",background:"rgba(10,10,14,0.82)",border:`1px solid ${ext==="PDF"?"rgba(248,113,113,0.3)":"rgba(147,197,253,0.3)"}`,color:getExtColor(ext),backdropFilter:"blur(6px)" }}>{ext}</div>
+                {/* Hover overlay */}
+                <div className="card-overlay" style={{ position:"absolute",inset:0,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(2px)",display:"flex",alignItems:"center",justifyContent:"center",gap:10,opacity:0,transition:"opacity 0.22s ease" }}>
+                    <button onClick={()=>window.open(resume.url,"_blank")} style={{ padding:"9px 20px",borderRadius:11,background:t.lime,border:"none",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:700,color:"#0a0a0e",cursor:"pointer",display:"flex",alignItems:"center",gap:7,boxShadow:"0 4px 20px rgba(232,255,71,0.35)" }}>{Icon.eye("#0a0a0e",14)} Open</button>
+                    <a href={downloadUrl} download={resume.filename} onClick={e=>e.stopPropagation()} style={{ width:38,height:38,borderRadius:11,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none" }}>{Icon.download(t.text,15)}</a>
+                </div>
+            </div>
+            {/* Footer */}
+            <div style={{ padding:"13px 14px 14px",display:"flex",alignItems:"center",gap:10,borderTop:`1px solid ${hovered?"rgba(255,255,255,0.07)":t.border}`,transition:"border-color 0.2s" }}>
+                <div style={{ flex:1,minWidth:0 }}>
+                    <p style={{ fontSize:12.5,fontWeight:600,color:t.text,margin:"0 0 3px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis" }}>{resume.filename}</p>
+                    <p style={{ fontSize:11,color:t.faint,margin:0 }}>{resume.file_size?formatSize(resume.file_size)+" · ":""}{formatDate(resume.uploaded_at)}</p>
+                </div>
+                <a href={downloadUrl} download={resume.filename} className="action-btn download">{Icon.download(t.muted,14)}</a>
+                <button className="action-btn danger" onClick={()=>onDelete(resume)}>{Icon.trash(t.faint,14)}</button>
+            </div>
+        </div>
+    );
+}
+
+// ── Built Card ────────────────────────────────────────────────────────────────
+function BuiltCard({ resume, onDelete, onEdit, index }) {
+    const [hovered, setHovered] = useState(false);
+    const [downloading, setDownloading] = useState(false);
+    const tc   = getTemplateStyle(resume.template);
+    const name = resume.filename || resume.personal?.name || "Untitled";
+
+    const handleDownload = async (e) => {
+        e.stopPropagation();
+        setDownloading(true);
+        try {
+            const res = await api.get(`${BUILDER_API}/export-pdf/${resume.resume_id}`, { responseType:"blob",withCredentials:true });
+            const url = URL.createObjectURL(res.data);
+            const a = document.createElement("a");
+            a.href = url; a.download = `${name}_resume.pdf`.replace(/\s+/g,"_"); a.click();
+            URL.revokeObjectURL(url);
+        } catch { alert("PDF export failed."); }
+        finally { setDownloading(false); }
+    };
+
+    return (
+        <div className="bcard" onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)}
+            style={{ borderRadius:20,background:t.surface,border:`1px solid ${hovered?"rgba(255,255,255,0.13)":t.border}`,overflow:"hidden",display:"flex",flexDirection:"column",transition:"all 0.22s cubic-bezier(0.22,1,0.36,1)",transform:hovered?"translateY(-3px)":"translateY(0)",boxShadow:hovered?"0 16px 48px rgba(0,0,0,0.45)":"0 2px 12px rgba(0,0,0,0.2)",animation:`fadeIn 0.3s ${index*0.05}s ease both` }}>
+            {/* Illustrated preview */}
+            <div style={{ height:200,background:"linear-gradient(135deg,#0d0d11 0%,#111118 100%)",position:"relative",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden" }}>
+                {/* Resume skeleton lines */}
+                <div style={{ width:"68%",opacity:hovered?0.14:0.08,transition:"opacity 0.2s",display:"flex",flexDirection:"column",gap:0 }}>
+                    <div style={{ height:8,width:"55%",borderRadius:4,background:t.lime,marginBottom:10 }} />
+                    <div style={{ height:5,width:"35%",borderRadius:3,background:"rgba(255,255,255,0.6)",marginBottom:14 }} />
+                    <div style={{ height:1,width:"100%",background:"rgba(255,255,255,0.15)",marginBottom:12 }} />
+                    {[80,65,72,55,68,50].map((w,i)=>(
+                        <div key={i} style={{ height:5,width:`${w}%`,borderRadius:3,background:"rgba(255,255,255,0.5)",marginBottom:6 }} />
+                    ))}
+                </div>
+                {/* Template badge */}
+                <div style={{ position:"absolute",top:12,left:12,padding:"3px 10px",borderRadius:7,fontSize:10,fontWeight:700,letterSpacing:"0.06em",textTransform:"capitalize",background:"rgba(10,10,14,0.82)",border:`1px solid ${tc.border}`,color:tc.color,backdropFilter:"blur(6px)" }}>{resume.template||"modern"}</div>
+                {/* Built badge */}
+                <div style={{ position:"absolute",top:12,right:12,padding:"3px 9px",borderRadius:7,fontSize:10,fontWeight:700,background:t.limeDim,border:"1px solid rgba(232,255,71,0.2)",color:t.lime }}>Built</div>
+                {/* Hover overlay */}
+                <div className="card-overlay" style={{ position:"absolute",inset:0,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(2px)",display:"flex",alignItems:"center",justifyContent:"center",gap:10,opacity:0,transition:"opacity 0.22s ease" }}>
+                    <button onClick={(e)=>{e.stopPropagation();onEdit(resume.resume_id);}} style={{ padding:"9px 18px",borderRadius:11,background:t.lime,border:"none",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:700,color:"#0a0a0e",cursor:"pointer",display:"flex",alignItems:"center",gap:7,boxShadow:"0 4px 20px rgba(232,255,71,0.35)" }}>{Icon.edit("#0a0a0e",14)} Edit</button>
+                    <button onClick={handleDownload} disabled={downloading} style={{ width:38,height:38,borderRadius:11,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer" }}>
+                        {downloading ? <div style={{ width:14,height:14,borderRadius:"50%",border:"2px solid rgba(255,255,255,0.15)",borderTopColor:t.text,animation:"spin 0.75s linear infinite" }} /> : Icon.download(t.text,15)}
+                    </button>
+                </div>
+            </div>
+            {/* Footer */}
+            <div style={{ padding:"13px 14px 14px",display:"flex",alignItems:"center",gap:10,borderTop:`1px solid ${hovered?"rgba(255,255,255,0.07)":t.border}`,transition:"border-color 0.2s" }}>
+                <div style={{ flex:1,minWidth:0 }}>
+                    <p style={{ fontSize:12.5,fontWeight:600,color:t.text,margin:"0 0 3px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis" }}>{name}</p>
+                    <p style={{ fontSize:11,color:t.faint,margin:0 }}>Updated {formatDate(resume.updated_at||resume.created_at)}</p>
+                </div>
+                <button className="action-btn edit"     onClick={(e)=>{e.stopPropagation();onEdit(resume.resume_id);}}>{Icon.edit(t.blue,14)}</button>
+                <button className="action-btn download" onClick={handleDownload} disabled={downloading}>{downloading?<div style={{ width:12,height:12,borderRadius:"50%",border:"2px solid rgba(255,255,255,0.1)",borderTopColor:t.muted,animation:"spin 0.75s linear infinite" }} />:Icon.download(t.muted,14)}</button>
+                <button className="action-btn danger"   onClick={()=>onDelete(resume)}>{Icon.trash(t.faint,14)}</button>
+            </div>
+        </div>
+    );
+}
+
+// ── Tab Switcher ──────────────────────────────────────────────────────────────
+function TabSwitcher({ active, onChange, uploadedCount, builtCount }) {
+    const tabs = [
+        { id:"uploaded", label:"Uploaded", count:uploadedCount },
+        { id:"built",    label:"Built",    count:builtCount    },
+    ];
+    return (
+        <div style={{ display:"flex",gap:4,padding:4,borderRadius:14,background:t.surface,border:`1px solid ${t.border}`,width:"fit-content" }}>
+            {tabs.map(tab => {
+                const isActive = active === tab.id;
+                const isBuilt  = tab.id === "built";
+                return (
+                    <button key={tab.id} onClick={()=>onChange(tab.id)} style={{ padding:"8px 20px",borderRadius:11,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",background:isActive?"rgba(255,255,255,0.07)":"transparent",border:isActive?`1px solid ${t.border2}`:"1px solid transparent",color:isActive?t.text:t.muted,display:"flex",alignItems:"center",gap:8,cursor:"pointer",transition:"all 0.2s ease",boxShadow:isActive?"0 2px 8px rgba(0,0,0,0.3)":"none" }}>
+                        {tab.label}
+                        <span style={{ fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:6,background:isActive?(isBuilt?t.limeDim:"rgba(255,255,255,0.08)"):"rgba(255,255,255,0.04)",color:isActive?(isBuilt?t.lime:t.text):t.faint,border:`1px solid ${isActive?(isBuilt?"rgba(232,255,71,0.2)":t.border):"transparent"}`,transition:"all 0.2s" }}>
+                            {tab.count}
+                        </span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+function SkeletonCard() {
+    return (
+        <div style={{ borderRadius:20,background:t.surface,border:`1px solid ${t.border}`,overflow:"hidden" }}>
+            <div style={{ height:200,background:`linear-gradient(90deg,${t.surface} 0%,rgba(255,255,255,0.055) 50%,${t.surface} 100%)`,backgroundSize:"800px 100%",animation:"shimmer 1.8s ease-in-out infinite" }} />
+            <div style={{ padding:"13px 14px 14px",display:"flex",alignItems:"center",gap:10 }}>
+                <div style={{ flex:1 }}><div style={{ height:12,width:"65%",borderRadius:6,background:t.surface2,marginBottom:7,animation:"pulse 1.6s ease-in-out infinite" }} /><div style={{ height:9,width:"40%",borderRadius:6,background:t.surface2,animation:"pulse 1.6s 0.2s ease-in-out infinite" }} /></div>
+                <div style={{ width:32,height:32,borderRadius:9,background:t.surface2,animation:"pulse 1.6s ease-in-out infinite" }} />
+            </div>
+        </div>
+    );
+}
+
+// ── Empty States ──────────────────────────────────────────────────────────────
+function EmptyUploaded() {
+    return (
+        <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:16,padding:"52px 24px",borderRadius:22,background:t.surface,border:`1px solid ${t.border}`,animation:"fadeIn 0.3s ease both" }}>
+            <div style={{ width:64,height:64,borderRadius:20,background:"rgba(232,255,71,0.05)",border:"1px solid rgba(232,255,71,0.12)",display:"flex",alignItems:"center",justifyContent:"center" }}>{Icon.upload(t.faint,26)}</div>
+            <div style={{ textAlign:"center" }}>
+                <p style={{ fontFamily:"'Fraunces',serif",fontWeight:800,fontSize:17,color:t.text,margin:"0 0 6px",letterSpacing:"-0.03em" }}>No uploaded resumes</p>
+                <p style={{ fontSize:13,color:t.faint,margin:0,lineHeight:1.6,maxWidth:260 }}>Upload a PDF or Word doc above to unlock AI job matching and ATS scoring.</p>
+            </div>
+        </div>
+    );
+}
+
+function EmptyBuilt({ onBuild }) {
+    return (
+        <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:16,padding:"52px 24px",borderRadius:22,background:t.surface,border:`1px solid ${t.border}`,animation:"fadeIn 0.3s ease both" }}>
+            <div style={{ width:64,height:64,borderRadius:20,background:"rgba(232,255,71,0.05)",border:"1px solid rgba(232,255,71,0.12)",display:"flex",alignItems:"center",justifyContent:"center" }}>{Icon.pen(t.faint,26)}</div>
+            <div style={{ textAlign:"center" }}>
+                <p style={{ fontFamily:"'Fraunces',serif",fontWeight:800,fontSize:17,color:t.text,margin:"0 0 6px",letterSpacing:"-0.03em" }}>No built resumes yet</p>
+                <p style={{ fontSize:13,color:t.faint,margin:0,lineHeight:1.6,maxWidth:260 }}>Use the Resume Builder to craft a professional resume with AI-assisted writing.</p>
+            </div>
+            <button onClick={onBuild} style={{ padding:"10px 22px",borderRadius:12,fontSize:13,fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:t.lime,color:"#0a0a0e",border:"none",cursor:"pointer",boxShadow:"0 4px 18px rgba(232,255,71,0.25)",display:"flex",alignItems:"center",gap:8 }}>
+                {Icon.plus()} Open Builder
+            </button>
+        </div>
+    );
+}
+
+// ── Stat Chip ─────────────────────────────────────────────────────────────────
+function StatChip({ label, value, accent }) {
+    return (
+        <div className="stat-chip" style={{ flex:1,padding:"13px 16px",borderRadius:14,background:t.surface,border:`1px solid ${t.border}`,transition:"all 0.2s ease",cursor:"default",minWidth:0 }}>
+            <p style={{ fontSize:10.5,color:t.faint,margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.08em",fontWeight:600 }}>{label}</p>
+            <p style={{ fontSize:16,fontWeight:800,color:accent||t.text,margin:0,fontFamily:"'Fraunces',serif",letterSpacing:"-0.03em",lineHeight:1 }}>{value}</p>
+        </div>
+    );
+}
+
+// ── Section Label ─────────────────────────────────────────────────────────────
+function SectionLabel({ count, label }) {
+    return (
+        <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:14 }}>
+            <span style={{ fontSize:11,color:t.faint,textTransform:"uppercase",letterSpacing:"0.09em",fontWeight:700,whiteSpace:"nowrap" }}>{count} {label}{count!==1?"s":""}</span>
+            <div style={{ flex:1,height:1,background:t.border }} />
+        </div>
+    );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+export default function ResumePage() {
+    const navigate = useNavigate();
+
+    const [uploaded, setUploaded]           = useState([]);
+    const [uploadLoading, setUploadLoading] = useState(true);
+    const [uploading, setUploading]         = useState(false);
+    const [progress, setProgress]           = useState(0);
+
+    const [built, setBuilt]                 = useState([]);
+    const [builtLoading, setBuiltLoading]   = useState(true);
+
+    const [activeTab, setActiveTab]         = useState("uploaded");
+    const [deleteTarget, setDeleteTarget]   = useState(null); // { resume, type }
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [toast, setToast]                 = useState(null);
+
+    const showToast = (msg, type="success") => { setToast({msg,type}); setTimeout(()=>setToast(null),3400); };
+
+    const fetchUploaded = async () => {
+        try { const res = await api.get(`${UPLOAD_API}/list`,{withCredentials:true}); setUploaded(res.data.resumes||[]); }
+        catch(err) { console.error(err); } finally { setUploadLoading(false); }
+    };
+    const fetchBuilt = async () => {
+        try { const res = await api.get(`${BUILDER_API}/list`,{withCredentials:true}); setBuilt(res.data.resumes||[]); }
+        catch(err) { console.error(err); } finally { setBuiltLoading(false); }
+    };
+
+    useEffect(() => { fetchUploaded(); fetchBuilt(); }, []);
+
+    const handleUpload = async (file) => {
+        setUploading(true); setProgress(0);
+        const fd = new FormData(); fd.append("file",file);
+        try {
+            await api.post(`${UPLOAD_API}/upload`,fd,{ headers:{"Content-Type":"multipart/form-data"},withCredentials:true,onUploadProgress:(e)=>setProgress(Math.round((e.loaded*100)/e.total)) });
+            await fetchUploaded(); showToast("Resume uploaded successfully.");
+        } catch(err) { showToast(err.response?.data?.detail||"Upload failed.","error"); }
+        finally { setUploading(false); setProgress(0); }
+    };
+
+    const handleDelete = async () => {
+        if (!deleteTarget) return;
+        setDeleteLoading(true);
+        const { resume, type } = deleteTarget;
+        try {
+            if (type==="uploaded") {
+                await api.delete(`${UPLOAD_API}/delete/${resume.resume_id}`,{withCredentials:true});
+                setUploaded(prev=>prev.filter(r=>r.resume_id!==resume.resume_id));
+            } else {
+                await api.delete(`${BUILDER_API}/delete/${resume.resume_id}`,{withCredentials:true});
+                setBuilt(prev=>prev.filter(r=>r.resume_id!==resume.resume_id));
+            }
+            showToast("Resume deleted.");
+        } catch { showToast("Failed to delete.","error"); }
+        finally { setDeleteLoading(false); setDeleteTarget(null); }
+    };
+
+    const totalResumes = uploaded.length + built.length;
+    const latestDate   = uploaded[0]?.uploaded_at ? formatDate(uploaded[0].uploaded_at) : built[0]?.updated_at ? formatDate(built[0].updated_at) : "—";
+    const loading      = uploadLoading && builtLoading;
+
+    return (
+        <>
+            <style>{GLOBAL_CSS}</style>
+            <div style={{ display:"flex",flexDirection:"column",gap:24,fontFamily:"'DM Sans',sans-serif",maxWidth:900 }}>
+
+                {/* Header */}
+                <div>
+                    <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:8 }}>
+                        <span style={{ fontSize:10,color:t.lime,letterSpacing:"0.18em",textTransform:"uppercase",fontWeight:700 }}>Resume Vault</span>
+                        <div style={{ width:5,height:5,borderRadius:"50%",background:t.lime,opacity:0.6,animation:"floatDot 2.2s ease-in-out infinite" }} />
+                    </div>
+                    <div style={{ display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:12 }}>
+                        <div>
+                            <h1 style={{ fontFamily:"'Fraunces',serif",fontWeight:800,fontSize:"clamp(26px,3.5vw,40px)",letterSpacing:"-0.04em",color:t.text,margin:"0 0 8px",lineHeight:1.0 }}>
+                                My <em style={{ fontStyle:"italic",color:t.lime,textShadow:"0 0 40px rgba(232,255,71,0.3)" }}>Resumes</em>
+                            </h1>
+                            <p style={{ fontSize:13.5,color:t.muted,margin:0,lineHeight:1.5 }}>Manage uploaded files and builder resumes — all in one place.</p>
+                        </div>
+                        <button onClick={()=>navigate("/resume-builder")} style={{ padding:"10px 20px",borderRadius:12,fontSize:13,fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:t.lime,color:"#0a0a0e",border:"none",cursor:"pointer",boxShadow:"0 4px 18px rgba(232,255,71,0.22)",display:"flex",alignItems:"center",gap:8,flexShrink:0 }}>
+                            {Icon.plus()} New Resume
+                        </button>
+                    </div>
+                </div>
+
+                {/* Stats */}
+                {!loading && totalResumes > 0 && (
+                    <div style={{ display:"flex",gap:10,flexWrap:"wrap" }}>
+                        <StatChip label="Total"    value={totalResumes}   accent={t.lime} />
+                        <StatChip label="Uploaded" value={uploaded.length}               />
+                        <StatChip label="Built"    value={built.length}   accent={t.lime} />
+                        <StatChip label="Latest"   value={latestDate}                    />
+                    </div>
+                )}
+
+                {/* Upload zone */}
+                <UploadZone onUpload={handleUpload} uploading={uploading} progress={progress} />
+
+                {/* Tabs */}
+                <TabSwitcher active={activeTab} onChange={setActiveTab} uploadedCount={uploaded.length} builtCount={built.length} />
+
+                {/* Content */}
+                <div>
+                    {activeTab === "uploaded" ? (
+                        uploadLoading ? (
+                            <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:14 }}><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
+                        ) : uploaded.length === 0 ? <EmptyUploaded /> : (
+                            <>
+                                <SectionLabel count={uploaded.length} label="uploaded resume" />
+                                <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:14 }}>
+                                    {uploaded.map((r,i)=><UploadedCard key={r.resume_id} resume={r} index={i} onDelete={(r)=>setDeleteTarget({resume:r,type:"uploaded"})} />)}
+                                </div>
+                            </>
+                        )
+                    ) : (
+                        builtLoading ? (
+                            <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:14 }}><SkeletonCard /><SkeletonCard /></div>
+                        ) : built.length === 0 ? <EmptyBuilt onBuild={()=>navigate("/resume-builder")} /> : (
+                            <>
+                                <SectionLabel count={built.length} label="built resume" />
+                                <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:14 }}>
+                                    {built.map((r,i)=><BuiltCard key={r.resume_id} resume={r} index={i} onDelete={(r)=>setDeleteTarget({resume:r,type:"built"})} onEdit={(id)=>navigate(`/resume-builder/${id}`)} />)}
+                                </div>
+                            </>
+                        )
+                    )}
+                </div>
+            </div>
+
+            {deleteTarget && <DeleteModal filename={deleteTarget.resume.filename||deleteTarget.resume.personal?.name||"Resume"} onConfirm={handleDelete} onCancel={()=>setDeleteTarget(null)} loading={deleteLoading} />}
             {toast && <Toast msg={toast.msg} type={toast.type} />}
         </>
     );

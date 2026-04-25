@@ -1,10 +1,10 @@
 # Resume builder
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
+#from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
-import io
+#import io
 import os
 import uuid
 import httpx
@@ -213,9 +213,9 @@ async def delete_resume(
     return {"message": "Resume deleted successfully"}
 
 
-# ─────────────────────────────────────────────
-# Export PDF (WeasyPrint)
-# ─────────────────────────────────────────────
+
+"""
+
 
 @router.post("/export-pdf")
 async def export_pdf(
@@ -249,10 +249,6 @@ async def export_pdf(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
 
-
-# ─────────────────────────────────────────────
-# Export PDF by resume_id (for the vault download button)
-# ─────────────────────────────────────────────
 
 @router.get("/export-pdf/{resume_id}")
 async def export_pdf_by_id(
@@ -295,6 +291,10 @@ async def export_pdf_by_id(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+
+
+"""
+
 
 
 # ─────────────────────────────────────────────

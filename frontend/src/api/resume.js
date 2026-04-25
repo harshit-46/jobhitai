@@ -1,3 +1,5 @@
+/*
+
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 // Save resume to backend
@@ -20,20 +22,6 @@ export async function fetchResume() {
     if (!res.ok) throw new Error("Failed to fetch resume");
     return res.json();
 }
-
-// Export resume as PDF (returns Blob)
-/*
-export async function exportResumePDF(resumeData) {
-    const res = await fetch(`${BASE_URL}/builder/export-pdf`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(resumeData),
-    });
-    if (!res.ok) throw new Error("PDF export failed");
-    return res.blob();
-}
-*/
 
 export async function exportResumePDF(resumeData) {
     const res = await fetch(`${BASE_URL}/builder/export-pdf`, {
@@ -61,7 +49,6 @@ export async function exportResumePDF(resumeData) {
 
 
 
-// AI: Generate professional summary
 export async function generateSummaryWithAI(resumeData) {
     const res = await fetch(`${BASE_URL}/builder/ai/generate-summary`, {
         method: "POST",
@@ -74,7 +61,78 @@ export async function generateSummaryWithAI(resumeData) {
     return data.summary;
 }
 
-// AI: Enhance a single bullet point
+export async function enhanceBulletWithAI(bulletText) {
+    const res = await fetch(`${BASE_URL}/builder/ai/enhance-bullet`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ bullet: bulletText }),
+    });
+    if (!res.ok) throw new Error("AI bullet enhancement failed");
+    const data = await res.json();
+    return data.enhanced;
+}
+
+
+
+*/
+
+
+
+
+
+
+
+
+// api/resume.js
+
+import { pdf } from "@react-pdf/renderer";
+import ResumeDocument from "../components/resume/ResumeDocument"; // adjust path
+import { createElement } from "react";
+
+// ── CHANGED: now generates PDF entirely on the browser ──
+export async function exportResumePDF(resumeData) {
+    const blob = await pdf(
+        createElement(ResumeDocument, { resume: resumeData })
+    ).toBlob();
+    return blob;
+}
+
+// ── Everything else stays exactly the same ──
+
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+export async function saveResume(resumeData) {
+    const res = await fetch(`${BASE_URL}/builder/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(resumeData),
+    });
+    if (!res.ok) throw new Error("Failed to save resume");
+    return res.json();
+}
+
+export async function fetchResume() {
+    const res = await fetch(`${BASE_URL}/builder/me`, {
+        credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to fetch resume");
+    return res.json();
+}
+
+export async function generateSummaryWithAI(resumeData) {
+    const res = await fetch(`${BASE_URL}/builder/ai/generate-summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(resumeData),
+    });
+    if (!res.ok) throw new Error("AI summary generation failed");
+    const data = await res.json();
+    return data.summary;
+}
+
 export async function enhanceBulletWithAI(bulletText) {
     const res = await fetch(`${BASE_URL}/builder/ai/enhance-bullet`, {
         method: "POST",

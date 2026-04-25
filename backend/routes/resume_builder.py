@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional, List
 import io
 import os
@@ -23,12 +23,13 @@ from database import get_db
 router = APIRouter()
 
 # ─────────────────────────────────────────────
-# Groq helper (IMPROVED)
+# Groq helper
 # ─────────────────────────────────────────────
 
 async def groq_chat(system: str, user: str) -> str:
+    """Call Groq and return the assistant message text."""
     if not GROQ_API_KEY:
-        raise HTTPException(status_code=500, detail="AI service not configured")
+        raise ValueError("GROQ_API_KEY not set")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(
@@ -41,30 +42,24 @@ async def groq_chat(system: str, user: str) -> str:
                 "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": system},
-                    {"role": "user", "content": user},
+                    {"role": "user",   "content": user},
                 ],
                 "temperature": 0.7,
             },
         )
-
-    if response.status_code != 200:
-        raise HTTPException(status_code=500, detail="AI service failed")
-
     data = response.json()
-
-    if "choices" not in data or not data["choices"]:
-        raise HTTPException(status_code=500, detail="Invalid AI response")
-
+    if "choices" not in data:
+        raise ValueError(f"Groq error: {data}")
     return data["choices"][0]["message"]["content"].strip()
 
 
 # ─────────────────────────────────────────────
-# Models (IMPROVED TYPES)
+# Pydantic Models
 # ─────────────────────────────────────────────
 
 class PersonalInfo(BaseModel):
     name: str = ""
-    email: Optional[EmailStr] = None
+    email: str = ""
     phone: str = ""
     location: str = ""
     linkedin: str = ""
@@ -72,9 +67,8 @@ class PersonalInfo(BaseModel):
     website: str = ""
     summary: str = ""
 
-
 class Experience(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     company: str = ""
     role: str = ""
     location: str = ""
@@ -83,9 +77,8 @@ class Experience(BaseModel):
     current: bool = False
     bullets: List[str] = []
 
-
 class Education(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     institution: str = ""
     degree: str = ""
     field: str = ""
@@ -94,24 +87,21 @@ class Education(BaseModel):
     cgpa: str = ""
     current: bool = False
 
-
 class Skills(BaseModel):
     technical: List[str] = []
     soft: List[str] = []
 
-
 class Project(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     title: str = ""
     description: str = ""
     techStack: List[str] = []
     liveUrl: str = ""
     githubUrl: str = ""
 
-
 class ResumeData(BaseModel):
-    resume_id: Optional[str] = None
-    filename: str = "My Resume"
+    resume_id: Optional[str] = None       # omit on create, send on update
+    filename: str = "My Resume"           # user-editable title shown in the vault
     template: str = "modern"
     personal: PersonalInfo = PersonalInfo()
     experience: List[Experience] = []
@@ -120,23 +110,12 @@ class ResumeData(BaseModel):
     projects: List[Project] = []
     certifications: List[dict] = []
 
-
 class BulletEnhanceRequest(BaseModel):
     bullet: str
 
 
 # ─────────────────────────────────────────────
-# Helper: Auth guard
-# ─────────────────────────────────────────────
-
-def get_user_id(current_user: dict):
-    if not current_user or "sub" not in current_user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return current_user["sub"]
-
-
-# ─────────────────────────────────────────────
-# Save Resume (FIXED UPDATE LOGIC)
+# Save Resume  (create or update)
 # ─────────────────────────────────────────────
 
 @router.post("/save")
@@ -145,39 +124,32 @@ async def save_resume(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = get_user_id(current_user)
+    user_id = current_user["sub"]   # email from JWT — consistent with rest of app
     now = datetime.now(timezone.utc).isoformat()
+    resume_dict = resume.model_dump()
+    resume_dict["user_id"] = user_id
 
     if resume.resume_id:
-        update_data = resume.model_dump(exclude_unset=True)
-
+        # ── Update existing resume ──────────────────────────────────────────
         result = await db["built_resumes"].update_one(
             {"resume_id": resume.resume_id, "user_id": user_id},
-            {"$set": {**update_data, "updated_at": now}},
+            {"$set": {**resume_dict, "updated_at": now}},
         )
-
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="Resume not found")
-
         return {"message": "Resume updated successfully", "resume_id": resume.resume_id}
-
     else:
+        # ── Create new resume ───────────────────────────────────────────────
         resume_id = str(uuid.uuid4())
-        resume_dict = resume.model_dump()
-        resume_dict.update({
-            "resume_id": resume_id,
-            "user_id": user_id,
-            "created_at": now,
-            "updated_at": now,
-        })
-
+        resume_dict["resume_id"] = resume_id
+        resume_dict["created_at"] = now
+        resume_dict["updated_at"] = now
         await db["built_resumes"].insert_one(resume_dict)
-
         return {"message": "Resume created successfully", "resume_id": resume_id}
 
 
 # ─────────────────────────────────────────────
-# List resumes
+# List all built resumes for the current user
 # ─────────────────────────────────────────────
 
 @router.get("/list")
@@ -185,8 +157,7 @@ async def list_resumes(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = get_user_id(current_user)
-
+    user_id = current_user["sub"]
     cursor = db["built_resumes"].find(
         {"user_id": user_id},
         {
@@ -196,17 +167,15 @@ async def list_resumes(
             "template": 1,
             "created_at": 1,
             "updated_at": 1,
-            "personal": 1,
+            "personal": 1,   # included so we can show name/role in the card
         },
     ).sort("updated_at", -1)
-
     resumes = await cursor.to_list(length=50)
-
     return {"resumes": resumes}
 
 
 # ─────────────────────────────────────────────
-# Get resume
+# Fetch a single resume (full data — for the editor)
 # ─────────────────────────────────────────────
 
 @router.get("/{resume_id}")
@@ -215,21 +184,18 @@ async def get_resume(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = get_user_id(current_user)
-
+    user_id = current_user["sub"]
     resume = await db["built_resumes"].find_one(
         {"resume_id": resume_id, "user_id": user_id},
         {"_id": 0},
     )
-
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
-
     return resume
 
 
 # ─────────────────────────────────────────────
-# Delete
+# Delete a resume
 # ─────────────────────────────────────────────
 
 @router.delete("/delete/{resume_id}")
@@ -238,20 +204,54 @@ async def delete_resume(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = get_user_id(current_user)
-
+    user_id = current_user["sub"]
     result = await db["built_resumes"].delete_one(
         {"resume_id": resume_id, "user_id": user_id}
     )
-
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Resume not found")
-
     return {"message": "Resume deleted successfully"}
 
 
 # ─────────────────────────────────────────────
-# Export PDF
+# Export PDF (WeasyPrint)
+# ─────────────────────────────────────────────
+
+@router.post("/export-pdf")
+async def export_pdf(
+    resume: ResumeData,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        from weasyprint import HTML
+        from jinja2 import Environment, FileSystemLoader
+
+        templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
+        env = Environment(loader=FileSystemLoader(templates_dir))
+        template = env.get_template("resume_modern.html")
+
+        html_content = template.render(resume=resume.model_dump())
+        pdf_bytes = HTML(string=html_content).write_pdf()
+
+        filename = f"{resume.personal.name or 'resume'}_resume.pdf".replace(" ", "_")
+
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
+        )
+
+    except ImportError:
+        raise HTTPException(
+            status_code=500,
+            detail="WeasyPrint not installed. Run: pip install weasyprint",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+
+
+# ─────────────────────────────────────────────
+# Export PDF by resume_id (for the vault download button)
 # ─────────────────────────────────────────────
 
 @router.get("/export-pdf/{resume_id}")
@@ -260,13 +260,11 @@ async def export_pdf_by_id(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    user_id = get_user_id(current_user)
-
+    user_id = current_user["sub"]
     doc = await db["built_resumes"].find_one(
         {"resume_id": resume_id, "user_id": user_id},
         {"_id": 0},
     )
-
     if not doc:
         raise HTTPException(status_code=404, detail="Resume not found")
 
@@ -290,12 +288,17 @@ async def export_pdf_by_id(
             headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
 
+    except ImportError:
+        raise HTTPException(
+            status_code=500,
+            detail="WeasyPrint not installed. Run: pip install weasyprint",
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
 
 
 # ─────────────────────────────────────────────
-# AI Summary
+# AI: Generate Summary
 # ─────────────────────────────────────────────
 
 @router.post("/ai/generate-summary")
@@ -303,35 +306,62 @@ async def generate_summary(
     resume: ResumeData,
     current_user: dict = Depends(get_current_user),
 ):
-    get_user_id(current_user)
+    # ── Build context from actual resume data ─────────────────────────────
+    experience_lines = []
+    for exp in resume.experience:
+        if exp.role or exp.company:
+            line = f"- {exp.role} at {exp.company}"
+            if exp.bullets:
+                line += ": " + "; ".join(exp.bullets[:2])
+            experience_lines.append(line)
 
-    experience_lines = [
-        f"- {exp.role} at {exp.company}: {'; '.join(exp.bullets[:2])}"
-        for exp in resume.experience if exp.role or exp.company
-    ]
-
-    skills_text = ", ".join(resume.skills.technical[:10])
+    skills_text   = ", ".join(resume.skills.technical[:10])
+    soft_text     = ", ".join(resume.skills.soft[:5])
     projects_text = ", ".join([p.title for p in resume.projects if p.title])
-    education_text = ", ".join([e.degree for e in resume.education if e.degree])
+    certs_text    = ", ".join([c.get("name", "") for c in resume.certifications if c.get("name")])
 
-    if not any([experience_lines, skills_text, projects_text, education_text]):
-        raise HTTPException(status_code=400, detail="Not enough data")
+    # ── Guard: require at least some data ────────────────────────────────
+    if not any([experience_lines, skills_text, projects_text]):
+        raise HTTPException(
+            status_code=400,
+            detail="Please fill in your experience, skills, or projects before generating a summary."
+        )
 
-    system = "You are an expert resume writer."
-    user = f"""
-Experience: {experience_lines}
-Skills: {skills_text}
-Projects: {projects_text}
-Education: {education_text}
-Write 2-3 sentence professional summary.
-"""
+    experience_text = "\n".join(experience_lines) if experience_lines else "No experience listed"
 
-    summary = await groq_chat(system, user)
-    return {"summary": summary}
+    system = """You are an expert resume writer specializing in tech resumes for the Indian job market.
+
+STRICT RULES:
+- Write ONLY 2-3 sentences. No more.
+- Every sentence must reference specific data from the resume (role titles, company names, skills, or project names).
+- NEVER use generic filler phrases like "passionate individual", "eager to learn", "dynamic environment", "forward-thinking", "detail-oriented", "motivated", or "hardworking".
+- Lead with the candidate's most impactful role or strongest skill set.
+- Be specific, concrete, and factual. If there is no experience, lead with skills and projects instead.
+- Write in third person implicitly (no "I" or "my").
+- Return only the summary text. No labels, no quotes, no explanation."""
+
+    user = f"""Generate a resume summary using ONLY the data below. Do not invent anything not listed.
+
+Name: {resume.personal.name or "Candidate"}
+Experience:
+{experience_text}
+Technical Skills: {skills_text or "Not provided"}
+Soft Skills: {soft_text or "Not provided"}
+Projects: {projects_text or "None listed"}
+Certifications: {certs_text or "None"}
+
+Write 2-3 sentences that mention the specific roles, skills, or projects listed above."""
+
+    try:
+        summary = await groq_chat(system, user)
+        return {"summary": summary}
+    except Exception as e:
+        print(f"Groq summary error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate summary.")
 
 
 # ─────────────────────────────────────────────
-# AI Bullet
+# AI: Enhance Bullet Point
 # ─────────────────────────────────────────────
 
 @router.post("/ai/enhance-bullet")
@@ -339,10 +369,20 @@ async def enhance_bullet(
     request: BulletEnhanceRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    get_user_id(current_user)
+    system = "You are a professional resume writer. Return only the improved bullet point — no labels, no preamble, no quotes."
+    user   = f"""Improve this resume bullet point:
 
-    system = "Improve resume bullet with action verb and impact."
-    user = request.bullet
+"{request.bullet}"
 
-    enhanced = await groq_chat(system, user)
-    return {"enhanced": enhanced}
+Make it:
+- Start with a strong action verb
+- Quantify impact where possible
+- Concise and one sentence only
+- Suitable for a tech resume in the Indian job market"""
+
+    try:
+        enhanced = await groq_chat(system, user)
+        return {"enhanced": enhanced}
+    except Exception as e:
+        print(f"Groq bullet error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to enhance bullet.")

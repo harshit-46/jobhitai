@@ -306,51 +306,24 @@ async def generate_summary(
     resume: ResumeData,
     current_user: dict = Depends(get_current_user),
 ):
-    # ── Build context from actual resume data ─────────────────────────────
-    experience_lines = []
+    experience_text = ""
     for exp in resume.experience:
-        if exp.role or exp.company:
-            line = f"- {exp.role} at {exp.company}"
-            if exp.bullets:
-                line += ": " + "; ".join(exp.bullets[:2])
-            experience_lines.append(line)
+        experience_text += f"\n- {exp.role} at {exp.company}"
+        if exp.bullets:
+            experience_text += ": " + "; ".join(exp.bullets[:2])
 
     skills_text   = ", ".join(resume.skills.technical[:10])
-    soft_text     = ", ".join(resume.skills.soft[:5])
     projects_text = ", ".join([p.title for p in resume.projects if p.title])
-    certs_text    = ", ".join([c.get("name", "") for c in resume.certifications if c.get("name")])
 
-    # ── Guard: require at least some data ────────────────────────────────
-    if not any([experience_lines, skills_text, projects_text]):
-        raise HTTPException(
-            status_code=400,
-            detail="Please fill in your experience, skills, or projects before generating a summary."
-        )
+    system = "You are a professional resume writer. Write only the summary text — no labels, no preamble, no quotes."
+    user   = f"""Write a strong professional resume summary (2-3 sentences).
 
-    experience_text = "\n".join(experience_lines) if experience_lines else "No experience listed"
+Name: {resume.personal.name}
+Experience: {experience_text or "None yet"}
+Skills: {skills_text or "Not specified"}
+Projects: {projects_text or "None"}
 
-    system = """You are an expert resume writer specializing in tech resumes for the Indian job market.
-
-STRICT RULES:
-- Write ONLY 2-3 sentences. No more.
-- Every sentence must reference specific data from the resume (role titles, company names, skills, or project names).
-- NEVER use generic filler phrases like "passionate individual", "eager to learn", "dynamic environment", "forward-thinking", "detail-oriented", "motivated", or "hardworking".
-- Lead with the candidate's most impactful role or strongest skill set.
-- Be specific, concrete, and factual. If there is no experience, lead with skills and projects instead.
-- Write in third person implicitly (no "I" or "my").
-- Return only the summary text. No labels, no quotes, no explanation."""
-
-    user = f"""Generate a resume summary using ONLY the data below. Do not invent anything not listed.
-
-Name: {resume.personal.name or "Candidate"}
-Experience:
-{experience_text}
-Technical Skills: {skills_text or "Not provided"}
-Soft Skills: {soft_text or "Not provided"}
-Projects: {projects_text or "None listed"}
-Certifications: {certs_text or "None"}
-
-Write 2-3 sentences that mention the specific roles, skills, or projects listed above."""
+Make it concise, impactful, and tailored for tech roles in the Indian job market."""
 
     try:
         summary = await groq_chat(system, user)

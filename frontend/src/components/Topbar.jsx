@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 const t = {
     bg: "#0a0a0e",
@@ -20,6 +22,48 @@ const t = {
 };
 
 export default function Topbar() {
+
+    const { user } = useAuth();
+
+    const getGreeting = (name = "there") => {
+        const now = new Date();
+        const hour = now.getHours();
+        const day = now.toLocaleDateString("en-US", { weekday: "long" });
+    
+        // Time-based greetings
+        const timeGreetings = [
+            hour < 12 && `Good morning, ${name} ☀️`,
+            hour >= 12 && hour < 18 && `Good afternoon, ${name} 🌤️`,
+            hour >= 18 && `Good evening, ${name} 🌙`,
+        ].filter(Boolean);
+    
+        // Day-based greetings
+        const dayGreetings = [
+            `Happy ${day}, ${name} 🎉`,
+            `${day} vibes, ${name} ✨`,
+        ];
+    
+        // Casual / friendly greetings
+        const casualGreetings = [
+            `Hey ${name} 👋`,
+            `Hello ${name} 😊`,
+            `Welcome back, ${name} 🚀`,
+            `Good to see you, ${name} 😄`,
+        ];
+    
+        // Combine all
+        const allGreetings = [
+            ...timeGreetings,
+            ...dayGreetings,
+            ...casualGreetings,
+        ];
+    
+        // Pick one randomly
+        return allGreetings[Math.floor(Math.random() * allGreetings.length)];
+    };
+
+    const greeting = useMemo(() => getGreeting(user.name), [user.name]);
+
     return (
         <header style={{
             position: "fixed", top: 0, left: 256, right: 0, zIndex: 30,
@@ -31,7 +75,7 @@ export default function Topbar() {
             {/* Greeting */}
             <div>
                 <h2 style={{ ...t.serif, fontSize: "1.15rem", letterSpacing: "-0.03em", color: t.text, margin: 0 }}>
-                    <p style={{ margin: 0}}>Good morning, <em style={t.serifItalic}>there</em> 👋</p>
+                    {greeting}
                 </h2>
                 <p style={{ fontSize: 11, color: t.faint, marginTop: 2, margin: "2px 0 0" }}>
                     Here's what's happening with your job search today.

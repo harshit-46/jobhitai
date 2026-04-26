@@ -1348,7 +1348,6 @@ export default function ResumePage() {
                 <div>
                     <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:8 }}>
                         <span style={{ fontSize:10,color:t.lime,letterSpacing:"0.18em",textTransform:"uppercase",fontWeight:700 }}>Resume Vault</span>
-                        <div style={{ width:5,height:5,borderRadius:"50%",background:t.lime,opacity:0.6,animation:"floatDot 2.2s ease-in-out infinite" }} />
                     </div>
                     <div style={{ display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:12 }}>
                         <div>
@@ -1357,9 +1356,6 @@ export default function ResumePage() {
                             </h1>
                             <p style={{ fontSize:13.5,color:t.muted,margin:0,lineHeight:1.5 }}>Manage uploaded files and builder resumes — all in one place.</p>
                         </div>
-                        <button onClick={()=>navigate("/resume-builder")} style={{ padding:"10px 20px",borderRadius:12,fontSize:13,fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:t.lime,color:"#0a0a0e",border:"none",cursor:"pointer",boxShadow:"0 4px 18px rgba(232,255,71,0.22)",display:"flex",alignItems:"center",gap:8,flexShrink:0 }}>
-                            {Icon.plus()} New Resume
-                        </button>
                     </div>
                 </div>
 

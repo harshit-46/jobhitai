@@ -45,8 +45,8 @@ export default function Topbar() {
     
         // Casual / friendly greetings
         const casualGreetings = [
-            `Hey ${name} 👋`,
-            `Hello ${name} 😊`,
+            `Hey, ${name} 👋`,
+            `Hello, ${name} 😊`,
             `Welcome back, ${name} 🚀`,
             `Good to see you, ${name} 😄`,
         ];

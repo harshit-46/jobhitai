@@ -734,11 +734,6 @@ function BuilderInner({ initialResumeId }) {
     );
 }
 
-// ── Export ────────────────────────────────────────────────────────────────────
-// Pass initialResumeId from your router when editing an existing resume.
-// e.g. <ResumeBuilder initialResumeId={params.resumeId} />
-// Leave it undefined / null when creating a new one.
-
 export default function ResumeBuilder() {
     const { resumeId = null } = useParams();
 

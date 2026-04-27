@@ -1298,7 +1298,7 @@ export default function ProfilePage({ user: userProp, onLogout }) {
 
 
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/axios";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -1688,7 +1688,10 @@ export default function Profile() {
 
                 {/* ── Avatar / Identity card ── */}
                 <div className="section-card">
-                    <div style={{ height:2,background:`linear-gradient(90deg,${t.lime},transparent)` }} />
+
+                    <div style="position: absolute; top: 0px; left: 20%; right: 20%; height: 1px; background: linear-gradient(90deg, transparent, rgb(232, 255, 71), transparent);"></div>
+
+
                     <div style={{ padding:"22px" }}>
                         <AvatarSection profile={profile} />
                         <div style={{ height:1,background:t.border,margin:"20px 0" }} />

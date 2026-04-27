@@ -64,7 +64,7 @@ export default function ProfilePage() {
                 <Sidebar user={user} onLogout={handleLogout} onClick={handleClick} />
                 <Topbar />
 
-                <main style={{ padding: 60, flex: 1, minHeight: "100vh", position: "relative", zIndex: 10, overflowY: "auto" }}>
+                <main style={{ marginLeft: 256, paddingTop: 68, flex: 1, minHeight: "100vh", position: "relative", zIndex: 10, overflowY: "auto" }}>
                     <div style={{ maxWidth: 1080, margin: "0 auto", padding: "26px 28px" }}>
                         <Profile />
                     </div>

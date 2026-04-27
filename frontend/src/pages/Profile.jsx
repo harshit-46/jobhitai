@@ -1689,7 +1689,7 @@ export default function Profile() {
                 {/* ── Avatar / Identity card ── */}
                 <div className="section-card">
 
-                    <div style="position: absolute; top: 0px; left: 20%; right: 20%; height: 1px; background: linear-gradient(90deg, transparent, rgb(232, 255, 71), transparent);"></div>
+                    <div style={{ position:"absolute", top:0, left:"25%", right:"25%", height:1, background:`linear-gradient(90deg,transparent,${GREEN},transparent)` }} />
 
 
                     <div style={{ padding:"22px" }}>

@@ -1322,7 +1322,7 @@ const t = {
     gold: "#fcd34d",
 };
 
-const API = "https://jobhitai-server.onrender.com/api/profile";
+const API = "/profile";
 
 // ── Global CSS ────────────────────────────────────────────────────────────────
 const GLOBAL_CSS = `
@@ -1406,7 +1406,7 @@ function ConfirmModal({ title, description, confirmLabel, onConfirm, onCancel, l
     return (
         <div style={{ position:"fixed",inset:0,zIndex:2000,background:"rgba(0,0,0,0.8)",backdropFilter:"blur(12px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20,animation:"fadeIn 0.18s ease both" }}>
             <div style={{ width:"100%",maxWidth:380,background:"rgba(16,16,20,0.98)",border:`1px solid ${danger?"rgba(252,165,165,0.15)":"rgba(255,255,255,0.1)"}`,borderRadius:22,overflow:"hidden",animation:"slideUp 0.3s cubic-bezier(0.22,1,0.36,1) both",fontFamily:"'DM Sans',sans-serif",boxShadow:"0 32px 80px rgba(0,0,0,0.7)" }}>
-                <div style={{ height:2,background:`linear-gradient(90deg,transparent,${danger?t.red:t.lime},rgba(252,165,165,0.3))` }} />
+                <div style={{ height:2,background:`linear-gradient(90deg,transparent,${danger?t.red:t.lime},transparent)` }} />
                 <div style={{ padding:"24px" }}>
                     <div style={{ display:"flex",alignItems:"flex-start",gap:14,marginBottom:20 }}>
                         <div style={{ width:42,height:42,borderRadius:13,flexShrink:0,background:danger?"rgba(252,165,165,0.08)":t.limeDim,border:`1px solid ${danger?"rgba(252,165,165,0.2)":"rgba(232,255,71,0.2)"}`,display:"flex",alignItems:"center",justifyContent:"center" }}>
@@ -1433,7 +1433,7 @@ function ConfirmModal({ title, description, confirmLabel, onConfirm, onCancel, l
 function SectionCard({ title, subtitle, icon, children, accentColor = t.lime }) {
     return (
         <div className="section-card">
-            <div style={{ height:2,background:`linear-gradient(90deg,${accentColor},transparent)` }} />
+            <div style={{ height:2,background:`linear-gradient(90deg,transparent,${accentColor},transparent)` }} />
             <div className="section-card-header">
                 <div style={{ display:"flex",alignItems:"center",gap:12 }}>
                     <div style={{ width:36,height:36,borderRadius:11,background:`rgba(${accentColor===t.lime?"232,255,71":"252,165,165"},0.08)`,border:`1px solid rgba(${accentColor===t.lime?"232,255,71":"252,165,165"},0.18)`,display:"flex",alignItems:"center",justifyContent:"center" }}>
@@ -1456,12 +1456,11 @@ function FieldLabel({ children }) {
 }
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
-function AvatarSection({ profile, onAvatarChange }) {
+function AvatarSection({ profile }) {
     const initials = profile.name ? profile.name.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2) : "?";
 
     return (
         <div style={{ display:"flex",alignItems:"center",gap:20 }}>
-            {/* Avatar circle */}
             <div style={{ position:"relative",flexShrink:0 }}>
                 <div style={{ width:80,height:80,borderRadius:"50%",background:"linear-gradient(135deg,rgba(232,255,71,0.15),rgba(232,255,71,0.05))",border:"2px solid rgba(232,255,71,0.2)",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden" }}>
                     {profile.avatar
@@ -1469,12 +1468,10 @@ function AvatarSection({ profile, onAvatarChange }) {
                         : <span style={{ fontFamily:"'Fraunces',serif",fontWeight:800,fontSize:26,color:t.lime,letterSpacing:"-0.02em" }}>{initials}</span>
                     }
                 </div>
-                {/* Camera overlay — future: hook up Cloudinary upload */}
                 <div title="Coming soon" style={{ position:"absolute",bottom:0,right:0,width:26,height:26,borderRadius:"50%",background:"rgba(16,16,20,0.9)",border:`1px solid ${t.border2}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"not-allowed",opacity:0.6 }}>
                     {Icon.camera(t.muted,12)}
                 </div>
             </div>
-            {/* Name + headline */}
             <div style={{ minWidth:0 }}>
                 <p style={{ fontFamily:"'Fraunces',serif",fontWeight:800,fontSize:20,color:t.text,margin:"0 0 4px",letterSpacing:"-0.03em",lineHeight:1 }}>{profile.name || "—"}</p>
                 <p style={{ fontSize:12.5,color:t.muted,margin:"0 0 8px" }}>{profile.headline || <em style={{ color:t.faint }}>No headline set</em>}</p>
@@ -1571,21 +1568,16 @@ function ProfileSkeleton() {
     );
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function Profile() {
-    const [profile, setProfile]       = useState(null);
-    const [loading, setLoading]       = useState(true);
-    const [saving, setSaving]         = useState(false);
-    const [form, setForm]             = useState({});
-    const [skillInput]                = useState("");
-    const [toast, setToast]           = useState(null);
-    const [modal, setModal]           = useState(null); // { type: "delete-account" | "change-password" }
-
-    // Password change state
-    const [pwForm, setPwForm]         = useState({ current:"", next:"", confirm:"" });
-    const [pwSaving, setPwSaving]     = useState(false);
-
-    // Delete account
+    const [profile, setProfile]             = useState(null);
+    const [loading, setLoading]             = useState(true);
+    const [saving, setSaving]               = useState(false);
+    const [form, setForm]                   = useState({});
+    const [toast, setToast]                 = useState(null);
+    const [modal, setModal]                 = useState(null);
+    const [pwForm, setPwForm]               = useState({ current:"", next:"", confirm:"" });
+    const [pwSaving, setPwSaving]           = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
 
     const showToast = (msg, type="success") => { setToast({msg,type}); setTimeout(()=>setToast(null),3400); };
@@ -1655,7 +1647,7 @@ export default function Profile() {
     if (loading) return (
         <>
             <style>{GLOBAL_CSS}</style>
-            <div style={{ maxWidth:680,fontFamily:"'DM Sans',sans-serif" }}><ProfileSkeleton /></div>
+            <div style={{ fontFamily:"'DM Sans',sans-serif" }}><ProfileSkeleton /></div>
         </>
     );
 
@@ -1664,7 +1656,7 @@ export default function Profile() {
     return (
         <>
             <style>{GLOBAL_CSS}</style>
-            <div style={{ maxWidth:680,fontFamily:"'DM Sans',sans-serif",display:"flex",flexDirection:"column",gap:22 }}>
+            <div style={{ fontFamily:"'DM Sans',sans-serif",display:"flex",flexDirection:"column",gap:22 }}>
 
                 {/* ── Header ── */}
                 <div>
@@ -1679,7 +1671,6 @@ export default function Profile() {
                             </h1>
                             <p style={{ fontSize:13.5,color:t.muted,margin:0 }}>Manage your personal info, skills, and account settings.</p>
                         </div>
-                        {/* Save button */}
                         <button onClick={handleSave} disabled={saving} style={{ padding:"10px 24px",borderRadius:12,fontSize:13,fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:saving?"rgba(232,255,71,0.6)":t.lime,color:"#0a0a0e",border:"none",cursor:saving?"not-allowed":"pointer",boxShadow:"0 4px 18px rgba(232,255,71,0.22)",display:"flex",alignItems:"center",gap:8,flexShrink:0,transition:"all 0.15s" }}>
                             {saving ? <><div style={{ width:12,height:12,borderRadius:"50%",border:"2px solid rgba(10,10,14,0.2)",borderTopColor:"#0a0a0e",animation:"spin 0.75s linear infinite" }} />Saving…</> : <>{Icon.check("#0a0a0e",14)} Save changes</>}
                         </button>
@@ -1688,14 +1679,10 @@ export default function Profile() {
 
                 {/* ── Avatar / Identity card ── */}
                 <div className="section-card">
-
-                    <div style={{ position:"absolute", top:0, left:"25%", right:"25%", height:1, background:`linear-gradient(90deg,transparent,${t.green},transparent)` }} />
-
-
+                    <div style={{ height:2,background:`linear-gradient(90deg,transparent,${t.lime},transparent)` }} />
                     <div style={{ padding:"22px" }}>
                         <AvatarSection profile={profile} />
                         <div style={{ height:1,background:t.border,margin:"20px 0" }} />
-                        {/* Email (read-only) */}
                         <div style={{ display:"flex",alignItems:"center",gap:10 }}>
                             <div style={{ padding:"7px 12px",borderRadius:9,background:t.surface2,border:`1px solid ${t.border}`,fontSize:13,color:t.muted,flex:1 }}>
                                 {profile.email}
@@ -1745,10 +1732,10 @@ export default function Profile() {
                 <SectionCard title="Social Links" subtitle="GitHub, LinkedIn, portfolio" icon={Icon.globe(t.lime,15)}>
                     <div style={{ display:"flex",flexDirection:"column",gap:12 }}>
                         {[
-                            { key:"github",    icon:Icon.github(t.faint,14),    label:"GitHub",    placeholder:"github.com/username" },
-                            { key:"linkedin",  icon:Icon.linkedin(t.faint,14),  label:"LinkedIn",  placeholder:"linkedin.com/in/username" },
-                            { key:"portfolio", icon:Icon.globe(t.faint,14),     label:"Portfolio", placeholder:"yoursite.com" },
-                            { key:"twitter",   icon:null,                        label:"Twitter / X", placeholder:"twitter.com/username" },
+                            { key:"github",    icon:Icon.github(t.faint,14),   label:"GitHub",      placeholder:"github.com/username" },
+                            { key:"linkedin",  icon:Icon.linkedin(t.faint,14), label:"LinkedIn",    placeholder:"linkedin.com/in/username" },
+                            { key:"portfolio", icon:Icon.globe(t.faint,14),    label:"Portfolio",   placeholder:"yoursite.com" },
+                            { key:"twitter",   icon:null,                       label:"Twitter / X", placeholder:"twitter.com/username" },
                         ].map(({ key, icon, label, placeholder }) => (
                             <div key={key}>
                                 <FieldLabel>{label}</FieldLabel>
@@ -1764,7 +1751,6 @@ export default function Profile() {
                 {/* ── Account Settings ── */}
                 <SectionCard title="Account Settings" subtitle="Password and danger zone" icon={Icon.lock(t.lime,15)} accentColor={t.red}>
                     <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
-                        {/* Change password */}
                         {!isOAuthUser ? (
                             <div style={{ padding:"16px",borderRadius:14,background:t.surface2,border:`1px solid ${t.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12 }}>
                                 <div>
@@ -1783,10 +1769,8 @@ export default function Profile() {
                             </div>
                         )}
 
-                        {/* Divider */}
                         <div style={{ height:1,background:t.border,margin:"4px 0" }} />
 
-                        {/* Delete account */}
                         <div style={{ padding:"16px",borderRadius:14,background:"rgba(252,165,165,0.04)",border:"1px solid rgba(252,165,165,0.1)" }}>
                             <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",gap:12 }}>
                                 <div>
@@ -1807,7 +1791,7 @@ export default function Profile() {
             {modal === "change-password" && (
                 <div style={{ position:"fixed",inset:0,zIndex:2000,background:"rgba(0,0,0,0.8)",backdropFilter:"blur(12px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20,animation:"fadeIn 0.18s ease both" }}>
                     <div style={{ width:"100%",maxWidth:400,background:"rgba(16,16,20,0.98)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:22,overflow:"hidden",animation:"slideUp 0.3s cubic-bezier(0.22,1,0.36,1) both",fontFamily:"'DM Sans',sans-serif",boxShadow:"0 32px 80px rgba(0,0,0,0.7)" }}>
-                        <div style={{ height:2,background:`linear-gradient(90deg,${t.lime},transparent)` }} />
+                        <div style={{ height:2,background:`linear-gradient(90deg,transparent,${t.lime},transparent)` }} />
                         <div style={{ padding:"24px" }}>
                             <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:22 }}>
                                 <div style={{ width:40,height:40,borderRadius:12,background:t.limeDim,border:"1px solid rgba(232,255,71,0.2)",display:"flex",alignItems:"center",justifyContent:"center" }}>{Icon.lock(t.lime,16)}</div>
@@ -1825,7 +1809,7 @@ export default function Profile() {
                                 <button onClick={handleChangePassword} disabled={pwSaving||!pwForm.current||!pwForm.next||!pwForm.confirm} style={{ flex:1,padding:"11px 0",borderRadius:12,fontSize:13,fontWeight:700,fontFamily:"'DM Sans',sans-serif",background:t.limeDim,border:"1px solid rgba(232,255,71,0.25)",color:t.lime,cursor:(pwSaving||!pwForm.current||!pwForm.next||!pwForm.confirm)?"not-allowed":"pointer",opacity:(pwSaving||!pwForm.current||!pwForm.next||!pwForm.confirm)?0.5:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7 }}>
                                     {pwSaving?<><div style={{ width:12,height:12,borderRadius:"50%",border:"2px solid rgba(232,255,71,0.2)",borderTopColor:t.lime,animation:"spin 0.75s linear infinite" }} />Updating…</>:"Update password"}
                                 </button>
-                                <button onClick={()=>{setModal(null);setPwForm({current:"",next:"",confirm:"" });}} disabled={pwSaving} style={{ flex:1,padding:"11px 0",borderRadius:12,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",background:"transparent",border:`1px solid ${t.border}`,color:t.muted,cursor:"pointer" }}>Cancel</button>
+                                <button onClick={()=>{setModal(null);setPwForm({current:"",next:"",confirm:""});}} disabled={pwSaving} style={{ flex:1,padding:"11px 0",borderRadius:12,fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",background:"transparent",border:`1px solid ${t.border}`,color:t.muted,cursor:"pointer" }}>Cancel</button>
                             </div>
                         </div>
                     </div>

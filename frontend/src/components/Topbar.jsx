@@ -25,25 +25,26 @@ export default function Topbar() {
 
     const { user } = useAuth();
 
-    const getGreeting = (name = "there") => {
+    const getOrCreateGreeting = (name = "there") => {
+        const storageKey = `greeting_${name}`;
+        const stored = sessionStorage.getItem(storageKey);
+        if (stored) return stored;
+    
         const now = new Date();
         const hour = now.getHours();
         const day = now.toLocaleDateString("en-US", { weekday: "long" });
     
-        // Time-based greetings
         const timeGreetings = [
             hour < 12 && `Good morning, ${name} ☀️`,
             hour >= 12 && hour < 18 && `Good afternoon, ${name} 🌤️`,
             hour >= 18 && `Good evening, ${name} 🌙`,
         ].filter(Boolean);
     
-        // Day-based greetings
         const dayGreetings = [
             `Happy ${day}, ${name} 🎉`,
             `${day} vibes, ${name} ✨`,
         ];
     
-        // Casual / friendly greetings
         const casualGreetings = [
             `Hey, ${name} 👋`,
             `Hello, ${name} 😊`,
@@ -51,18 +52,14 @@ export default function Topbar() {
             `Good to see you, ${name} 😄`,
         ];
     
-        // Combine all
-        const allGreetings = [
-            ...timeGreetings,
-            ...dayGreetings,
-            ...casualGreetings,
-        ];
+        const allGreetings = [...timeGreetings, ...dayGreetings, ...casualGreetings];
+        const greeting = allGreetings[Math.floor(Math.random() * allGreetings.length)];
     
-        // Pick one randomly
-        return allGreetings[Math.floor(Math.random() * allGreetings.length)];
+        sessionStorage.setItem(storageKey, greeting);
+        return greeting;
     };
-
-    const greeting = useMemo(() => getGreeting(user.name), [user.name]);
+    
+    const greeting = useMemo(() => getOrCreateGreeting(user.name), [user.name]);
 
     return (
         <header style={{

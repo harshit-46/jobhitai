@@ -39,11 +39,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await api.post(
-            "/logout",
-            {},
-            { withCredentials: true }
-        );
+        await api.post("/logout", {}, { withCredentials: true });
+        sessionStorage.removeItem(`greeting_${user?.name}`);  // clear greeting
         setUser(null);
     };
 

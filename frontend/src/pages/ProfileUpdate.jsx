@@ -269,7 +269,7 @@ function ProfileSkeleton() {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
-export default function Profile() {
+export default function ProfileUpdate() {
     const [profile, setProfile]             = useState(null);
     const [loading, setLoading]             = useState(true);
     const [saving, setSaving]               = useState(false);

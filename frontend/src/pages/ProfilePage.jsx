@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import Profile from "./Profile";
+import ProfileView from "./Profile";
 
 const FontLoader = () => {
     useEffect(() => {
@@ -66,7 +66,7 @@ export default function ProfilePage() {
 
                 <main style={{ marginLeft: 256, paddingTop: 68, flex: 1, minHeight: "100vh", position: "relative", zIndex: 10, overflowY: "auto" }}>
                     <div style={{ maxWidth: 1080, margin: "0 auto", padding: "26px 28px" }}>
-                        <Profile />
+                        <ProfileView />
                     </div>
                 </main>
             </div>

@@ -1,10 +1,6 @@
-# Resume builder
-
 from fastapi import APIRouter, Depends, HTTPException
-#from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
-#import io
 import os
 import uuid
 import httpx

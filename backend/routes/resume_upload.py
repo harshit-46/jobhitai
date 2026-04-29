@@ -1,5 +1,3 @@
-# routes/resume_upload.py
-
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from database import users_collection, resumes_collection
 from auth import get_current_user

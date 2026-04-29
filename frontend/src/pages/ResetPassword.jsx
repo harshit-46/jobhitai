@@ -189,20 +189,20 @@ export default function ResetPassword() {
                 <div className="absolute inset-0 grid-dots" />
 
                 {/* BG orbs */}
-                <div className="fixed rounded-full pointer-events-none blur-[120px] z-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(232,255,71,0.05)_0%,transparent_70%)] -top-64 -left-48" />
-                <div className="fixed rounded-full pointer-events-none blur-[80px] z-0 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(232,255,71,0.03)_0%,transparent_70%)] bottom-0 right-0" />
-                <div className="fixed rounded-full pointer-events-none blur-[60px] z-0 w-[280px] h-[280px] bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)] top-[50%] right-[30%]" />
+                <div className="fixed rounded-full pointer-events-none blur-[120px] z-0 w-150 h-150 bg-[radial-gradient(circle,rgba(232,255,71,0.05)_0%,transparent_70%)] -top-64 -left-48" />
+                <div className="fixed rounded-full pointer-events-none blur-[80px] z-0 w-100 h-100 bg-[radial-gradient(circle,rgba(232,255,71,0.03)_0%,transparent_70%)] bottom-0 right-0" />
+                <div className="fixed rounded-full pointer-events-none blur-[60px] z-0 w-70 h-70 bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)] top-[50%] right-[30%]" />
 
                 {/* Noise */}
                 <div
-                    className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.028]"
+                    className="fixed inset-0 pointer-events-none z-9999 opacity-[0.028]"
                     style={{
                         backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
                     }}
                 />
 
                 <div className="relative z-10 w-full max-w-md px-6">
-                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm p-10">
+                    <div className="rounded-2xl border border-white/8 bg-white/3 backdrop-blur-sm p-10">
 
                         {/* Logo */}
                         <div className="anim-1 font-fraunces font-black text-2xl tracking-tight text-[#f0ede8] mb-8 text-center">
@@ -278,9 +278,9 @@ export default function ResetPassword() {
                                         </label>
                                         <div className={`${inputClass("confirm")} ${
                                             confirmTouched && !passwordsMatch
-                                                ? "!border-red-400/50 !shadow-[0_0_0_3px_rgba(248,113,113,0.08)]"
+                                                ? "border-red-400/50! shadow-[0_0_0_3px_rgba(248,113,113,0.08)]!"
                                                 : confirmTouched && passwordsMatch
-                                                    ? "!border-[#E8FF47]/40"
+                                                    ? "border-[#E8FF47]/40!"
                                                     : ""
                                         }`}>
                                             <input
@@ -362,7 +362,7 @@ export default function ResetPassword() {
                                 </p>
 
                                 {/* Progress bar */}
-                                <div className="w-full h-0.5 bg-white/[0.06] rounded-full mb-6 overflow-hidden">
+                                <div className="w-full h-0.5 bg-white/6 rounded-full mb-6 overflow-hidden">
                                     <div className="progress-bar h-full bg-[#E8FF47] rounded-full" />
                                 </div>
 

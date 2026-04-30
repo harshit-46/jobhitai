@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timezone
 from bson import ObjectId
+from database import users_collection
 
 # ── your existing auth / db helpers ──────────────────────────────────────────
 from auth import get_current_user   # your JWT / session dep
@@ -89,7 +90,8 @@ _ACTION_META = {
 
 @router.get("/stats", response_model=StatsResponse)
 async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
-    uid = current_user["_id"]
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    uid = db_user["_id"]
 
     # ── resume count ──────────────────────────────────────────────────────────
     resume_count = await db.resumes.count_documents({"user_id": uid})
@@ -142,7 +144,8 @@ async def get_recent_activity(
     limit: int = 6,
     current_user: dict = Depends(get_current_user)
 ):
-    uid = current_user["_id"]
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    uid = db_user["_id"]
 
     cursor = db.activity_log.find(
         {"user_id": uid},
@@ -171,7 +174,8 @@ async def get_recent_activity(
 
 @router.get("/score", response_model=Optional[ScoreBars])
 async def get_score_breakdown(current_user: dict = Depends(get_current_user)):
-    uid = current_user["_id"]
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    uid = db_user["_id"]
 
     latest = await db.ats_results.find_one(
         {"user_id": uid},
@@ -204,7 +208,8 @@ async def get_score_breakdown(current_user: dict = Depends(get_current_user)):
 
 @router.get("/ai-tip", response_model=Optional[AiTip])
 async def get_ai_tip(current_user: dict = Depends(get_current_user)):
-    uid = current_user["_id"]
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    uid = db_user["_id"]
 
     tip_doc = await db.ai_tips.find_one(
         {"user_id": uid, "actioned": {"$ne": True}},

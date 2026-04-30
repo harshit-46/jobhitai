@@ -1,20 +1,3 @@
-/**
- * useSSE.js  —  JobHitAI
- *
- * Replaces useDashboard's fetch-based approach with a persistent SSE connection.
- *
- * Usage:
- *   const { stats, activity, score, aiTip, connected, error } = useSSE();
- *
- * Event contract (matches dashboard_stream.py):
- *   init            → { stats, activity, score, ai_tip }  full snapshot
- *   stats_update    → StatsResponse object
- *   activity_update → single ActivityItem  (prepended to list, max 6)
- *   score_update    → ScoreBars object
- *   tip_update      → AiTip object | null
- *   ping            → ignored
- */
-
 import { useEffect, useRef, useState, useCallback } from "react";
 
 const API = import.meta.env.VITE_API_URL;
@@ -22,34 +5,28 @@ const SSE_URL = `${API}/dashboard/stream`;
 
 const MAX_ACTIVITY_ITEMS = 6;
 
-// Reconnect strategy: exponential backoff capped at 30 s
 const backoff = (attempt) => Math.min(1000 * 2 ** attempt, 30_000);
 
 export function useSSE() {
     const [stats, setStats] = useState(null);
-    const [activity, setActivity] = useState(null);   // null = not yet received
+    const [activity, setActivity] = useState([]);
     const [score, setScore] = useState(undefined);
     const [aiTip, setAiTip] = useState(undefined);
     const [connected, setConnected] = useState(false);
     const [error, setError] = useState(null);
 
-    const esRef = useRef(null);   // EventSource instance
+    const esRef = useRef(null);
     const attemptRef = useRef(0);
     const unmounted = useRef(false);
+    const timeoutRef = useRef(null);
 
     const connect = useCallback(() => {
         if (unmounted.current) return;
 
-        // Close any existing connection before reopening
         if (esRef.current) {
             esRef.current.close();
         }
 
-        // EventSource does not support custom headers natively.
-        // If you use httpOnly cookie auth, credentials are sent automatically.
-        // If you use Bearer tokens, pass the token as a query param here:
-        //   const token = localStorage.getItem("access_token");
-        //   const url   = `${SSE_URL}?token=${token}`;
         const es = new EventSource(SSE_URL, { withCredentials: true });
         esRef.current = es;
 
@@ -118,19 +95,19 @@ export function useSSE() {
         es.addEventListener("ping", () => { });
 
         // ── Connection error → reconnect with backoff ──────────────────────────
-        es.onerror = (e) => {
+        es.onerror = () => {
             setConnected(false);
             es.close();
-
+        
             if (unmounted.current) return;
-
-            const delay = backoff(attemptRef.current);
-            attemptRef.current += 1;
-
+        
+            const delay = backoff(attemptRef.current++);
             setError(`Connection lost. Reconnecting in ${Math.round(delay / 1000)}s…`);
-            setTimeout(connect, delay);
+        
+            timeoutRef.current = setTimeout(connect, delay);
         };
-    }, []);
+    }, [SSE_URL]);
+
 
     useEffect(() => {
         unmounted.current = false;

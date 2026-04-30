@@ -319,6 +319,7 @@ const t = {
     muted: "rgba(240,237,232,0.5)",
     faint: "rgba(240,237,232,0.25)",
     border: "rgba(255,255,255,0.07)",
+    border2: "rgba(255,255,255,0.12)",
     lime: "#E8FF47",
     green: "#86efac",
     gold: "#fcd34d",
@@ -350,19 +351,19 @@ const FEATURES = [
 ];
 
 const ACTIVITY_DOTS = {
-    resume_update:  "#E8FF47",
+    resume_update: "#E8FF47",
     resume_created: "#E8FF47",
-    ats_analysis:   "#86efac",
-    ai_suggestion:  "#fcd34d",
-    job_match:      "#f9a8d4",
-    category_pred:  "#fcd34d",
+    ats_analysis: "#86efac",
+    ai_suggestion: "#fcd34d",
+    job_match: "#f9a8d4",
+    category_pred: "#fcd34d",
 };
 
 const SCORE_BAR_CONFIG = [
     { key: "keywords", name: "Keywords", gradient: "linear-gradient(90deg,#E8FF47,#c8dd00)" },
-    { key: "skills",   name: "Skills",   gradient: "linear-gradient(90deg,#E8FF47,#86efac)" },
-    { key: "impact",   name: "Impact",   gradient: "linear-gradient(90deg,#fcd34d,#f9a8d4)" },
-    { key: "format",   name: "Format",   gradient: "linear-gradient(90deg,#86efac,#E8FF47)" },
+    { key: "skills", name: "Skills", gradient: "linear-gradient(90deg,#E8FF47,#86efac)" },
+    { key: "impact", name: "Impact", gradient: "linear-gradient(90deg,#fcd34d,#f9a8d4)" },
+    { key: "format", name: "Format", gradient: "linear-gradient(90deg,#86efac,#E8FF47)" },
 ];
 
 // ── Skeleton ──────────────────────────────────────────────────────────────
@@ -403,7 +404,7 @@ function buildStatCards(stats) {
     const deltaSign = (v) => v != null ? (v >= 0 ? `+${v}` : `${v}`) : null;
     return [
         {
-            title: "Resumes", value: String(stats.resume_count),
+            title: "Resumes", value: stats ? String(stats.resume_count) : "—",
             delta: stats.resume_count > 0 ? `${stats.resume_count} total` : "No resumes yet",
             positive: stats.resume_count > 0,
             icon: "📄",
@@ -445,14 +446,17 @@ function buildStatCards(stats) {
 // ── Flash animation hook — highlights a section when it updates ───────────
 function useFlash(value) {
     const [flash, setFlash] = useState(false);
-    const prev = useState(value)[0];
+    const prevRef = useRef(value);
+
     useEffect(() => {
-        if (value !== null && value !== undefined && value !== prev) {
+        if (value !== null && value !== undefined && value !== prevRef.current) {
             setFlash(true);
             const t = setTimeout(() => setFlash(false), 800);
+            prevRef.current = value;
             return () => clearTimeout(t);
         }
     }, [value]);
+
     return flash;
 }
 
@@ -460,10 +464,10 @@ function useFlash(value) {
 // DashboardPage
 // ─────────────────────────────────────────────────────────────────────────────
 function DashboardPage({ stats, activity, score, aiTip, connected, error, onFeatureClick }) {
-    const statCards   = buildStatCards(stats);
-    const scoreFlash  = useFlash(score?.overall);
-    const statsFlash  = useFlash(stats?.ats_score);
-    const actFlash    = useFlash(activity?.[0]?.time);
+    const statCards = buildStatCards(stats);
+    const scoreFlash = useFlash(score?.overall);
+    const statsFlash = useFlash(stats?.ats_score);
+    const actFlash = useFlash(activity?.[0]?.time);
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -715,7 +719,7 @@ export default function Dashboard() {
                         onClose={() => setShowUpload(false)}
                         onSkip={() => setShowUpload(false)}
                         onSuccess={() => setShowUpload(false)}
-                        // No refetch needed — the SSE stream will push updated stats automatically
+                    // No refetch needed — the SSE stream will push updated stats automatically
                     />
                 )}
                 <Sidebar user={user} onLogout={handleLogout} onClick={handleClick} />

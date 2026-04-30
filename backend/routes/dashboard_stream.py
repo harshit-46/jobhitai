@@ -201,7 +201,7 @@ async def _event_generator(request: Request, uid: str) -> AsyncIterator[dict]:
 # Route
 # ─────────────────────────────────────────────────────────────────────────────
 
-@stream_router.get("/stream")
+@router.get("/stream")
 async def dashboard_stream(
     request: Request,
     current_user: dict = Depends(get_current_user),

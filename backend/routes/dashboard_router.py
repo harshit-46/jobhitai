@@ -87,7 +87,7 @@ _ACTION_META = {
 # GET /api/dashboard/stats
 # ─────────────────────────────────────────────────────────────────────────────
 
-@dashboard_router.get("/stats", response_model=StatsResponse)
+@router.get("/stats", response_model=StatsResponse)
 async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
     uid = current_user["_id"]
 
@@ -137,7 +137,7 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
 # GET /api/dashboard/activity
 # ─────────────────────────────────────────────────────────────────────────────
 
-@dashboard_router.get("/activity", response_model=list[ActivityItem])
+@router.get("/activity", response_model=list[ActivityItem])
 async def get_recent_activity(
     limit: int = 6,
     current_user: dict = Depends(get_current_user)
@@ -169,7 +169,7 @@ async def get_recent_activity(
 # Returns the breakdown from the latest ATS analysis
 # ─────────────────────────────────────────────────────────────────────────────
 
-@dashboard_router.get("/score", response_model=Optional[ScoreBars])
+@router.get("/score", response_model=Optional[ScoreBars])
 async def get_score_breakdown(current_user: dict = Depends(get_current_user)):
     uid = current_user["_id"]
 
@@ -202,7 +202,7 @@ async def get_score_breakdown(current_user: dict = Depends(get_current_user)):
 # Returns the most recent unactioned AI tip stored against the user
 # ─────────────────────────────────────────────────────────────────────────────
 
-@dashboard_router.get("/ai-tip", response_model=Optional[AiTip])
+@router.get("/ai-tip", response_model=Optional[AiTip])
 async def get_ai_tip(current_user: dict = Depends(get_current_user)):
     uid = current_user["_id"]
 
@@ -231,7 +231,7 @@ class LogActivityRequest(BaseModel):
     label_override: Optional[str] = None
 
 
-@dashboard_router.post("/activity", status_code=201)
+@router.post("/activity", status_code=201)
 async def log_activity(
     body: LogActivityRequest,
     current_user: dict = Depends(get_current_user)

@@ -1,17 +1,16 @@
 import asyncio
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from typing import AsyncIterator, Optional
 
-from fastapi import APIRouter, Depends, Request
-from sse_starlette.sse import EventSourceResponse   # pip install sse-starlette
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sse_starlette.sse import EventSourceResponse
 
-# ── your existing helpers ────────────────────────────────────────────────────
 from auth import get_current_user
-from database import db
+from database import db, users_collection
 
-# ── re-use the query helpers from dashboard_router ──────────────────────────
 from routes.dashboard_router import (
     _rel_time, _ACTION_META,
     StatsResponse, ActivityItem, ScoreBars, AiTip,
@@ -20,23 +19,23 @@ from routes.dashboard_router import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://careercrafter.online")
+
 # ─────────────────────────────────────────────────────────────────────────────
 # In-process event bus
-# One asyncio.Queue per connected user  (supports multiple tabs / devices)
+# { user_id_str: [queue, queue, ...] }
 # ─────────────────────────────────────────────────────────────────────────────
 
-# { user_id_str: [queue, queue, ...] }
 _connections: dict[str, list[asyncio.Queue]] = {}
 
 
 async def emit_dashboard_event(user_id, event_type: str, payload: dict):
     """
-    Call this from ANY other router to push a live update to the user's dashboard.
+    Call this from any other router to push a live update to the user's dashboard.
 
-    Example — inside your ATS router after scoring completes:
-        from dashboard_stream import emit_dashboard_event
-        await emit_dashboard_event(current_user["_id"], "score_update", score_dict)
-        await emit_dashboard_event(current_user["_id"], "stats_update", stats_dict)
+    Usage:
+        from routes.dashboard_stream import emit_dashboard_event
+        await emit_dashboard_event(db_user["_id"], "score_update", score_dict)
     """
     uid = str(user_id)
     queues = _connections.get(uid, [])
@@ -52,20 +51,35 @@ async def emit_dashboard_event(user_id, event_type: str, payload: dict):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Snapshot helpers  (mirror logic from dashboard_router but returned as dicts)
+# Helper: resolve uid from JWT payload
+# get_current_user returns {"sub": email} — we need the MongoDB _id
+# ─────────────────────────────────────────────────────────────────────────────
+
+async def _get_uid(current_user: dict):
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    if not db_user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return db_user["_id"]   # ObjectId
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Snapshot helpers — query MongoDB and return plain dicts for SSE serialisation
 # ─────────────────────────────────────────────────────────────────────────────
 
 async def _snapshot_stats(uid) -> dict:
     resume_count = await db.resumes.count_documents({"user_id": uid})
 
     scores = await db.ats_results.find(
-        {"user_id": uid}, sort=[("created_at", -1)], limit=2,
+        {"user_id": uid},
+        sort=[("created_at", -1)],
+        limit=2,
         projection={"overall_score": 1},
     ).to_list(length=2)
 
     ats_score = round(scores[0]["overall_score"], 1) if scores else None
     ats_delta = None
     improvement_pct = None
+
     if len(scores) == 2:
         ats_delta = round(scores[0]["overall_score"] - scores[1]["overall_score"], 1)
         if scores[1]["overall_score"] > 0:
@@ -74,7 +88,8 @@ async def _snapshot_stats(uid) -> dict:
             )
 
     pred = await db.category_predictions.find_one(
-        {"user_id": uid}, sort=[("created_at", -1)],
+        {"user_id": uid},
+        sort=[("created_at", -1)],
         projection={"predicted_category": 1},
     )
 
@@ -89,7 +104,9 @@ async def _snapshot_stats(uid) -> dict:
 
 async def _snapshot_activity(uid, limit=6) -> list[dict]:
     docs = await db.activity_log.find(
-        {"user_id": uid}, sort=[("created_at", -1)], limit=limit,
+        {"user_id": uid},
+        sort=[("created_at", -1)],
+        limit=limit,
         projection={"action_type": 1, "created_at": 1, "label_override": 1},
     ).to_list(length=limit)
 
@@ -107,9 +124,15 @@ async def _snapshot_activity(uid, limit=6) -> list[dict]:
 
 async def _snapshot_score(uid) -> Optional[dict]:
     latest = await db.ats_results.find_one(
-        {"user_id": uid}, sort=[("created_at", -1)],
-        projection={"overall_score": 1, "keyword_score": 1, "skills_score": 1,
-                    "impact_score": 1, "format_score": 1},
+        {"user_id": uid},
+        sort=[("created_at", -1)],
+        projection={
+            "overall_score": 1,
+            "keyword_score": 1,
+            "skills_score": 1,
+            "impact_score": 1,
+            "format_score": 1,
+        },
     )
     if not latest:
         return None
@@ -141,18 +164,17 @@ async def _snapshot_tip(uid) -> Optional[dict]:
 # SSE generator
 # ─────────────────────────────────────────────────────────────────────────────
 
-HEARTBEAT_INTERVAL = 25   # seconds — keeps Render's proxy alive
+HEARTBEAT_INTERVAL = 25  # seconds — stays under Render's 55s idle timeout
 
 
 async def _event_generator(request: Request, uid: str) -> AsyncIterator[dict]:
     queue: asyncio.Queue = asyncio.Queue(maxsize=50)
 
-    # Register this connection
     _connections.setdefault(uid, []).append(queue)
-    logger.info("SSE connected: user=%s  connections=%d", uid, len(_connections[uid]))
+    logger.info("SSE connected: user=%s  open_connections=%d", uid, len(_connections[uid]))
 
     try:
-        # ── 1. Push full snapshot immediately on connect ──────────────────
+        # 1. Push full snapshot immediately on connect
         stats, activity, score, tip = await asyncio.gather(
             _snapshot_stats(uid),
             _snapshot_activity(uid),
@@ -169,26 +191,23 @@ async def _event_generator(request: Request, uid: str) -> AsyncIterator[dict]:
             }),
         }
 
-        # ── 2. Stream events + heartbeats until client disconnects ────────
+        # 2. Stream queued events + heartbeats until client disconnects
         while True:
             if await request.is_disconnected():
                 break
 
             try:
-                # Wait up to HEARTBEAT_INTERVAL seconds for a queued event
                 msg = await asyncio.wait_for(queue.get(), timeout=HEARTBEAT_INTERVAL)
                 yield {
                     "event": msg["event"],
                     "data": json.dumps(msg["data"]),
                 }
             except asyncio.TimeoutError:
-                # No event arrived — send heartbeat
                 yield {"event": "ping", "data": ""}
 
     except asyncio.CancelledError:
         pass
     finally:
-        # Deregister on disconnect
         queues = _connections.get(uid, [])
         if queue in queues:
             queues.remove(queue)
@@ -206,37 +225,38 @@ async def dashboard_stream(
     request: Request,
     current_user: dict = Depends(get_current_user),
 ):
-    """
-    SSE endpoint. Client connects once and receives push events.
-    Headers set by EventSourceResponse: Content-Type: text/event-stream
-    """
-    uid = str(current_user["_id"])
+    # ── resolve MongoDB _id from JWT sub (email) ──────────────────────────
+    uid_obj = await _get_uid(current_user)
+    uid = str(uid_obj)
+
     return EventSourceResponse(
         _event_generator(request, uid),
         headers={
-            # Required for CORS if your React dev server is on a different port
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": FRONTEND_URL,
+            "Access-Control-Allow-Credentials": "true",
             "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",   # disable Nginx buffering on Render
+            "X-Accel-Buffering": "no",   # disables Nginx/Render proxy buffering
         },
     )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Convenience: how to emit from other routers
+# Emitting events from other routers — copy-paste snippets
 # ─────────────────────────────────────────────────────────────────────────────
+#
+# IMPORTANT: pass db_user["_id"] (ObjectId), not current_user["sub"] (email)
 #
 # ── After ATS analysis ───────────────────────────────────────────────────────
 #
-#   from dashboard_stream import emit_dashboard_event
+#   from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
 #
-#   # inside your ATS router, after saving results to MongoDB:
-#   score_payload = {"overall": 82, "keywords": 88, "skills": 76, "impact": 82, "format": 92}
-#   await emit_dashboard_event(uid, "score_update", score_payload)
+#   db_user = await users_collection.find_one({"email": current_user["sub"]})
+#   uid = db_user["_id"]
 #
-#   stats_payload = await _snapshot_stats(uid)          # re-query
-#   await emit_dashboard_event(uid, "stats_update", stats_payload)
-#
+#   await emit_dashboard_event(uid, "score_update", {
+#       "overall": 82, "keywords": 88, "skills": 76, "impact": 82, "format": 92
+#   })
+#   await emit_dashboard_event(uid, "stats_update", await _snapshot_stats(uid))
 #   await emit_dashboard_event(uid, "activity_update", {
 #       "label": "Analysed Resume", "time": "just now",
 #       "icon": "📊", "action_type": "ats_analysis"
@@ -248,8 +268,7 @@ async def dashboard_stream(
 #       "label": "Uploaded Resume", "time": "just now",
 #       "icon": "📄", "action_type": "resume_created"
 #   })
-#   stats_payload = await _snapshot_stats(uid)
-#   await emit_dashboard_event(uid, "stats_update", stats_payload)
+#   await emit_dashboard_event(uid, "stats_update", await _snapshot_stats(uid))
 #
 # ── After category prediction ────────────────────────────────────────────────
 #
@@ -259,10 +278,10 @@ async def dashboard_stream(
 #       "icon": "🧠", "action_type": "category_pred"
 #   })
 #
-# ── After AI tip is generated ────────────────────────────────────────────────
+# ── After AI tip generated ───────────────────────────────────────────────────
 #
 #   await emit_dashboard_event(uid, "tip_update", {
-#       "tip": "Add 'Kubernetes' to boost score by ~9 pts.",
+#       "tip": "Add 'Kubernetes' to boost your score by ~9 pts.",
 #       "action_label": "Fix now →",
 #       "action_path": "/skill-matcher"
 #   })

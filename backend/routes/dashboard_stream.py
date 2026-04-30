@@ -12,7 +12,7 @@ from auth import get_current_user
 from database import db
 
 # ── re-use the query helpers from dashboard_router ──────────────────────────
-from dashboard_router import (
+from routes.dashboard_router import (
     _rel_time, _ACTION_META,
     StatsResponse, ActivityItem, ScoreBars, AiTip,
 )

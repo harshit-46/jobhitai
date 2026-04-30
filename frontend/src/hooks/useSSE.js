@@ -17,8 +17,8 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-const SSE_URL = `${API}/api/dashboard/stream`;
+const API = import.meta.env.VITE_API_URL;
+const SSE_URL = `${API}/dashboard/stream`;
 
 const MAX_ACTIVITY_ITEMS = 6;
 

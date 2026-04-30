@@ -8,7 +8,7 @@ from bson import ObjectId
 from auth import get_current_user   # your JWT / session dep
 from database import db                     # your Motor AsyncIOMotorClient db
 
-dashboard_router = APIRouter()
+router = APIRouter()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

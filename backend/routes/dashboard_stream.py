@@ -1,35 +1,8 @@
-"""
-dashboard_stream.py  —  JobHitAI
-Real-time SSE stream for the dashboard.
-
-Mount with:
-    app.include_router(stream_router, prefix="/api/dashboard", tags=["dashboard-stream"])
-
-How it works:
-  1. Client opens GET /api/dashboard/stream  → persistent SSE connection
-  2. On connect, server immediately pushes the full current state ("init" event)
-  3. Whenever any other service (ATS, predictor, resume builder) calls
-     `await emit_dashboard_event(user_id, event_type, payload)`,
-     the event is pushed to every open SSE connection for that user.
-  4. A heartbeat ping fires every 25 s to keep the connection alive through
-     Render's 55 s idle timeout.
-
-Event types pushed to the client
-─────────────────────────────────
-  init            → full dashboard snapshot (stats + activity + score + ai_tip)
-  stats_update    → updated StatsResponse dict
-  activity_update → single new ActivityItem dict  (prepend on the client)
-  score_update    → updated ScoreBars dict
-  tip_update      → updated AiTip dict  (or null)
-  ping            → heartbeat, ignore on client
-"""
-
 import asyncio
 import json
 import logging
 from datetime import datetime, timezone
 from typing import AsyncIterator, Optional
-from routes.dashboard import dashboard_router
 
 from fastapi import APIRouter, Depends, Request
 from sse_starlette.sse import EventSourceResponse   # pip install sse-starlette
@@ -45,7 +18,7 @@ from dashboard_router import (
 )
 
 logger = logging.getLogger(__name__)
-stream_router = APIRouter()
+router = APIRouter()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # In-process event bus

@@ -1,3 +1,6 @@
+"""
+# Last Working File
+
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from database import users_collection, resumes_collection
 from auth import get_current_user
@@ -170,5 +173,208 @@ async def delete_resume(resume_id: str, current_user=Depends(get_current_user)):
             {"_id": db_user["_id"]},
             {"$set": {"has_resume": False}}
         )
+
+    return {"message": "Resume deleted successfully."}
+
+"""
+
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from database import users_collection, resumes_collection
+from auth import get_current_user
+import cloudinary
+import cloudinary.uploader
+import os
+from datetime import datetime
+from bson import ObjectId
+
+from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
+
+router = APIRouter()
+
+# ── Cloudinary config ──────────────────────────────────────────────────────────
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
+
+ALLOWED_TYPES = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+}
+MAX_SIZE_MB = 5
+PDF_MIME = "application/pdf"
+
+
+def serialize_resume(doc) -> dict:
+    return {
+        "resume_id":   str(doc["_id"]),
+        "user_id":     str(doc["user_id"]),
+        "filename":    doc["filename"],
+        "url":         doc["url"],
+        "mime_type":   doc.get("mime_type", "application/pdf"),
+        "uploaded_at": doc["uploaded_at"],
+    }
+
+
+# ── Upload ─────────────────────────────────────────────────────────────────────
+
+@router.post("/upload")
+async def upload_resume(
+    file: UploadFile = File(...),
+    current_user=Depends(get_current_user)
+):
+    # 1. Validate type
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(400, "Only PDF or Word documents are accepted.")
+
+    # 2. Validate size
+    contents = await file.read()
+    if len(contents) > MAX_SIZE_MB * 1024 * 1024:
+        raise HTTPException(400, f"File must be under {MAX_SIZE_MB} MB.")
+
+    # 3. Get user
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    if not db_user:
+        raise HTTPException(404, "User not found.")
+
+    user_id    = str(db_user["_id"])
+    uid_obj    = db_user["_id"]          # ObjectId — used for dashboard events
+    is_pdf     = file.content_type == PDF_MIME
+
+    timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    public_id = f"jobhitai/resumes/{user_id}/{timestamp}"
+
+    # 4. Upload to Cloudinary
+    try:
+        result = cloudinary.uploader.upload(
+            contents,
+            resource_type="image" if is_pdf else "raw",
+            public_id=public_id,
+            overwrite=False,
+            use_filename=False,
+            format="pdf" if is_pdf else None,
+            access_mode="public"
+        )
+    except Exception as e:
+        print("Cloudinary error:", e)
+        raise HTTPException(500, "Failed to upload file. Please try again.")
+
+    # 5. Insert into resumes collection
+    resume_doc = {
+        "user_id":              user_id,
+        "filename":             file.filename,
+        "url":                  result["secure_url"],
+        "cloudinary_public_id": public_id,
+        "mime_type":            file.content_type,
+        "uploaded_at":          datetime.utcnow().isoformat(),
+    }
+    insert_result = await resumes_collection.insert_one(resume_doc)
+
+    # 6. Update has_resume flag
+    await users_collection.update_one(
+        {"_id": db_user["_id"]},
+        {"$set": {"has_resume": True}}
+    )
+
+    # 7. Log activity + push live dashboard updates ──────────────────────────
+    from database import db
+    await db.activity_log.insert_one({
+        "user_id":    uid_obj,
+        "action_type": "resume_created",
+        "created_at": datetime.utcnow(),
+    })
+
+    # Push to SSE stream (fire-and-forget, don't fail upload if this errors)
+    try:
+        updated_stats = await _snapshot_stats(uid_obj)
+        await emit_dashboard_event(uid_obj, "stats_update", updated_stats)
+        await emit_dashboard_event(uid_obj, "activity_update", {
+            "label":       "Uploaded Resume",
+            "time":        "just now",
+            "icon":        "📄",
+            "action_type": "resume_created",
+        })
+    except Exception as e:
+        print("Dashboard emit error (non-fatal):", e)
+
+    return {
+        "message": "Resume uploaded successfully.",
+        "resume": {
+            "resume_id": str(insert_result.inserted_id),
+            **{k: v for k, v in resume_doc.items() if k != "_id"},
+        }
+    }
+
+
+# ── List ───────────────────────────────────────────────────────────────────────
+
+@router.get("/list")
+async def list_resumes(current_user=Depends(get_current_user)):
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    if not db_user:
+        raise HTTPException(404, "User not found.")
+
+    user_id = str(db_user["_id"])
+    cursor  = resumes_collection.find(
+        {"user_id": user_id},
+        sort=[("uploaded_at", -1)]
+    )
+    resumes = [serialize_resume(r) async for r in cursor]
+    return {"resumes": resumes, "count": len(resumes)}
+
+
+# ── Delete ─────────────────────────────────────────────────────────────────────
+
+@router.delete("/delete/{resume_id}")
+async def delete_resume(resume_id: str, current_user=Depends(get_current_user)):
+    db_user = await users_collection.find_one({"email": current_user["sub"]})
+    if not db_user:
+        raise HTTPException(404, "User not found.")
+
+    user_id = str(db_user["_id"])
+    uid_obj = db_user["_id"]
+
+    try:
+        resume = await resumes_collection.find_one({
+            "_id":     ObjectId(resume_id),
+            "user_id": user_id,
+        })
+    except Exception:
+        raise HTTPException(400, "Invalid resume ID.")
+
+    if not resume:
+        raise HTTPException(404, "Resume not found.")
+
+    is_pdf        = resume.get("mime_type", PDF_MIME) == PDF_MIME
+    resource_type = "image" if is_pdf else "raw"
+
+    try:
+        cloudinary.uploader.destroy(
+            resume["cloudinary_public_id"],
+            resource_type=resource_type
+        )
+    except Exception as e:
+        print("Cloudinary delete error:", e)
+
+    await resumes_collection.delete_one({"_id": ObjectId(resume_id)})
+
+    # Flip has_resume if no resumes left
+    remaining = await resumes_collection.count_documents({"user_id": user_id})
+    if remaining == 0:
+        await users_collection.update_one(
+            {"_id": db_user["_id"]},
+            {"$set": {"has_resume": False}}
+        )
+
+    # Push updated stats to dashboard
+    try:
+        from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
+        updated_stats = await _snapshot_stats(uid_obj)
+        await emit_dashboard_event(uid_obj, "stats_update", updated_stats)
+    except Exception as e:
+        print("Dashboard emit error (non-fatal):", e)
 
     return {"message": "Resume deleted successfully."}

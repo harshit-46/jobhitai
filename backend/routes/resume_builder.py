@@ -14,16 +14,14 @@ GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL   = "llama-3.3-70b-versatile"
 
 from auth import get_current_user
-from database import get_db
+from database import get_db, users_collection, db
 
 router = APIRouter()
 
-# ─────────────────────────────────────────────
-# Groq helper
-# ─────────────────────────────────────────────
+
+# ── Groq helper ────────────────────────────────────────────────────────────────
 
 async def groq_chat(system: str, user: str) -> str:
-    """Call Groq and return the assistant message text."""
     if not GROQ_API_KEY:
         raise ValueError("GROQ_API_KEY not set")
 
@@ -49,9 +47,18 @@ async def groq_chat(system: str, user: str) -> str:
     return data["choices"][0]["message"]["content"].strip()
 
 
-# ─────────────────────────────────────────────
-# Pydantic Models
-# ─────────────────────────────────────────────
+# ── Helper: resolve uid_obj silently ──────────────────────────────────────────
+
+async def _try_get_uid(current_user: dict):
+    """Returns ObjectId or None — never raises, so logging never breaks a route."""
+    try:
+        db_user = await users_collection.find_one({"email": current_user["sub"]})
+        return db_user["_id"] if db_user else None
+    except Exception:
+        return None
+
+
+# ── Pydantic Models ────────────────────────────────────────────────────────────
 
 class PersonalInfo(BaseModel):
     name: str = ""
@@ -96,8 +103,8 @@ class Project(BaseModel):
     githubUrl: str = ""
 
 class ResumeData(BaseModel):
-    resume_id: Optional[str] = None       # omit on create, send on update
-    filename: str = "My Resume"           # user-editable title shown in the vault
+    resume_id: Optional[str] = None
+    filename: str = "My Resume"
     template: str = "modern"
     personal: PersonalInfo = PersonalInfo()
     experience: List[Experience] = []
@@ -110,78 +117,106 @@ class BulletEnhanceRequest(BaseModel):
     bullet: str
 
 
-# ─────────────────────────────────────────────
-# Save Resume  (create or update)
-# ─────────────────────────────────────────────
+# ── Save Resume (create or update) ────────────────────────────────────────────
 
 @router.post("/save")
 async def save_resume(
     resume: ResumeData,
     current_user: dict = Depends(get_current_user),
-    db=Depends(get_db),
+    db_dep=Depends(get_db),
 ):
-    user_id = current_user["sub"]   # email from JWT — consistent with rest of app
-    now = datetime.now(timezone.utc).isoformat()
-    resume_dict = resume.model_dump()
+    user_id = current_user["sub"]
+    now     = datetime.now(timezone.utc).isoformat()
+    resume_dict           = resume.model_dump()
     resume_dict["user_id"] = user_id
 
-    if resume.resume_id:
-        # ── Update existing resume ──────────────────────────────────────────
-        result = await db["built_resumes"].update_one(
+    uid_obj     = await _try_get_uid(current_user)
+    is_update   = bool(resume.resume_id)
+
+    if is_update:
+        # ── Update ──────────────────────────────────────────────────────────
+        result = await db_dep["built_resumes"].update_one(
             {"resume_id": resume.resume_id, "user_id": user_id},
             {"$set": {**resume_dict, "updated_at": now}},
         )
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="Resume not found")
-        return {"message": "Resume updated successfully", "resume_id": resume.resume_id}
+
+        resume_id    = resume.resume_id
+        action_type  = "resume_update"
+        label        = f"Updated resume: {resume.filename or 'Untitled'}"
+        icon         = "✏️"
+        response_msg = "Resume updated successfully"
+
     else:
-        # ── Create new resume ───────────────────────────────────────────────
-        resume_id = str(uuid.uuid4())
+        # ── Create ──────────────────────────────────────────────────────────
+        resume_id               = str(uuid.uuid4())
         resume_dict["resume_id"] = resume_id
         resume_dict["created_at"] = now
         resume_dict["updated_at"] = now
-        await db["built_resumes"].insert_one(resume_dict)
-        return {"message": "Resume created successfully", "resume_id": resume_id}
+        await db_dep["built_resumes"].insert_one(resume_dict)
+
+        action_type  = "resume_created"
+        label        = f"Created resume: {resume.filename or 'Untitled'}"
+        icon         = "📄"
+        response_msg = "Resume created successfully"
+
+    # ── Log activity + push dashboard update ──────────────────────────────
+    if uid_obj:
+        try:
+            await db.activity_log.insert_one({
+                "user_id":        uid_obj,
+                "action_type":    action_type,
+                "label_override": label,
+                "created_at":     datetime.utcnow(),
+            })
+            from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
+            await emit_dashboard_event(uid_obj, "activity_update", {
+                "label":       label,
+                "time":        "just now",
+                "icon":        icon,
+                "action_type": action_type,
+            })
+            # On create, also update the resume count stat card
+            if not is_update:
+                await emit_dashboard_event(
+                    uid_obj, "stats_update", await _snapshot_stats(uid_obj)
+                )
+        except Exception as e:
+            print("Dashboard emit error (non-fatal):", e)
+
+    return {"message": response_msg, "resume_id": resume_id}
 
 
-# ─────────────────────────────────────────────
-# List all built resumes for the current user
-# ─────────────────────────────────────────────
+# ── List ───────────────────────────────────────────────────────────────────────
 
 @router.get("/list")
 async def list_resumes(
     current_user: dict = Depends(get_current_user),
-    db=Depends(get_db),
+    db_dep=Depends(get_db),
 ):
     user_id = current_user["sub"]
-    cursor = db["built_resumes"].find(
+    cursor  = db_dep["built_resumes"].find(
         {"user_id": user_id},
         {
-            "_id": 0,
-            "resume_id": 1,
-            "filename": 1,
-            "template": 1,
-            "created_at": 1,
-            "updated_at": 1,
-            "personal": 1,   # included so we can show name/role in the card
+            "_id": 0, "resume_id": 1, "filename": 1, "template": 1,
+            "created_at": 1, "updated_at": 1, "personal": 1,
         },
     ).sort("updated_at", -1)
     resumes = await cursor.to_list(length=50)
     return {"resumes": resumes}
 
 
-# ─────────────────────────────────────────────
-# Fetch a single resume (full data — for the editor)
-# ─────────────────────────────────────────────
+# ── Get single resume ──────────────────────────────────────────────────────────
 
 @router.get("/{resume_id}")
 async def get_resume(
     resume_id: str,
     current_user: dict = Depends(get_current_user),
-    db=Depends(get_db),
+    db_dep=Depends(get_db),
 ):
     user_id = current_user["sub"]
-    resume = await db["built_resumes"].find_one(
+    resume  = await db_dep["built_resumes"].find_one(
         {"resume_id": resume_id, "user_id": user_id},
         {"_id": 0},
     )
@@ -190,112 +225,56 @@ async def get_resume(
     return resume
 
 
-# ─────────────────────────────────────────────
-# Delete a resume
-# ─────────────────────────────────────────────
+# ── Delete ─────────────────────────────────────────────────────────────────────
 
 @router.delete("/delete/{resume_id}")
 async def delete_resume(
     resume_id: str,
     current_user: dict = Depends(get_current_user),
-    db=Depends(get_db),
+    db_dep=Depends(get_db),
 ):
     user_id = current_user["sub"]
-    result = await db["built_resumes"].delete_one(
+    uid_obj = await _try_get_uid(current_user)
+
+    # Grab filename before deleting (for the activity label)
+    doc = await db_dep["built_resumes"].find_one(
+        {"resume_id": resume_id, "user_id": user_id},
+        {"filename": 1},
+    )
+
+    result = await db_dep["built_resumes"].delete_one(
         {"resume_id": resume_id, "user_id": user_id}
     )
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Resume not found")
+
+    # ── Log + push ─────────────────────────────────────────────────────────
+    if uid_obj:
+        filename = doc.get("filename", "Untitled") if doc else "Untitled"
+        try:
+            await db.activity_log.insert_one({
+                "user_id":        uid_obj,
+                "action_type":    "resume_update",
+                "label_override": f"Deleted resume: {filename}",
+                "created_at":     datetime.utcnow(),
+            })
+            from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
+            await emit_dashboard_event(uid_obj, "activity_update", {
+                "label":       f"Deleted resume: {filename}",
+                "time":        "just now",
+                "icon":        "🗑️",
+                "action_type": "resume_update",
+            })
+            await emit_dashboard_event(
+                uid_obj, "stats_update", await _snapshot_stats(uid_obj)
+            )
+        except Exception as e:
+            print("Dashboard emit error (non-fatal):", e)
+
     return {"message": "Resume deleted successfully"}
 
 
-
-"""
-
-
-@router.post("/export-pdf")
-async def export_pdf(
-    resume: ResumeData,
-    current_user: dict = Depends(get_current_user),
-):
-    try:
-        from weasyprint import HTML
-        from jinja2 import Environment, FileSystemLoader
-
-        templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
-        env = Environment(loader=FileSystemLoader(templates_dir))
-        template = env.get_template("resume_modern.html")
-
-        html_content = template.render(resume=resume.model_dump())
-        pdf_bytes = HTML(string=html_content).write_pdf()
-
-        filename = f"{resume.personal.name or 'resume'}_resume.pdf".replace(" ", "_")
-
-        return StreamingResponse(
-            io.BytesIO(pdf_bytes),
-            media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
-        )
-
-    except ImportError:
-        raise HTTPException(
-            status_code=500,
-            detail="WeasyPrint not installed. Run: pip install weasyprint",
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
-
-
-@router.get("/export-pdf/{resume_id}")
-async def export_pdf_by_id(
-    resume_id: str,
-    current_user: dict = Depends(get_current_user),
-    db=Depends(get_db),
-):
-    user_id = current_user["sub"]
-    doc = await db["built_resumes"].find_one(
-        {"resume_id": resume_id, "user_id": user_id},
-        {"_id": 0},
-    )
-    if not doc:
-        raise HTTPException(status_code=404, detail="Resume not found")
-
-    try:
-        from weasyprint import HTML
-        from jinja2 import Environment, FileSystemLoader
-
-        templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
-        env = Environment(loader=FileSystemLoader(templates_dir))
-        template = env.get_template("resume_modern.html")
-
-        html_content = template.render(resume=doc)
-        pdf_bytes = HTML(string=html_content).write_pdf()
-
-        name = doc.get("personal", {}).get("name") or "resume"
-        filename = f"{name}_resume.pdf".replace(" ", "_")
-
-        return StreamingResponse(
-            io.BytesIO(pdf_bytes),
-            media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
-        )
-
-    except ImportError:
-        raise HTTPException(
-            status_code=500,
-            detail="WeasyPrint not installed. Run: pip install weasyprint",
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
-
-
-"""
-
-
-
-# ─────────────────────────────────────────────
-# AI: Generate Summary
-# ─────────────────────────────────────────────
+# ── AI: Generate Summary ───────────────────────────────────────────────────────
 
 @router.post("/ai/generate-summary")
 async def generate_summary(
@@ -323,15 +302,34 @@ Make it concise, impactful, and tailored for tech roles in the Indian job market
 
     try:
         summary = await groq_chat(system, user)
+
+        # ── Log AI summary generation ──────────────────────────────────────
+        uid_obj = await _try_get_uid(current_user)
+        if uid_obj:
+            try:
+                await db.activity_log.insert_one({
+                    "user_id":        uid_obj,
+                    "action_type":    "ai_suggestion",
+                    "label_override": "Generated AI Resume Summary",
+                    "created_at":     datetime.utcnow(),
+                })
+                from routes.dashboard_stream import emit_dashboard_event
+                await emit_dashboard_event(uid_obj, "activity_update", {
+                    "label":       "Generated AI Resume Summary",
+                    "time":        "just now",
+                    "icon":        "🤖",
+                    "action_type": "ai_suggestion",
+                })
+            except Exception as e:
+                print("Dashboard emit error (non-fatal):", e)
+
         return {"summary": summary}
     except Exception as e:
         print(f"Groq summary error: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate summary.")
 
 
-# ─────────────────────────────────────────────
-# AI: Enhance Bullet Point
-# ─────────────────────────────────────────────
+# ── AI: Enhance Bullet ─────────────────────────────────────────────────────────
 
 @router.post("/ai/enhance-bullet")
 async def enhance_bullet(
@@ -351,6 +349,27 @@ Make it:
 
     try:
         enhanced = await groq_chat(system, user)
+
+        # ── Log bullet enhancement ─────────────────────────────────────────
+        uid_obj = await _try_get_uid(current_user)
+        if uid_obj:
+            try:
+                await db.activity_log.insert_one({
+                    "user_id":        uid_obj,
+                    "action_type":    "ai_suggestion",
+                    "label_override": "Enhanced Resume Bullet with AI",
+                    "created_at":     datetime.utcnow(),
+                })
+                from routes.dashboard_stream import emit_dashboard_event
+                await emit_dashboard_event(uid_obj, "activity_update", {
+                    "label":       "Enhanced Resume Bullet with AI",
+                    "time":        "just now",
+                    "icon":        "✨",
+                    "action_type": "ai_suggestion",
+                })
+            except Exception as e:
+                print("Dashboard emit error (non-fatal):", e)
+
         return {"enhanced": enhanced}
     except Exception as e:
         print(f"Groq bullet error: {e}")

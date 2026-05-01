@@ -1,16 +1,19 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from data.career_data import career_data
+from auth import get_current_user
+from database import users_collection, db
 import httpx
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 router = APIRouter()
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL   = "llama-3.3-70b-versatile"
 
 # ── Intent patterns ────────────────────────────────────────────────────────────
 
@@ -59,7 +62,7 @@ def detect_intent(question: str) -> str:
     return "general"
 
 
-# ── Greeting — handled locally, no LLM call needed ────────────────────────────
+# ── Greeting ───────────────────────────────────────────────────────────────────
 
 GREETING_RESPONSE = """Hey there! 👋 I'm your AI Career Advisor on **Career Crafter**.
 
@@ -81,17 +84,17 @@ def build_career_context(career: str) -> str:
     if not data:
         return ""
 
-    skills = ", ".join(data.get("skills", []))
-    salary = data.get("salary", "")
+    skills      = ", ".join(data.get("skills", []))
+    salary      = data.get("salary", "")
     description = data.get("description", "")
 
-    roadmap = data.get("roadmap", {})
+    roadmap      = data.get("roadmap", {})
     roadmap_text = ""
     for level, steps in roadmap.items():
         roadmap_text += f"\n  {level}: {', '.join(steps)}"
 
     questions = data.get("questions", {})
-    qa_text = ""
+    qa_text   = ""
     for q, a in list(questions.items())[:3]:
         qa_text += f"\n  Q: {q}\n  A: {a[:120]}...\n"
 
@@ -174,8 +177,8 @@ Keep it concise and specific — avoid generic advice.""",
 # ── Prompt builder ─────────────────────────────────────────────────────────────
 
 def build_prompt(question: str, career: str) -> tuple[str, str]:
-    intent = detect_intent(question)
-    career_context = build_career_context(career)
+    intent             = detect_intent(question)
+    career_context     = build_career_context(career)
     intent_instruction = build_intent_instruction(intent, career)
 
     system_prompt = f"""You are an expert AI Career Advisor on Career Crafter, a platform for fresh graduates and students in India.
@@ -210,15 +213,26 @@ class AskRequest(BaseModel):
     career: str
 
 
+# ── Helper: get uid_obj from JWT, silently — used for logging only ─────────────
+
+async def _try_get_uid(current_user: dict):
+    """Returns ObjectId or None — never raises, so logging never breaks a route."""
+    try:
+        db_user = await users_collection.find_one({"email": current_user["sub"]})
+        return db_user["_id"] if db_user else None
+    except Exception:
+        return None
+
+
 # ── Routes ─────────────────────────────────────────────────────────────────────
 
 @router.post("/select")
 async def select_career(data: CareerRequest):
     response = {
-        "selected": data.category,
-        "data": None,
+        "selected":        data.category,
+        "data":            None,
         "compare_selected": data.compare_category,
-        "compare_data": None
+        "compare_data":    None,
     }
     if data.category:
         response["data"] = career_data.get(data.category)
@@ -228,13 +242,16 @@ async def select_career(data: CareerRequest):
 
 
 @router.post("/ask")
-async def ask_career(req: AskRequest):
+async def ask_career(
+    req: AskRequest,
+    current_user: dict = Depends(get_current_user),
+):
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="Missing GROQ API Key")
 
     intent = detect_intent(req.question)
 
-    # Greetings are handled locally — no LLM call, instant response
+    # Greetings handled locally — no LLM call, no activity log
     if intent == "greeting":
         return {"answer": GREETING_RESPONSE, "intent": "greeting"}
 
@@ -246,16 +263,16 @@ async def ask_career(req: AskRequest):
                 GROQ_URL,
                 headers={
                     "Authorization": f"Bearer {GROQ_API_KEY}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 json={
                     "model": GROQ_MODEL,
                     "messages": [
                         {"role": "system", "content": system_prompt},
-                        {"role": "user",   "content": user_message}
+                        {"role": "user",   "content": user_message},
                     ],
-                    "temperature": 0.7
-                }
+                    "temperature": 0.7,
+                },
             )
 
         data = response.json()
@@ -264,9 +281,29 @@ async def ask_career(req: AskRequest):
             print("Groq Error:", data)
             raise HTTPException(status_code=500, detail="LLM response error")
 
+        # ── Log activity + push dashboard event ───────────────────────────
+        uid_obj = await _try_get_uid(current_user)
+        if uid_obj:
+            try:
+                await db.activity_log.insert_one({
+                    "user_id":      uid_obj,
+                    "action_type":  "ai_suggestion",
+                    "label_override": f"Asked Career Advisor about {req.career}",
+                    "created_at":   datetime.utcnow(),
+                })
+                from routes.dashboard_stream import emit_dashboard_event
+                await emit_dashboard_event(uid_obj, "activity_update", {
+                    "label":       f"Asked Career Advisor about {req.career}",
+                    "time":        "just now",
+                    "icon":        "🤖",
+                    "action_type": "ai_suggestion",
+                })
+            except Exception as e:
+                print("Dashboard emit error (non-fatal):", e)
+
         return {
             "answer": data["choices"][0]["message"]["content"],
-            "intent": intent
+            "intent": intent,
         }
 
     except httpx.TimeoutException:

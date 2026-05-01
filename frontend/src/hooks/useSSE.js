@@ -41,7 +41,7 @@ export function useSSE() {
         es.addEventListener("init", (e) => {
             try {
                 const d = JSON.parse(e.data);
-                cosnsole.log("Data is : ", d);
+                console.log("Data is : ", d);
                 if (d.stats) setStats(d.stats);
                 if (d.activity) setActivity(d.activity);
                 setScore(d.score ?? null);

@@ -41,11 +41,11 @@ export function useSSE() {
         es.addEventListener("init", (e) => {
             try {
                 const d = JSON.parse(e.data);
-                console.log("Data is : ", d);
-                if (d.stats) setStats(d.stats);
-                if (d.activity) setActivity(d.activity);
-                setScore(d.score ?? null);
-                setAiTip(d.ai_tip ?? null);
+                console.log("Data is:", d);
+                if (d.stats)    setStats(d.stats);
+                setActivity(Array.isArray(d.activity) ? d.activity : []);  // ← always set
+                setScore(d.score   ?? null);
+                setAiTip(d.ai_tip  ?? null);
             } catch (err) {
                 console.error("[SSE] Failed to parse init event:", err);
             }

@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timezone
 from typing import AsyncIterator, Optional
 
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sse_starlette.sse import EventSourceResponse
 
@@ -31,11 +32,8 @@ _connections: dict[str, list[asyncio.Queue]] = {}
 
 async def emit_dashboard_event(user_id, event_type: str, payload: dict):
     """
-    Call this from any other router to push a live update to the user's dashboard.
-
-    Usage:
-        from routes.dashboard_stream import emit_dashboard_event
-        await emit_dashboard_event(db_user["_id"], "score_update", score_dict)
+    Call from any other router to push a live update to the user's dashboard.
+    Pass db_user["_id"] (ObjectId) as user_id.
     """
     uid = str(user_id)
     queues = _connections.get(uid, [])
@@ -51,30 +49,37 @@ async def emit_dashboard_event(user_id, event_type: str, payload: dict):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helper: resolve uid from JWT payload
-# get_current_user returns {"sub": email} — we need the MongoDB _id
+# Helper: resolve ObjectId from JWT payload
 # ─────────────────────────────────────────────────────────────────────────────
 
-async def _get_uid(current_user: dict):
+async def _get_uid(current_user: dict) -> ObjectId:
+    """Returns ObjectId — never a string."""
     db_user = await users_collection.find_one({"email": current_user["sub"]})
     if not db_user:
         raise HTTPException(status_code=401, detail="User not found")
-    return db_user["_id"]   # ObjectId
+    return db_user["_id"]  # ObjectId
+
+
+def _to_object_id(uid) -> ObjectId:
+    """Ensure uid is always an ObjectId regardless of what was passed in."""
+    if isinstance(uid, ObjectId):
+        return uid
+    return ObjectId(str(uid))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Snapshot helpers — query MongoDB and return plain dicts for SSE serialisation
+# Snapshot helpers — always receive and query with ObjectId
 # ─────────────────────────────────────────────────────────────────────────────
 
 async def _snapshot_stats(uid) -> dict:
+    uid = _to_object_id(uid)
+
     resume_count = await db.resumes.count_documents({"user_id": uid})
 
     scores = await db.ats_results.find(
         {"user_id": uid},
-        sort=[("created_at", -1)],
-        limit=2,
         projection={"overall_score": 1},
-    ).to_list(length=2)
+    ).sort("created_at", -1).limit(2).to_list(length=2)
 
     ats_score = round(scores[0]["overall_score"], 1) if scores else None
     ats_delta = None
@@ -103,12 +108,12 @@ async def _snapshot_stats(uid) -> dict:
 
 
 async def _snapshot_activity(uid, limit=6) -> list[dict]:
+    uid = _to_object_id(uid)
+
     docs = await db.activity_log.find(
         {"user_id": uid},
-        sort=[("created_at", -1)],
-        limit=limit,
         projection={"action_type": 1, "created_at": 1, "label_override": 1},
-    ).to_list(length=limit)
+    ).sort("created_at", -1).limit(limit).to_list(length=limit)
 
     items = []
     for doc in docs:
@@ -123,6 +128,8 @@ async def _snapshot_activity(uid, limit=6) -> list[dict]:
 
 
 async def _snapshot_score(uid) -> Optional[dict]:
+    uid = _to_object_id(uid)
+
     latest = await db.ats_results.find_one(
         {"user_id": uid},
         sort=[("created_at", -1)],
@@ -146,6 +153,8 @@ async def _snapshot_score(uid) -> Optional[dict]:
 
 
 async def _snapshot_tip(uid) -> Optional[dict]:
+    uid = _to_object_id(uid)
+
     doc = await db.ai_tips.find_one(
         {"user_id": uid, "actioned": {"$ne": True}},
         sort=[("created_at", -1)],
@@ -161,33 +170,39 @@ async def _snapshot_tip(uid) -> Optional[dict]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SSE generator
+# SSE generator — passes ObjectId to all snapshot functions
 # ─────────────────────────────────────────────────────────────────────────────
 
 HEARTBEAT_INTERVAL = 25  # seconds — stays under Render's 55s idle timeout
 
 
-async def _event_generator(request: Request, uid: str) -> AsyncIterator[dict]:
+async def _event_generator(request: Request, uid_obj: ObjectId) -> AsyncIterator[dict]:
+    """uid_obj is always an ObjectId here."""
     queue: asyncio.Queue = asyncio.Queue(maxsize=50)
+    uid_str = str(uid_obj)
 
-    _connections.setdefault(uid, []).append(queue)
-    logger.info("SSE connected: user=%s  open_connections=%d", uid, len(_connections[uid]))
+    _connections.setdefault(uid_str, []).append(queue)
+    logger.info("SSE connected: user=%s  open_connections=%d", uid_str, len(_connections[uid_str]))
 
     try:
         # 1. Push full snapshot immediately on connect
         stats, activity, score, tip = await asyncio.gather(
-            _snapshot_stats(uid),
-            _snapshot_activity(uid),
-            _snapshot_score(uid),
-            _snapshot_tip(uid),
+            _snapshot_stats(uid_obj),
+            _snapshot_activity(uid_obj),
+            _snapshot_score(uid_obj),
+            _snapshot_tip(uid_obj),
         )
+
+        logger.info("SSE init snapshot: stats=%s activity_count=%d score=%s",
+                    stats, len(activity), score)
+
         yield {
             "event": "init",
             "data": json.dumps({
-                "stats": stats,
+                "stats":    stats,
                 "activity": activity,
-                "score": score,
-                "ai_tip": tip,
+                "score":    score,
+                "ai_tip":   tip,
             }),
         }
 
@@ -200,7 +215,7 @@ async def _event_generator(request: Request, uid: str) -> AsyncIterator[dict]:
                 msg = await asyncio.wait_for(queue.get(), timeout=HEARTBEAT_INTERVAL)
                 yield {
                     "event": msg["event"],
-                    "data": json.dumps(msg["data"]),
+                    "data":  json.dumps(msg["data"]),
                 }
             except asyncio.TimeoutError:
                 yield {"event": "ping", "data": ""}
@@ -208,12 +223,12 @@ async def _event_generator(request: Request, uid: str) -> AsyncIterator[dict]:
     except asyncio.CancelledError:
         pass
     finally:
-        queues = _connections.get(uid, [])
+        queues = _connections.get(uid_str, [])
         if queue in queues:
             queues.remove(queue)
         if not queues:
-            _connections.pop(uid, None)
-        logger.info("SSE disconnected: user=%s", uid)
+            _connections.pop(uid_str, None)
+        logger.info("SSE disconnected: user=%s", uid_str)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -225,63 +240,15 @@ async def dashboard_stream(
     request: Request,
     current_user: dict = Depends(get_current_user),
 ):
-    # ── resolve MongoDB _id from JWT sub (email) ──────────────────────────
-    uid_obj = await _get_uid(current_user)
-    uid = str(uid_obj)
+    uid_obj = await _get_uid(current_user)  # ObjectId
+    logger.info("SSE request: email=%s uid=%s", current_user["sub"], uid_obj)
 
     return EventSourceResponse(
-        _event_generator(request, uid),
+        _event_generator(request, uid_obj),  # pass ObjectId, not string
         headers={
-            "Access-Control-Allow-Origin": FRONTEND_URL,
+            "Access-Control-Allow-Origin":  FRONTEND_URL,
             "Access-Control-Allow-Credentials": "true",
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",   # disables Nginx/Render proxy buffering
+            "Cache-Control":   "no-cache",
+            "X-Accel-Buffering": "no",
         },
     )
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Emitting events from other routers — copy-paste snippets
-# ─────────────────────────────────────────────────────────────────────────────
-#
-# IMPORTANT: pass db_user["_id"] (ObjectId), not current_user["sub"] (email)
-#
-# ── After ATS analysis ───────────────────────────────────────────────────────
-#
-#   from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
-#
-#   db_user = await users_collection.find_one({"email": current_user["sub"]})
-#   uid = db_user["_id"]
-#
-#   await emit_dashboard_event(uid, "score_update", {
-#       "overall": 82, "keywords": 88, "skills": 76, "impact": 82, "format": 92
-#   })
-#   await emit_dashboard_event(uid, "stats_update", await _snapshot_stats(uid))
-#   await emit_dashboard_event(uid, "activity_update", {
-#       "label": "Analysed Resume", "time": "just now",
-#       "icon": "📊", "action_type": "ats_analysis"
-#   })
-#
-# ── After resume upload ──────────────────────────────────────────────────────
-#
-#   await emit_dashboard_event(uid, "activity_update", {
-#       "label": "Uploaded Resume", "time": "just now",
-#       "icon": "📄", "action_type": "resume_created"
-#   })
-#   await emit_dashboard_event(uid, "stats_update", await _snapshot_stats(uid))
-#
-# ── After category prediction ────────────────────────────────────────────────
-#
-#   await emit_dashboard_event(uid, "stats_update", await _snapshot_stats(uid))
-#   await emit_dashboard_event(uid, "activity_update", {
-#       "label": "Job Category Predicted", "time": "just now",
-#       "icon": "🧠", "action_type": "category_pred"
-#   })
-#
-# ── After AI tip generated ───────────────────────────────────────────────────
-#
-#   await emit_dashboard_event(uid, "tip_update", {
-#       "tip": "Add 'Kubernetes' to boost your score by ~9 pts.",
-#       "action_label": "Fix now →",
-#       "action_path": "/skill-matcher"
-#   })

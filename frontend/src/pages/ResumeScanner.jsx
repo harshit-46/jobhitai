@@ -311,7 +311,7 @@ function ResumeScannerPage() {
         form.append("file", file);
 
         try {
-            const res = await fetch(`${API}/api/ats/score-file`, {
+            const res = await fetch(`${API}/ats/score-file`, {
                 method: "POST", body: form, credentials: "include",
             });
             if (!res.ok) {

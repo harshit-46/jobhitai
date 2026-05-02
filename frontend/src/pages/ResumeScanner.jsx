@@ -495,7 +495,7 @@ export default function ResumeScanner() {
                 <Sidebar user={user} onLogout={() => { logout(); navigate("/login"); }} onClick={(p) => navigate(p)} />
                 <Topbar />
                 <main style={{ marginLeft: 256, paddingTop: 68, flex: 1, minHeight: "100vh", overflowY: "auto" }}>
-                    <div style={{ maxWidth: 1000, margin: "0 auto", padding: "26px 28px" }}>
+                    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "26px 28px" }}>
                         <ResumeScannerPage />
                     </div>
                 </main>

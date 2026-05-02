@@ -145,7 +145,7 @@ async def _call_groq(resume_text: str) -> ATSResponse:
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
-@router.post("/ats/score-text", response_model=ATSResponse, summary="Score resume from plain text")
+@router.post("/score-text", response_model=ATSResponse, summary="Score resume from plain text")
 async def score_text(
     resume_text: str = Form(..., description="Plain text content of the resume"),
 ):
@@ -154,7 +154,7 @@ async def score_text(
     return await _call_groq(resume_text)
 
 
-@router.post("/ats/score-file", response_model=ATSResponse, summary="Score resume from uploaded file")
+@router.post("/score-file", response_model=ATSResponse, summary="Score resume from uploaded file")
 async def score_file(
     file: UploadFile = File(..., description="Resume file (.pdf, .docx, or .txt)"),
 ):

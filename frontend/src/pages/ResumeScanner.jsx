@@ -360,7 +360,7 @@ function ResumeScannerPage() {
             const form = new FormData();
             form.append("file", file);
 
-            const res = await fetch(`${API}/api/resume/scan`, {
+            const res = await fetch(`${API}/resume/scan`, {
                 method:      "POST",
                 body:        form,
                 credentials: "include",

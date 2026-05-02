@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Briefcase, Anchor, User, ChevronUp , BotIcon } from "lucide-react";
+import { Home, FileText, BarChart, Brain, Folder, Settings, LogOut, Briefcase, Anchor, User, ChevronUp , BotIcon, ScanBarcodeIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 
@@ -24,6 +24,7 @@ const t = {
 const MENU = [
     { name: "Dashboard",      icon: Home,     path: "/dashboard" },
     { name: "Resume Builder", icon: FileText,  path: "/resume-builder" },
+    { name: "Resume Scanner", icon: ScanBarcodeIcon,  path: "/resume-scanner" },
     { name: "Career Advisor", icon: BarChart,  path: "/career-advisor" },
     { name: "Skill Matcher",  icon: Brain,     path: "/skill-matcher" },
     { name: "Job Category",   icon: Briefcase, path: "/job-category" },

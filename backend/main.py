@@ -25,6 +25,7 @@ from routes.resume_upload import router as resume_upload_router
 from routes.profile import router as profile_router
 from routes.dashboard_router import router as dashboard_router
 from routes.dashboard_stream import router as dashboard_stream_router
+from routes.ats import router as ats_router
 
 # ---------------- CONFIG ----------------
 config = Config('.env')
@@ -59,6 +60,7 @@ app.include_router(resume_upload_router, prefix="/api/resume", tags=["resume-upl
 app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
 app.include_router(dashboard_router, prefix="/api/dashboard", tags=["dashboard"])
 app.include_router(dashboard_stream_router, prefix="/api/dashboard", tags=["dashboard-stream"])
+app.include_router(ats_router, prefix="/api/ats", tags=["ats"])
 
 # ---------------- UTILS ----------------
 def generate_token():

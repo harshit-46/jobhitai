@@ -283,7 +283,7 @@ async def upload_resume(
     from database import db
     await db.activity_log.insert_one({
         "user_id":    uid_obj,
-        "action_type": "resume_created",
+        "action_type": "resume_uploaded",
         "created_at": datetime.utcnow(),
     })
 
@@ -295,7 +295,7 @@ async def upload_resume(
             "label":       "Uploaded Resume",
             "time":        "just now",
             "icon":        "📄",
-            "action_type": "resume_created",
+            "action_type": "resume_uploaded",
         })
     except Exception as e:
         print("Dashboard emit error (non-fatal):", e)

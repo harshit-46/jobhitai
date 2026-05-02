@@ -22,6 +22,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CareerGuru from "./pages/CareerGuru";
 import ProfileUpdatePage from "./pages/ProfileUpdatePage";
+import ResumeScanner from "./pages/ResumeScanner";
 
 function App() {
   return (
@@ -55,6 +56,12 @@ function App() {
           <Route path="/resume-builder/:resumeId?" element={
             <ProtectedRoute>
               <ResumeBuilder />
+            </ProtectedRoute>}
+          />
+
+          <Route path="/resume-scanner" element={
+            <ProtectedRoute>
+              <ResumeScanner />
             </ProtectedRoute>}
           />
 

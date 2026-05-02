@@ -73,8 +73,9 @@ def _to_object_id(uid) -> ObjectId:
 
 async def _snapshot_stats(uid) -> dict:
     uid = _to_object_id(uid)
+    uid_str = str(uid)
 
-    resume_count = await db.resumes.count_documents({"user_id": uid})
+    resume_count = await db.resumes.count_documents({"user_id": uid_str})
 
     scores = await db.ats_results.find(
         {"user_id": uid},

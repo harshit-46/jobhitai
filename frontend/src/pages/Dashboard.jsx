@@ -699,7 +699,7 @@ export default function Dashboard() {
         if (user) setShowUpload(!user?.has_resume);
     }, [user]);
 
-    const handleClick = (path) => navigate(path);
+    const handleClick = (path) => navigate(`/${path}`);
     const handleLogout = () => { logout(); navigate("/login"); };
 
     return (

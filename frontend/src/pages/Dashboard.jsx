@@ -463,7 +463,7 @@ function useFlash(value) {
 // ─────────────────────────────────────────────────────────────────────────────
 // DashboardPage
 // ─────────────────────────────────────────────────────────────────────────────
-function DashboardPage({ stats, activity, score, aiTip, connected, error, onFeatureClick }) {
+function DashboardPage({ stats, activity, score, aiTip, connected, error, onFeatureClick, navigate }) {
     const statCards = buildStatCards(stats);
     const scoreFlash = useFlash(score?.overall);
     const statsFlash = useFlash(stats?.ats_score);
@@ -734,6 +734,7 @@ export default function Dashboard() {
                             connected={connected}
                             error={error}
                             onFeatureClick={handleClick}
+                            navigate={navigate}
                         />
                     </div>
                 </main>

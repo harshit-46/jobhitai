@@ -570,7 +570,7 @@ function DashboardPage({ stats, activity, score, aiTip, connected, error, onFeat
                 >
                     <div style={{ padding: "16px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <span style={{ fontSize: 13, fontWeight: 500, color: t.text }}>Recent Activity</span>
-                        <span style={{ fontSize: 11, color: t.lime, cursor: "pointer" }}>View all →</span>
+                        <span style={{ fontSize: 11, color: t.lime, cursor: "pointer" }} onClick = { () => navigate("activity")}>View all →</span>
                     </div>
 
                     {activity === null ? (

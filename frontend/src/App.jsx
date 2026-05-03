@@ -23,6 +23,7 @@ import ResetPassword from "./pages/ResetPassword";
 import CareerGuru from "./pages/CareerGuru";
 import ProfileUpdatePage from "./pages/ProfileUpdatePage";
 import ResumeScanner from "./pages/ResumeScanner";
+import ActivityLog from "./pages/ActivityLog";
 
 function App() {
   return (
@@ -92,6 +93,12 @@ function App() {
           <Route path="/career-guru" element={
             <ProtectedRoute>
               <CareerGuru />
+            </ProtectedRoute>}
+          />
+
+          <Route path="/activity" element={
+            <ProtectedRoute>
+              <ActivityLog />
             </ProtectedRoute>}
           />
 

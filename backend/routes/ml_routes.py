@@ -134,8 +134,7 @@ async def _resolve_user(current_user: dict):
 @router.post("/predict/resumejobmatcher")
 async def match_skills(
     file: UploadFile = File(...),
-    job_description: str = Form(...),
-    current_user=Depends(get_current_user)
+    job_description: str = Form(...)
 ):
     file_bytes = await file.read()
 
@@ -145,56 +144,6 @@ async def match_skills(
         files={"file": ("resume.pdf", file_bytes)},
         data={"job_description": job_description}
     )
-
-    if "error" not in result:
-        db_user = await _resolve_user(current_user)
-        uid_obj = db_user["_id"]
-
-        # ── Extract scores from ML response ──────────────────────────────
-        # Adjust these keys to match your actual ML service response shape
-        overall_score  = result.get("ats_score") or result.get("score") or result.get("overall_score") or 0
-        keyword_score  = result.get("keyword_score",  overall_score)
-        skills_score   = result.get("skills_score",   overall_score)
-        impact_score   = result.get("impact_score",   overall_score)
-        format_score   = result.get("format_score",   overall_score)
-
-        # ── Save ATS result to MongoDB ────────────────────────────────────
-        await db.ats_results.insert_one({
-            "user_id":       uid_obj,
-            "overall_score": overall_score,
-            "keyword_score": keyword_score,
-            "skills_score":  skills_score,
-            "impact_score":  impact_score,
-            "format_score":  format_score,
-            "created_at":    datetime.utcnow(),
-        })
-
-        # ── Log activity ──────────────────────────────────────────────────
-        await db.activity_log.insert_one({
-            "user_id":     uid_obj,
-            "action_type": "ats_analysis",
-            "created_at":  datetime.utcnow(),
-        })
-
-        # ── Push live dashboard updates ───────────────────────────────────
-        try:
-            from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
-            await emit_dashboard_event(uid_obj, "score_update", {
-                "overall":  int(overall_score),
-                "keywords": int(keyword_score),
-                "skills":   int(skills_score),
-                "impact":   int(impact_score),
-                "format":   int(format_score),
-            })
-            await emit_dashboard_event(uid_obj, "stats_update", await _snapshot_stats(uid_obj))
-            await emit_dashboard_event(uid_obj, "activity_update", {
-                "label":       "Analysed Resume",
-                "time":        "just now",
-                "icon":        "📊",
-                "action_type": "ats_analysis",
-            })
-        except Exception as e:
-            print("Dashboard emit error (non-fatal):", e)
 
     return result
 

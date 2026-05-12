@@ -427,7 +427,7 @@ function ResumeScannerPage() {
                             {[
                                 { n: "01", title: "Resume parsed",      desc: "Text is extracted from your PDF or DOCX and cleaned of formatting noise." },
                                 { n: "02", title: "ATS score computed", desc: "Our ML model evaluates formatting, keywords, sections, and readability." },
-                                { n: "03", title: "AI analysis",        desc: "Groq LLM generates a tailored verdict, strengths, issues, and fix tips." },
+                                { n: "03", title: "AI analysis",        desc: "Our Models generates a tailored verdict, strengths, issues, and fix tips." },
                                 { n: "04", title: "Result returned",    desc: "You get a full breakdown with an actionable improvement plan." },
                             ].map(({ n, title, desc }) => (
                                 <div key={n} style={{ display: "flex", gap: 14, marginBottom: 16 }}>

@@ -94,8 +94,13 @@ from auth import get_current_user
 from database import users_collection, db
 import httpx
 from datetime import datetime
+import os
 
 router = APIRouter()
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL   = "llama-3.3-70b-versatile"
 
 # ML Service Base URL
 ML_API = "https://jobhitai-ml-service.onrender.com"

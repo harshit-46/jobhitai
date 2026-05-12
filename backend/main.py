@@ -77,7 +77,10 @@ class ResetPasswordRequest(BaseModel):
 # ---------------- ROOT ----------------
 @app.get("/")
 async def root():
-    return {"message": "API running"}
+    return {
+        "message": "API running",
+        "frontend_url": os.getenv("FRONTEND_URL")  # ← add this
+    }
 
 # ---------------- SIGNUP ----------------
 @app.post("/api/signup")

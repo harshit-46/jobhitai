@@ -13,8 +13,6 @@ const GREEN    = "#86efac";
 const GOLD     = "#fcd34d";
 const PINK     = "#f9a8d4";
 
-/*
-
 const CATEGORY_META = {
     "Data Science": {
         color: ACCENT, bg: "rgba(232,255,71,0.07)", border: "rgba(232,255,71,0.2)",
@@ -71,9 +69,6 @@ const CATEGORY_META = {
         skills: ["JIRA", "SQL", "Agile", "Documentation", "Wireframing"],
     },
 };
-
-
-*/
 
 function getFallbackMeta(prediction) {
     return {

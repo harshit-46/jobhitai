@@ -246,10 +246,24 @@ export default function ResumeClassifier() {
         const form = new FormData();
         form.append("file", file);
         try {
-            const res = await fetch("https://jobhitai-server.onrender.com/predict/job", { method:"POST", body:form, credentials:"include" });
+            const res = await fetch("https://jobhitai-server.onrender.com/predict/job", { 
+                method: "POST", 
+                body: form, 
+                credentials: "include" 
+            });
             if (!res.ok) { const err = await res.text(); console.error("Backend error:", err); throw new Error("Server error"); }
             const data = await res.json();
-            setPrediction(data.prediction || "Unknown Role");
+    
+            if (data.error) {
+                setError(data.status === 429
+                    ? "Our AI is busy — please wait a moment and try again."
+                    : "Something went wrong. Please try again."
+                );
+                setLoading(false);
+                return;
+            }
+    
+            setPrediction(data.predicted_category || "Unknown Role");  // ← was data.prediction
         } catch (err) {
             setError("Backend not reachable. Make sure the server is running.");
         }

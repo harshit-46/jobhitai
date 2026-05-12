@@ -404,7 +404,9 @@ function buildStatCards(stats) {
     const deltaSign = (v) => v != null ? (v >= 0 ? `+${v}` : `${v}`) : null;
     return [
         {
-            title: "Resumes", value: "12", delta: "+3 this month", positive: true,
+            title: "Resumes", value: stats ? String(stats.resume_count) : "—",
+            delta: stats.resume_count > 0 ? `${stats.resume_count} total` : "No resumes yet",
+            positive: stats.resume_count > 0,
             icon: "📄",
             iconBg: "rgba(232,255,71,0.1)", iconBorder: "rgba(232,255,71,0.2)",
             accent: "#E8FF47", cardBorder: "rgba(232,255,71,0.2)",

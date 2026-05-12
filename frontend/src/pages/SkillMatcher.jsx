@@ -171,7 +171,14 @@ export default function SkillMatcher() {
             const res = await fetch("https://jobhitai-server.onrender.com/predict/resumejobmatcher", { method:"POST", body:form, credentials: "include" });
             if (!res.ok) throw new Error("Server error");
             const data = await res.json();
-            setScore(data.score);
+            const score = data.ats_score ?? data.score ?? data.overall_score ?? data.similarity_score;
+
+            if (score == null) {
+                setError("Unexpected response from server.");
+                console.error("Full response:", data);
+            } else {
+                setScore(score);
+            }
         } catch (err) {
             console.error(err);
             setError("Backend not reachable.");

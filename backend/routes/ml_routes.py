@@ -155,55 +155,112 @@ async def predict_job(
     file: UploadFile = File(...),
     current_user=Depends(get_current_user)
 ):
+    import pdfplumber, io
+
+    # ── Extract text from PDF ──────────────────────────────────────────────
     file_bytes = await file.read()
+    text = ""
+    try:
+        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+            for page in pdf.pages:
+                text += (page.extract_text() or "") + "\n"
+    except Exception as e:
+        raise HTTPException(400, f"Could not read PDF: {e}")
 
-    result = await call_ml_service(
-        "POST",
-        "/api/ml/resume",
-        files={"resume": (file.filename, file_bytes)}
-    )
+    if not text.strip():
+        raise HTTPException(400, "Resume appears to be empty or unreadable.")
 
-    if "error" not in result:
-        db_user = await _resolve_user(current_user)
-        uid_obj = db_user["_id"]
+    # ── Call Groq ──────────────────────────────────────────────────────────
+    system_prompt = """You are a resume analysis expert. Given a resume, predict the most suitable job category.
 
-        # ── Extract predicted category from ML response ───────────────────
-        # Adjust key to match your ML service's actual response
-        predicted_category = (
-            result.get("predicted_category")
-            or result.get("category")
-            or result.get("job_category")
-            or result.get("prediction")
-        )
+Choose ONLY from these categories:
+Java Developer, Testing, DevOps Engineer, Python Developer, Web Designing,
+HR, Hadoop, Blockchain, ETL Developer, Operations Manager, Data Science,
+Sales, Mechanical Engineer, Arts, Database, Electrical Engineering,
+Health and Fitness, PMO, Business Analyst, DotNet Developer, Automation Testing,
+Network Security Engineer, SAP Developer, Civil Engineer, Advocate
 
-        if predicted_category:
-            # ── Save prediction to MongoDB ────────────────────────────────
-            await db.category_predictions.insert_one({
-                "user_id":            uid_obj,
-                "predicted_category": predicted_category,
-                "created_at":         datetime.utcnow(),
-            })
+Respond ONLY with a valid JSON object — no explanation, no markdown, no extra text:
+{"predicted_category": "<category>", "confidence": "<High|Medium|Low>", "reason": "<one sentence>"}"""
 
-            # ── Log activity ──────────────────────────────────────────────
-            await db.activity_log.insert_one({
-                "user_id":     uid_obj,
+    user_message = f"Resume:\n{text[:4000]}"  # Groq context is large but keep it focused
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                GROQ_URL,
+                headers={
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": GROQ_MODEL,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user",   "content": user_message},
+                    ],
+                    "temperature": 0.2,  # low temp for consistent classification
+                },
+            )
+
+        data = response.json()
+
+        if "choices" not in data:
+            print("Groq Error:", data)
+            raise HTTPException(500, "LLM response error")
+
+        import json as json_lib
+        raw = data["choices"][0]["message"]["content"].strip()
+
+        # Strip markdown fences if Groq wraps in ```json
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+
+        result = json_lib.loads(raw.strip())
+
+    except httpx.TimeoutException:
+        raise HTTPException(504, "Groq timed out.")
+    except json_lib.JSONDecodeError:
+        raise HTTPException(500, "Could not parse Groq response.")
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("Groq job predict error:", e)
+        raise HTTPException(500, "Failed to predict job category.")
+
+    # ── Save to MongoDB + log activity ─────────────────────────────────────
+    db_user = await _resolve_user(current_user)
+    uid_obj = db_user["_id"]
+
+    predicted_category = result.get("predicted_category")
+
+    if predicted_category:
+        await db.category_predictions.insert_one({
+            "user_id":            uid_obj,
+            "predicted_category": predicted_category,
+            "confidence":         result.get("confidence"),
+            "created_at":         datetime.utcnow(),
+        })
+
+        await db.activity_log.insert_one({
+            "user_id":     uid_obj,
+            "action_type": "category_pred",
+            "created_at":  datetime.utcnow(),
+        })
+
+        try:
+            from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
+            await emit_dashboard_event(uid_obj, "stats_update", await _snapshot_stats(uid_obj))
+            await emit_dashboard_event(uid_obj, "activity_update", {
+                "label":       "Job Category Predicted",
+                "time":        "just now",
+                "icon":        "🧠",
                 "action_type": "category_pred",
-                "created_at":  datetime.utcnow(),
             })
-
-            # ── Push live dashboard updates ───────────────────────────────
-            try:
-                from routes.dashboard_stream import emit_dashboard_event, _snapshot_stats
-                updated_stats = await _snapshot_stats(uid_obj)
-                await emit_dashboard_event(uid_obj, "stats_update", updated_stats)
-                await emit_dashboard_event(uid_obj, "activity_update", {
-                    "label":       "Job Category Predicted",
-                    "time":        "just now",
-                    "icon":        "🧠",
-                    "action_type": "category_pred",
-                })
-            except Exception as e:
-                print("Dashboard emit error (non-fatal):", e)
+        except Exception as e:
+            print("Dashboard emit error (non-fatal):", e)
 
     return result
 
